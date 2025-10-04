@@ -1,0 +1,27 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# R files
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# GloVe embeddings (large files)
+*.txt
+glove*.txt
+
+# API keys
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# Output files
+*.csv
+*.rds
+*.png
+*.pdf
