@@ -165,13 +165,13 @@ generate_labels_for_all_factors <- function(prompts_list, defining_items, questi
     # Leave-one-out prompts
     l1o <- defining_items[[i]]$item
     loo_labels <- map_dfr(seq_along(l1o), function(j) {
-      reduced_items <- defining_items[[i]]$item[-j]
-      reduced_df <- tibble(item = reduced_items) %>%
+      reduced_items_df <- defining_items[[i]][-j, ]  # Keep loading info
+      reduced_df <- reduced_items_df %>%
         left_join(question_texts, by = c("item" = "question_id"))
-      
+
       reduced_prompt <- paste0(
         "These questionnaire items (subset) load on the same factor:\n",
-        paste0("* ", reduced_df$item, ": ", reduced_df$item_text, collapse = "\n"),
+        paste0("* ", reduced_df$item, " (loading: ", round(abs(reduced_df$loading), 2), "): ", reduced_df$item_text, collapse = "\n"),
         "\nProvide a concise 1–3 word noun phrase that best names the construct. Return only the phrase.\nLabel:"
       )
       
