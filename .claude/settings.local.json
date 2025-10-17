@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Read(//Users/devon7y/**)",
-      "Bash(git commit -m \"Merge remote repository, preserve local CLAUDE.md and save remote as CLAUDE_old.md\")"
+      "Bash(git commit -m \"Merge remote repository, preserve local CLAUDE.md and save remote as CLAUDE_old.md\")",
+      "Bash(pip install pandas datasets transformers torch scikit-learn)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install pandas datasets transformers torch scikit-learn)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/personality.py\")"
     ],
     "deny": [],
     "ask": []
