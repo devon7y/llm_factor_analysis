@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/devon7y/**)"
+      "Read(//Users/devon7y/**)",
+      "Bash(git commit -m \"Merge remote repository, preserve local CLAUDE.md and save remote as CLAUDE_old.md\")"
     ],
     "deny": [],
     "ask": []
