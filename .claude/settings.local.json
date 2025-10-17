@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/devon7y/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
