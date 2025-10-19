@@ -7,7 +7,10 @@
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install pandas datasets transformers torch scikit-learn)",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/personality.py\")",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip list)",
-      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install ipykernel)"
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install ipykernel)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install \"sentence-transformers>=2.7.0\")",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install psutil)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install accelerate)"
     ],
     "deny": [],
     "ask": []
