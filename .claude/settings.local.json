@@ -14,7 +14,11 @@
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install wordfreq)",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/download_words.py\")",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install nltk)",
-      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/parse_constructs.py\")"
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/parse_constructs.py\")",
+      "Bash(python \"/Users/devon7y/VS Code/LLM Factor Analysis/text_list_to_csv.py\" constructs2.txt)",
+      "Bash(python \"/Users/devon7y/VS Code/LLM Factor Analysis/combine_constructs.py\")",
+      "Bash(python \"/Users/devon7y/VS Code/LLM Factor Analysis/combine_constructs.py\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/combined_constructs.csv\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/wordfreq_top60000.csv\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/wordfreq_top60000_with_constructs.csv\")",
+      "Bash(cat \"/Users/devon7y/VS Code/LLM Factor Analysis/qwen3_factor_analysis.ipynb\")"
     ],
     "deny": [],
     "ask": []

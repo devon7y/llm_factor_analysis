@@ -52,7 +52,19 @@ def parse_constructs(input_file, output_file):
         print(f"  {i}. {word}")
 
 if __name__ == "__main__":
-    input_file = "/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/constructs.txt"
-    output_file = "/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/constructs.csv"
+    import sys
+
+    if len(sys.argv) < 2:
+        # Default behavior
+        input_file = "/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/constructs.txt"
+        output_file = "/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/constructs.csv"
+    else:
+        # Accept input file as argument
+        input_file = sys.argv[1]
+        # Generate output filename (replace .txt with .csv)
+        if input_file.endswith('.txt'):
+            output_file = input_file.replace('.txt', '.csv')
+        else:
+            output_file = input_file + '.csv'
 
     parse_constructs(input_file, output_file)
