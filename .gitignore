@@ -10,7 +10,6 @@ env/
 *.Rproj
 
 # GloVe embeddings (large files)
-*.txt
 glove*.txt
 
 # API keys
@@ -21,7 +20,5 @@ glove*.txt
 .DS_Store
 
 # Output files
-*.csv
 *.rds
-*.png
 *.pdf

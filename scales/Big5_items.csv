@@ -1,0 +1,51 @@
+code,item,factor
+E1,I am the life of the party.,Extraversion
+E2,I don't talk a lot.,Extraversion
+E3,I feel comfortable around people.,Extraversion
+E4,I keep in the background.,Extraversion
+E5,I start conversations.,Extraversion
+E6,I have little to say.,Extraversion
+E7,I talk to a lot of different people at parties.,Extraversion
+E8,I don't like to draw attention to myself.,Extraversion
+E9,I don't mind being the center of attention.,Extraversion
+E10,I am quiet around strangers.,Extraversion
+N1,I get stressed out easily.,Neuroticism
+N2,I am relaxed most of the time.,Neuroticism
+N3,I worry about things.,Neuroticism
+N4,I seldom feel blue.,Neuroticism
+N5,I am easily disturbed.,Neuroticism
+N6,I get upset easily.,Neuroticism
+N7,I change my mood a lot.,Neuroticism
+N8,I have frequent mood swings.,Neuroticism
+N9,I get irritated easily.,Neuroticism
+N10,I often feel blue.,Neuroticism
+A1,I feel little concern for others.,Agreeableness
+A2,I am interested in people.,Agreeableness
+A3,I insult people.,Agreeableness
+A4,I sympathize with others' feelings.,Agreeableness
+A5,I am not interested in other people's problems.,Agreeableness
+A6,I have a soft heart.,Agreeableness
+A7,I am not really interested in others.,Agreeableness
+A8,I take time out for others.,Agreeableness
+A9,I feel others' emotions.,Agreeableness
+A10,I make people feel at ease.,Agreeableness
+C1,I am always prepared.,Conscientiousness
+C2,I leave my belongings around.,Conscientiousness
+C3,I pay attention to details.,Conscientiousness
+C4,I make a mess of things.,Conscientiousness
+C5,I get chores done right away.,Conscientiousness
+C6,I often forget to put things back in their proper place.,Conscientiousness
+C7,I like order.,Conscientiousness
+C8,I shirk my duties.,Conscientiousness
+C9,I follow a schedule.,Conscientiousness
+C10,I am exacting in my work.,Conscientiousness
+O1,I have a rich vocabulary.,Openness
+O2,I have difficulty understanding abstract ideas.,Openness
+O3,I have a vivid imagination.,Openness
+O4,I am not interested in abstract ideas.,Openness
+O5,I have excellent ideas.,Openness
+O6,I do not have a good imagination.,Openness
+O7,I am quick to understand things.,Openness
+O8,I use difficult words.,Openness
+O9,I spend time reflecting on things.,Openness
+O10,I am full of ideas.,Openness
