@@ -22,3 +22,5 @@ glove*.txt
 # Output files
 *.rds
 *.pdf
+*.npz
+*.code-workspace
