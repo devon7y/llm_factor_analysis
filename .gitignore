@@ -23,4 +23,5 @@ glove*.txt
 *.rds
 *.pdf
 *.npz
+*.png
 *.code-workspace
