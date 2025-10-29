@@ -25,3 +25,4 @@ glove*.txt
 *.npz
 *.png
 *.code-workspace
+*.md

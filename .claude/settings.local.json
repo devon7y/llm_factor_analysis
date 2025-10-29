@@ -20,7 +20,10 @@
       "Bash(python \"/Users/devon7y/VS Code/LLM Factor Analysis/combine_constructs.py\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/combined_constructs.csv\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/wordfreq_top60000.csv\" \"/Users/devon7y/VS Code/LLM Factor Analysis/word_lists/wordfreq_top60000_with_constructs.csv\")",
       "Bash(cat \"/Users/devon7y/VS Code/LLM Factor Analysis/qwen3_factor_analysis.ipynb\")",
       "Bash(python3 -c \"\nimport json\n\n# Read the notebook\nwith open(''/Users/devon7y/VS Code/LLM Factor Analysis/qwen3_factor_analysis.ipynb'', ''r'') as f:\n    notebook = json.load(f)\n\n# Find and modify the cell containing the np.load line\nfor cell in notebook[''cells'']:\n    if cell[''cell_type''] == ''code'' and ''source'' in cell:\n        # Check if this cell contains the line we want to modify\n        source_lines = cell[''source'']\n        for i, line in enumerate(source_lines):\n            if ''data = np.load(pregenerated_path)'' in line and ''allow_pickle'' not in line:\n                # Replace the line\n                source_lines[i] = line.replace(''np.load(pregenerated_path)'', ''np.load(pregenerated_path, allow_pickle=True)'')\n                print(f''Fixed line {i} in cell'')\n                break\n\n# Write the modified notebook back\nwith open(''/Users/devon7y/VS Code/LLM Factor Analysis/qwen3_factor_analysis.ipynb'', ''w'') as f:\n    json.dump(notebook, f, indent=1)\n\nprint(''Successfully updated the notebook!'')\n\")",
-      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install umap-learn)"
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install umap-learn)",
+      "Bash(python3:*)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install factor-analyzer)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

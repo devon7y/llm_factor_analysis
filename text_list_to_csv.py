@@ -6,24 +6,28 @@ import csv
 
 def parse_constructs(input_file, output_file):
     """
-    Parse constructs from comma-separated file and write to CSV with one word per row.
+    Parse constructs from newline-separated file and write to CSV with one word per row.
     """
     # Read the file
     print(f"Reading {input_file}...")
     with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
 
-    # Split by commas and clean up each word
+    # Split by newlines and clean up each word
     print("Parsing words...")
     words = []
-    raw_words = content.split(',')
+    raw_words = content.split('\n')
 
     for word in raw_words:
-        # Strip whitespace (handles both "," and ", " separators)
+        # Strip whitespace
         cleaned = word.strip()
         # Remove any trailing RTF artifacts like braces
         cleaned = cleaned.rstrip('{}')
         if cleaned:  # Skip empty strings
+            # Replace underscores with spaces
+            cleaned = cleaned.replace('_', ' ')
+            # Capitalize the first letter
+            cleaned = cleaned[0].upper() + cleaned[1:] if len(cleaned) > 0 else cleaned
             words.append(cleaned)
 
     # Remove duplicates while preserving order
