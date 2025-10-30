@@ -26,3 +26,4 @@ glove*.txt
 *.png
 *.code-workspace
 *.md
+*.json

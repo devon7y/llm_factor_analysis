@@ -28,7 +28,9 @@
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/transform_neo_items.py\")",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/fix_continuous_numbering.py\")",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_dass_columns.py\")",
-      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_procrastination_columns.py\")"
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_procrastination_columns.py\")",
+      "Bash(git fetch:*)",
+      "Bash(GIT_SEQUENCE_EDITOR=\"sed -i '''' ''s/pick 331767f/edit 331767f/''\" git rebase -i HEAD~2)"
     ],
     "deny": [],
     "ask": []
