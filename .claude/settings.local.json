@@ -23,7 +23,12 @@
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install umap-learn)",
       "Bash(python3:*)",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install factor-analyzer)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python:*)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/transform_neo_items.py\")",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/fix_continuous_numbering.py\")",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_dass_columns.py\")",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_procrastination_columns.py\")"
     ],
     "deny": [],
     "ask": []

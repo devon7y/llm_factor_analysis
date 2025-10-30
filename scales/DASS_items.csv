@@ -1,43 +1,43 @@
-code,item,factor
-S1,I found myself getting upset by quite trivial things.,Stress
-A2,I was aware of dryness of my mouth.,Anxiety
-D3,I couldn't seem to experience any positive feeling at all.,Depression
-A4,"I experienced breathing difficulty (eg, excessively rapid breathing, breathlessness in the absence of physical exertion).",Anxiety
-D5,I just couldn't seem to get going.,Depression
-S6,I tended to over-react to situations.,Stress
-A7,"I had a feeling of shakiness (eg, legs going to give way).",Anxiety
-S8,I found it difficult to relax.,Stress
-A9,I found myself in situations that made me so anxious I was most relieved when they ended.,Anxiety
-D10,I felt that I had nothing to look forward to.,Depression
-S11,I found myself getting upset rather easily.,Stress
-S12,I felt that I was using a lot of nervous energy.,Stress
-D13,I felt sad and depressed.,Depression
-S14,"I found myself getting impatient when I was delayed in any way (eg, elevators, traffic lights, being kept waiting).",Stress
-A15,I had a feeling of faintness.,Anxiety
-D16,I felt that I had lost interest in just about everything.,Depression
-D17,I felt I wasn't worth much as a person.,Depression
-S18,I felt that I was rather touchy.,Stress
-A19,"I perspired noticeably (eg, hands sweaty) in the absence of high temperatures or physical exertion.",Anxiety
-A20,I felt scared without any good reason.,Anxiety
-D21,I felt that life wasn't worthwhile.,Depression
-S22,I found it hard to wind down.,Stress
-A23,I had difficulty in swallowing.,Anxiety
-D24,I couldn't seem to get any enjoyment out of the things I did.,Depression
-A25,"I was aware of the action of my heart in the absence of physical exertion (eg, sense of heart rate increase, heart missing a beat).",Anxiety
-D26,I felt down-hearted and blue.,Depression
-S27,I found that I was very irritable.,Stress
-A28,I felt I was close to panic.,Anxiety
-S29,I found it hard to calm down after something upset me.,Stress
-A30,"I feared that I would be ""thrown"" by some trivial but unfamiliar task.",Anxiety
-D31,I was unable to become enthusiastic about anything.,Depression
-S32,I found it difficult to tolerate interruptions to what I was doing.,Stress
-S33,I was in a state of nervous tension.,Stress
-D34,I felt I was pretty worthless.,Depression
-S35,I was intolerant of anything that kept me from getting on with what I was doing.,Stress
-A36,I felt terrified.,Anxiety
-D37,I could see nothing in the future to be hopeful about.,Depression
-D38,I felt that life was meaningless.,Depression
-S39,I found myself getting agitated.,Stress
-A40,I was worried about situations in which I might panic and make a fool of myself.,Anxiety
-A41,"I experienced trembling (eg, in the hands).",Anxiety
-D42,I found it difficult to work up the initiative to do things.,Depression
+code,item,factor,scoring
+S1,I found myself getting upset by quite trivial things.,Stress,+1
+A2,I was aware of dryness of my mouth.,Anxiety,+1
+D3,I couldn't seem to experience any positive feeling at all.,Depression,+1
+A4,"I experienced breathing difficulty (eg, excessively rapid breathing, breathlessness in the absence of physical exertion).",Anxiety,+1
+D5,I just couldn't seem to get going.,Depression,+1
+S6,I tended to over-react to situations.,Stress,+1
+A7,"I had a feeling of shakiness (eg, legs going to give way).",Anxiety,+1
+S8,I found it difficult to relax.,Stress,+1
+A9,I found myself in situations that made me so anxious I was most relieved when they ended.,Anxiety,+1
+D10,I felt that I had nothing to look forward to.,Depression,+1
+S11,I found myself getting upset rather easily.,Stress,+1
+S12,I felt that I was using a lot of nervous energy.,Stress,+1
+D13,I felt sad and depressed.,Depression,+1
+S14,"I found myself getting impatient when I was delayed in any way (eg, elevators, traffic lights, being kept waiting).",Stress,+1
+A15,I had a feeling of faintness.,Anxiety,+1
+D16,I felt that I had lost interest in just about everything.,Depression,+1
+D17,I felt I wasn't worth much as a person.,Depression,+1
+S18,I felt that I was rather touchy.,Stress,+1
+A19,"I perspired noticeably (eg, hands sweaty) in the absence of high temperatures or physical exertion.",Anxiety,+1
+A20,I felt scared without any good reason.,Anxiety,+1
+D21,I felt that life wasn't worthwhile.,Depression,+1
+S22,I found it hard to wind down.,Stress,+1
+A23,I had difficulty in swallowing.,Anxiety,+1
+D24,I couldn't seem to get any enjoyment out of the things I did.,Depression,+1
+A25,"I was aware of the action of my heart in the absence of physical exertion (eg, sense of heart rate increase, heart missing a beat).",Anxiety,+1
+D26,I felt down-hearted and blue.,Depression,+1
+S27,I found that I was very irritable.,Stress,+1
+A28,I felt I was close to panic.,Anxiety,+1
+S29,I found it hard to calm down after something upset me.,Stress,+1
+A30,"I feared that I would be ""thrown"" by some trivial but unfamiliar task.",Anxiety,+1
+D31,I was unable to become enthusiastic about anything.,Depression,+1
+S32,I found it difficult to tolerate interruptions to what I was doing.,Stress,+1
+S33,I was in a state of nervous tension.,Stress,+1
+D34,I felt I was pretty worthless.,Depression,+1
+S35,I was intolerant of anything that kept me from getting on with what I was doing.,Stress,+1
+A36,I felt terrified.,Anxiety,+1
+D37,I could see nothing in the future to be hopeful about.,Depression,+1
+D38,I felt that life was meaningless.,Depression,+1
+S39,I found myself getting agitated.,Stress,+1
+A40,I was worried about situations in which I might panic and make a fool of myself.,Anxiety,+1
+A41,"I experienced trembling (eg, in the hands).",Anxiety,+1
+D42,I found it difficult to work up the initiative to do things.,Depression,+1

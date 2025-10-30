@@ -1,34 +1,43 @@
 #!/usr/bin/env python3
 """
-Generate and Save Word Embeddings using Qwen3-Embedding Models
+Generate and Save Embeddings using Qwen3-Embedding Models
 
-This script generates embeddings for a word list and saves them to disk for reuse.
-This avoids regenerating the same embeddings repeatedly, saving time and compute.
+This script generates embeddings for either word lists or scale items and saves them
+to disk for reuse. This avoids regenerating the same embeddings repeatedly, saving
+time and compute.
 
 Output format: NumPy .npz files (compressed, efficient)
 Multi-GPU support: Automatically uses multiple GPUs if available
+
+Compatible with: qwen3_efa.ipynb
 """
 
 # ============================================================================
 # CONFIGURATION - Edit these settings
 # ============================================================================
 
+# Embedding Mode: Choose what type of data to embed
+# - "words": Single-column word list (CSV with one column of words)
+# - "scale": Multi-column scale items (CSV with columns: code, item, factor, scoring)
+EMBEDDING_MODE = "words"  # Options: "words" or "scale"
+
 # Model Selection - Comment out models you don't want to use
 MODEL_NAMES = [
-    "Qwen/Qwen3-Embedding-0.6B",     # ~2.4 GB, 1024D embeddings
-    # "Qwen/Qwen3-Embedding-4B",     # ~16 GB, 4096D embeddings
-    # "Qwen/Qwen3-Embedding-8B",     # ~32 GB, 8192D embeddings
+     #"Qwen/Qwen3-Embedding-0.6B",     # ~2.4 GB, 1024D embeddings
+     "Qwen/Qwen3-Embedding-4B",     # ~16 GB, 4096D embeddings
+     #"Qwen/Qwen3-Embedding-8B",     # ~32 GB, 8192D embeddings
 ]
 
-# Word list path (hard-coded)
-WORD_LIST_PATH = "word_lists/wordfreq_top60000_with_constructs.csv"
+# Input file paths - Set the appropriate path based on EMBEDDING_MODE
+WORD_LIST_PATH = "word_lists/2263_constructs.csv"  # For EMBEDDING_MODE = "words"
+SCALE_CSV_PATH = "scales/DASS_items.csv"           # For EMBEDDING_MODE = "scale"
 
 # Output directory for saved embeddings
 OUTPUT_DIR = "embeddings"
 
 # Processing configuration
-BATCH_SIZE = 32              # Batch size per GPU (increase if you have more VRAM)
-NORMALIZE_EMBEDDINGS = True  # Normalize embeddings for cosine similarity
+BATCH_SIZE = 512              # Batch size per GPU (increase if you have more VRAM)
+NORMALIZE_EMBEDDINGS = False  # Normalize embeddings for cosine similarity (False = raw embeddings)
 
 # ============================================================================
 
@@ -52,8 +61,9 @@ if __name__ == '__main__':
     # ============================================================================
 
     print("=" * 70)
-    print("WORD EMBEDDING GENERATOR - Qwen3-Embedding Models")
+    print("EMBEDDING GENERATOR - Qwen3-Embedding Models")
     print("=" * 70)
+    print(f"Mode: {EMBEDDING_MODE.upper()}")
     print(f"\nDetecting available device(s)...")
 
     # Check for CUDA GPUs
@@ -97,31 +107,90 @@ if __name__ == '__main__':
         print("\n  (psutil not installed - skipping memory check)")
 
     # ============================================================================
-    # Load Word List
+    # Load Data (Word List or Scale Items)
     # ============================================================================
 
     print(f"\n{'='*70}")
-    print("Loading word list...")
-    print(f"{'='*70}")
 
-    try:
-        words_df = pd.read_csv(WORD_LIST_PATH, header=None, names=['word'])
-        words = words_df['word'].tolist()
+    if EMBEDDING_MODE == "words":
+        print("Loading word list...")
+        print(f"{'='*70}")
 
-        print(f"✓ Loaded {len(words):,} words from: {WORD_LIST_PATH}")
-        print(f"  First 5 words: {words[:5]}")
-        print(f"  Last 5 words: {words[-5:]}")
+        try:
+            words_df = pd.read_csv(WORD_LIST_PATH, header=None, names=['word'])
+            texts_to_embed = words_df['word'].tolist()
 
-        # Extract word list name for output filename
-        word_list_name = Path(WORD_LIST_PATH).stem
+            print(f"✓ Loaded {len(texts_to_embed):,} words from: {WORD_LIST_PATH}")
+            print(f"  First 5 words: {texts_to_embed[:5]}")
+            print(f"  Last 5 words: {texts_to_embed[-5:]}")
 
-    except FileNotFoundError:
-        print(f"\n✗ ERROR: Word list not found at: {WORD_LIST_PATH}")
-        print("  Please check the path and try again.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n✗ ERROR loading word list:")
-        print(f"  {type(e).__name__}: {str(e)}")
+            # Extract name for output filename
+            data_name = Path(WORD_LIST_PATH).stem
+
+            # Set metadata
+            codes = None
+            items = None
+            factors = None
+            scoring = None
+
+        except FileNotFoundError:
+            print(f"\n✗ ERROR: Word list not found at: {WORD_LIST_PATH}")
+            print("  Please check the path and try again.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"\n✗ ERROR loading word list:")
+            print(f"  {type(e).__name__}: {str(e)}")
+            sys.exit(1)
+
+    elif EMBEDDING_MODE == "scale":
+        print("Loading scale items...")
+        print(f"{'='*70}")
+
+        try:
+            scale_df = pd.read_csv(SCALE_CSV_PATH)
+
+            # Validate required columns
+            required_cols = ['code', 'item']
+            missing_cols = [col for col in required_cols if col not in scale_df.columns]
+            if missing_cols:
+                print(f"\n✗ ERROR: Missing required columns: {missing_cols}")
+                print(f"  Expected columns: code, item, [factor], [scoring]")
+                print(f"  Found columns: {list(scale_df.columns)}")
+                sys.exit(1)
+
+            # Extract data
+            codes = scale_df['code'].tolist()
+            items = scale_df['item'].tolist()
+            texts_to_embed = items  # Embed the item text
+
+            # Optional columns
+            factors = scale_df['factor'].tolist() if 'factor' in scale_df.columns else None
+            scoring = scale_df['scoring'].tolist() if 'scoring' in scale_df.columns else None
+
+            print(f"✓ Loaded {len(texts_to_embed):,} scale items from: {SCALE_CSV_PATH}")
+            print(f"  Columns: {list(scale_df.columns)}")
+            if factors:
+                unique_factors = scale_df['factor'].nunique()
+                print(f"  Unique factors: {unique_factors}")
+            print(f"  First 3 items:")
+            for i in range(min(3, len(items))):
+                print(f"    [{codes[i]}] {items[i][:60]}...")
+
+            # Extract name for output filename
+            data_name = Path(SCALE_CSV_PATH).stem
+
+        except FileNotFoundError:
+            print(f"\n✗ ERROR: Scale CSV not found at: {SCALE_CSV_PATH}")
+            print("  Please check the path and try again.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"\n✗ ERROR loading scale CSV:")
+            print(f"  {type(e).__name__}: {str(e)}")
+            sys.exit(1)
+
+    else:
+        print(f"\n✗ ERROR: Invalid EMBEDDING_MODE: {EMBEDDING_MODE}")
+        print("  Must be either 'words' or 'scale'")
         sys.exit(1)
 
     # ============================================================================
@@ -209,7 +278,8 @@ if __name__ == '__main__':
     # ============================================================================
 
     print(f"\n{'='*70}")
-    print(f"Generating embeddings for {len(words):,} words...")
+    item_type = "words" if EMBEDDING_MODE == "words" else "scale items"
+    print(f"Generating embeddings for {len(texts_to_embed):,} {item_type}...")
     print(f"{'='*70}")
 
     saved_files = []
@@ -232,7 +302,7 @@ if __name__ == '__main__':
                 print("This may take 1-3 minutes depending on number of GPUs...")
 
                 embeddings = model.encode_multi_process(
-                    words,
+                    texts_to_embed,
                     pool,
                     batch_size=BATCH_SIZE,
                     normalize_embeddings=NORMALIZE_EMBEDDINGS
@@ -244,7 +314,7 @@ if __name__ == '__main__':
                 print("This may take 2-5 minutes depending on model size and device...")
 
                 embeddings = model.encode(
-                    words,
+                    texts_to_embed,
                     batch_size=BATCH_SIZE,
                     show_progress_bar=True,
                     convert_to_numpy=True,
@@ -253,16 +323,15 @@ if __name__ == '__main__':
 
             print(f"\n✓ Embedding generation complete!")
             print(f"  Shape: {embeddings.shape}")
-            print(f"  ({embeddings.shape[0]:,} words × {embeddings.shape[1]} dimensions)")
+            print(f"  ({embeddings.shape[0]:,} {item_type} × {embeddings.shape[1]} dimensions)")
 
             # Prepare metadata
             metadata = {
                 'model_name': f"Qwen/Qwen3-Embedding-{model_size}",
                 'model_size': model_size,
                 'embedding_dim': embeddings.shape[1],
-                'num_words': len(words),
-                'word_list_path': WORD_LIST_PATH,
-                'word_list_name': word_list_name,
+                'num_items': len(texts_to_embed),
+                'embedding_mode': EMBEDDING_MODE,
                 'normalized': NORMALIZE_EMBEDDINGS,
                 'timestamp': timestamp,
                 'device': str(device),
@@ -270,18 +339,46 @@ if __name__ == '__main__':
                 'num_gpus': num_gpus if pool is not None else 1
             }
 
-            # Save to .npz file
-            output_filename = f"{word_list_name}_{model_size}.npz"
+            # Add mode-specific metadata
+            if EMBEDDING_MODE == "words":
+                metadata['word_list_path'] = WORD_LIST_PATH
+                metadata['data_name'] = data_name
+            else:  # scale mode
+                metadata['scale_csv_path'] = SCALE_CSV_PATH
+                metadata['data_name'] = data_name
+                metadata['num_codes'] = len(codes) if codes else 0
+
+            # Save to .npz file with mode-specific filename and keys
+            output_filename = f"{data_name}_{model_size}.npz"
             output_path = os.path.join(OUTPUT_DIR, output_filename)
 
             print(f"\n  Saving embeddings to: {output_path}")
 
-            np.savez_compressed(
-                output_path,
-                embeddings=embeddings,
-                words=np.array(words),
-                metadata=np.array(metadata, dtype=object)
-            )
+            # Save with appropriate keys based on mode
+            if EMBEDDING_MODE == "words":
+                # Word embeddings format (compatible with qwen3_efa.ipynb PREGENERATED_EMBEDDINGS)
+                save_dict = {
+                    'embeddings': embeddings,
+                    'word_embeddings': embeddings,  # Alternative key name for compatibility
+                    'words': np.array(texts_to_embed),
+                    'metadata': np.array(metadata, dtype=object)
+                }
+            else:  # scale mode
+                # Scale embeddings format (compatible with qwen3_efa.ipynb PREGENERATED_SCALE_EMBEDDINGS)
+                save_dict = {
+                    'embeddings': embeddings,
+                    'scale_embeddings': embeddings,  # Alternative key name for compatibility
+                    'codes': np.array(codes),
+                    'items': np.array(items),
+                    'metadata': np.array(metadata, dtype=object)
+                }
+                # Add optional data if available
+                if factors is not None:
+                    save_dict['factors'] = np.array(factors)
+                if scoring is not None:
+                    save_dict['scoring'] = np.array(scoring)
+
+            np.savez_compressed(output_path, **save_dict)
 
             # Verify file was created and check size
             file_size_mb = os.path.getsize(output_path) / (1024 * 1024)
@@ -346,12 +443,27 @@ if __name__ == '__main__':
         print(f"\nimport numpy as np")
         print(f"\n# Load embeddings")
         print(f"data = np.load('{saved_files[0]}')")
-        print(f"embeddings = data['embeddings']  # Shape: (num_words, embedding_dim)")
-        print(f"words = data['words']             # Shape: (num_words,)")
-        print(f"metadata = data['metadata'].item() # Dictionary with info")
-        print(f"\n# Example: Get embedding for a specific word")
-        print(f"word_idx = list(words).index('happiness')")
-        print(f"word_embedding = embeddings[word_idx]")
+
+        if EMBEDDING_MODE == "words":
+            print(f"embeddings = data['embeddings']  # or data['word_embeddings']")
+            print(f"words = data['words']             # Array of words")
+            print(f"metadata = data['metadata'].item() # Dictionary with info")
+            print(f"\n# Example: Get embedding for a specific word")
+            print(f"word_idx = list(words).index('happiness')")
+            print(f"word_embedding = embeddings[word_idx]")
+            print(f"\n# Use in qwen3_efa.ipynb:")
+            print(f"# Set PREGENERATED_EMBEDDINGS = {{'8B': '{saved_files[0]}'}}")
+        else:  # scale mode
+            print(f"embeddings = data['embeddings']  # or data['scale_embeddings']")
+            print(f"codes = data['codes']             # Item codes (e.g., 'DASS01')")
+            print(f"items = data['items']             # Item text")
+            print(f"metadata = data['metadata'].item() # Dictionary with info")
+            print(f"# Optional: factors, scoring (if available)")
+            print(f"\n# Example: Get embedding for a specific item")
+            print(f"item_idx = list(codes).index('DASS01')")
+            print(f"item_embedding = embeddings[item_idx]")
+            print(f"\n# Use in qwen3_efa.ipynb:")
+            print(f"# Set PREGENERATED_SCALE_EMBEDDINGS = {{'8B': '{saved_files[0]}'}}")
 
         print(f"\n{'='*70}")
         print("✓ All done!")
