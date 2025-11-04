@@ -2,7 +2,7 @@ code,item,factor,scoring
 B1,I avoid tasks that I know I need to do.,Behavioral,+1
 B2,I postpone tasks until the last minute.,Behavioral,+1
 B3,I find myself saying "I'll do it tomorrow.",Behavioral,+1
-B4,I take care of tasks immediately.,Behavioral,-1
+B4,I take care of tasks immediately.,Behavioral,+1
 B5,I have difficulty managing my time for assignments.,Behavioral,+1
 B6,I spend time on unimportant tasks when I have more urgent tasks to complete.,Behavioral,+1
 B7,I have difficulty prioritizing tasks.,Behavioral,+1

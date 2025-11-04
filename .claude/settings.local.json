@@ -30,7 +30,10 @@
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_dass_columns.py\")",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" \"/Users/devon7y/VS Code/LLM Factor Analysis/filter_procrastination_columns.py\")",
       "Bash(git fetch:*)",
-      "Bash(GIT_SEQUENCE_EDITOR=\"sed -i '''' ''s/pick 331767f/edit 331767f/''\" git rebase -i HEAD~2)"
+      "Bash(GIT_SEQUENCE_EDITOR=\"sed -i '''' ''s/pick 331767f/edit 331767f/''\" git rebase -i HEAD~2)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install openai)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install ipywidgets)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
