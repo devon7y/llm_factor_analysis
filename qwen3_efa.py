@@ -132,27 +132,54 @@ sns.set_context("notebook", font_scale=1.25)
 
 COMPARISON_SUBPLOT_SPACING = 1
 
-MODEL_NAMES = [
-    "Qwen/Qwen3-Embedding-8B",
-]
+MODEL_NAMES = ["Qwen/Qwen3-Embedding-8B",]
 
-SCALE_NAMES = ["DASS"]
+SCALE_NAMES = ["Big5", "HSQ", "431PTQ", "HEXACO"]
+# SCALE_NAMES = [
+#     "Big5FM", "OSRI", "NIS", "RIASEC", "MACHIV", "HSNDD",
+#     "ECR", "16PF", "RSE", "FBPS", "DASS", "NPAS",
+#     "HEXACO", "c", "SD3", "GSE", "CFCS", "EQSQ",
+#     "RWAS", "MFQ", "TMA", "FTI", "DGS", "NFC",
+#     "EPQ", "AMBI", "IRI", "GCB", "CIS", "ERRI",
+#     "BDI", "BAI", "HSQ", "KIMS", "LLMD12", "431PTQ"]  
+# All 36 scales ordered by participant count
 
-PREGENERATED_WORD_EMBEDDINGS = {
-     "8B": "embeddings/2257_constructs_8B.npz",
-}
+PREGENERATED_WORD_EMBEDDINGS = {"8B": "embeddings/2257_constructs_8B.npz",}
 
-N_FACTORS = None
+N_FACTORS = None # None = auto via parallel analysis
+
+# ==============================================================================
+# REVERSE SCORING FOR EMBEDDINGS
+# ==============================================================================
+# Set to True to apply reverse scoring (atomic-reversed encoding) to embeddings
+# Set to False to skip reverse scoring and only normalize embeddings
+# Note: Empirical data reverse scoring is always applied
+APPLY_REVERSE_SCORING_EMBEDDINGS = False
 
 ROTATION_METHOD = 'oblimin'
+# OBLIQUE rotations (factors can correlate):
+#   - 'promax': Promax rotation (power parameter defaults to 4)
+#   - 'oblimin': Direct oblimin rotation (gamma parameter defaults to 0)
+#   - 'quartimin': Quartimin rotation (minimizes cross-loadings)
+#   - 'geomin_obl': Oblique geomin rotation (delta parameter defaults to 0.01)
+#
+# ORTHOGONAL rotations (factors remain uncorrelated):
+#   - 'varimax': Varimax rotation (maximizes variance of squared loadings)
+#   - 'quartimax': Quartimax rotation (minimizes variables' factor complexity)
+#   - 'equamax': Equamax rotation (kappa parameter defaults to 0)
+#   - 'oblimax': Oblimax rotation
+#   - 'geomin_ort': Orthogonal geomin rotation (delta parameter defaults to 0.01)
 
 EXTRACTION_METHOD = 'minres'
+#   - 'minres' or 'uls': Minimum residual / Unweighted Least Squares (fast, stable, default)
+#   - 'ml' or 'mle': Maximum Likelihood Extraction (slower, assumes multivariate normality)
+#   - 'principal': Principal factor analysis (uses SVD on raw data, requires full dataset)
 
-EIGEN_CRITERIA = 'parallel'
+EIGEN_CRITERIA = 'parallel' # 'parallel' or 'eigen1'
 PARALLEL_ITER = 100
 RANDOM_STATE = 42
 
-ENABLE_METHOD_3 = False
+ENABLE_METHOD_3 = False # Greedy token prediction for factor naming (experimental, may produce low-quality names)
 
 ENABLE_FACTOR_NAMING = True
 
@@ -538,9 +565,16 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
 
     results = {'model_size': model_size}
 
-    print("\n[1/7] Applying atomic-reversed encoding...")
-    embeddings_ar = apply_atomic_reversed(embeddings, scoring)
-    print(f"  ✓ Shape: {embeddings_ar.shape}")
+    if APPLY_REVERSE_SCORING_EMBEDDINGS:
+        print("\n[1/7] Applying atomic-reversed encoding...")
+        embeddings_ar = apply_atomic_reversed(embeddings, scoring)
+        print(f"  ✓ Shape: {embeddings_ar.shape}")
+    else:
+        print("\n[1/7] Normalizing embeddings (reverse scoring disabled)...")
+        # Just normalize without applying scoring direction
+        embeddings_ar = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+        print(f"  ✓ Shape: {embeddings_ar.shape}")
+        print(f"  ⚠ Reverse scoring disabled - all items treated as normally scored")
 
     print("\n[2/7] Computing cosine similarity matrix...")
     sim_matrix = cosine_similarity(embeddings_ar)
@@ -1103,7 +1137,7 @@ for model_size in model_sizes:
     
     all_results[model_size] = results
 
-    create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
+    # create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
 
 print(f"\n{'='*70}")
 print("PREPROCESSING EMPIRICAL DATA")
@@ -1158,10 +1192,10 @@ if empirical_data is not None:
         random_state=RANDOM_STATE,
         save_dir=SAVE_DIR
     )
-    
-    create_visualizations(empirical_results, factors, codes, "Empirical", 
-                         save_dir=SAVE_DIR, data_type='empirical')
-    
+
+    # create_visualizations(empirical_results, factors, codes, "Empirical",
+    #                      save_dir=SAVE_DIR, data_type='empirical')
+
     print(f"\n✓ TRADITIONAL EFA COMPLETE")
 else:
     print(f"\n{'='*70}")
@@ -1893,7 +1927,7 @@ if empirical_data is not None and len(all_results) > 0:
 
         ax1.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax1.set_ylabel('t-SNE Dimension 2', fontsize=12)
-        ax1.set_title('Human Responses: EFA Factors (Empirical)', fontsize=14, fontweight='bold')
+        ax1.set_title('t-SNE (Human Responses)', fontsize=14, fontweight='bold')
         ax1.legend(loc='upper right', fontsize=9, framealpha=0.9)
         ax1.grid(True, alpha=0.3)
         ax1.set_aspect('equal', adjustable='datalim')
@@ -1937,7 +1971,7 @@ if empirical_data is not None and len(all_results) > 0:
 
         ax2.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax2.set_ylabel('t-SNE Dimension 2', fontsize=12)
-        ax2.set_title(f'LLM Embeddings: EFA Factors ({model_size})', fontsize=14, fontweight='bold')
+        ax2.set_title('t-SNE (Embeddings)', fontsize=14, fontweight='bold')
         ax2.legend(loc='upper right', fontsize=9, framealpha=0.9)
         ax2.grid(True, alpha=0.3)
         ax2.set_aspect('equal', adjustable='datalim')
@@ -1959,6 +1993,57 @@ else:
     print(f"\n{'='*70}")
     print("Skipping TSNE EFA comparison (requires both empirical and embedding data)")
     print(f"{'='*70}")
+
+if empirical_results is not None and len(all_results) > 0:
+    print(f"\n{'='*70}")
+    print("COMPARISON: Correlation Matrices")
+    print(f"{'='*70}")
+
+    model_size = list(all_results.keys())[0]
+
+    # Get correlation/similarity matrices
+    empirical_corr = empirical_results['similarity_matrix']  # Actually correlation matrix
+    embedding_sim = all_results[model_size]['similarity_matrix']  # Cosine similarity
+
+    # Create side-by-side comparison
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18 + COMPARISON_SUBPLOT_SPACING, 10))
+
+    # Order items by theoretical factors for better visualization
+    factor_order = sorted(range(len(factors)), key=lambda i: (factors[i], i))
+    empirical_ordered = empirical_corr[factor_order][:, factor_order]
+    embedding_ordered = embedding_sim[factor_order][:, factor_order]
+
+    # Create dividers for proper colorbar placement
+    divider1 = make_axes_locatable(ax1)
+    cax1 = divider1.append_axes("right", size="5%", pad=0.5)
+
+    divider2 = make_axes_locatable(ax2)
+    cax2 = divider2.append_axes("right", size="5%", pad=0.5)
+
+    # LEFT: Empirical correlation matrix
+    sns.heatmap(empirical_ordered, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
+               square=True, ax=ax1, cbar_ax=cax1, cbar_kws={'label': 'Correlation'},
+               xticklabels=False, yticklabels=False)
+    ax1.set_title('Correlation Matrix (Human Responses)', fontweight='bold')
+    ax1.set_xlabel('Items (grouped by factor)')
+    ax1.set_ylabel('Items (grouped by factor)')
+
+    # RIGHT: Embedding similarity matrix
+    sns.heatmap(embedding_ordered, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
+               square=True, ax=ax2, cbar_ax=cax2, cbar_kws={'label': 'Cosine Similarity'},
+               xticklabels=False, yticklabels=False)
+    ax2.set_title('Similarity Matrix (Embeddings)', fontweight='bold')
+    ax2.set_xlabel('Items (grouped by factor)')
+    ax2.set_ylabel('Items (grouped by factor)')
+
+    plt.tight_layout()
+
+    # Save
+    filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_matrices.png'
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"  ✓ Saved: {filepath}")
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2002,7 +2087,7 @@ if empirical_results is not None and len(all_results) > 0:
     sns.heatmap(empirical_ordered.values, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
                ax=ax1, cbar_kws={'label': 'Loading'},
                yticklabels=False, xticklabels=empirical_factor_labels)
-    ax1.set_title('Empirical Data (Human Responses)\nFactor Loadings',
+    ax1.set_title('Factor Loadings (Human Responses)',
                   fontweight='bold')
     ax1.set_xlabel('Extracted Factors')
     ax1.set_ylabel('Items (ordered by theoretical factor)')
@@ -2011,14 +2096,13 @@ if empirical_results is not None and len(all_results) > 0:
     sns.heatmap(embedding_ordered.values, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
                ax=ax2, cbar_kws={'label': 'Loading'},
                yticklabels=False, xticklabels=embedding_factor_labels)
-    ax2.set_title(f'Embedding-Based ({model_size} Model)\nFactor Loadings',
+    ax2.set_title('Factor Loadings (Embeddings)',
                   fontweight='bold')
     ax2.set_xlabel('Extracted Factors')
     ax2.set_ylabel('Items (ordered by theoretical factor)')
     ax2.tick_params(axis='x', rotation=0)
     
-    fig.suptitle('Factor Loading Patterns: Embeddings vs Empirical Data', 
-                 fontweight='bold', y=0.995)
+    
     
     
     filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_loadings.png'
@@ -2175,15 +2259,14 @@ if empirical_results is not None and len(all_results) > 0:
             empirical_axis_labels.append(best_match if best_match else factor_name)
 
         plot_2d_loadings(ax1, empirical_loadings, empirical_factor_names, empirical_axis_labels,
-                        'Empirical Data (Human Responses)\nFactor Loadings Plot',
+                        'Factor Loadings Plot (Human Responses)',
                         item_to_theoretical, empirical_factor_colors, empirical_display_names)
 
         plot_2d_loadings(ax2, embedding_loadings, embedding_factor_names, embedding_axis_labels,
-                        f'Embedding-Based ({model_size} Model)\nFactor Loadings Plot',
+                        'Factor Loadings Plot (Embeddings)',
                         item_to_extracted_factor, embedding_factor_colors, embedding_display_names)
         
-        fig.suptitle('2D Factor Loading Plots: Embeddings vs Empirical', 
-                     fontweight='bold', y=0.98)
+        
         
         
         filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
@@ -2195,6 +2278,72 @@ if empirical_results is not None and len(all_results) > 0:
         print(f"\n  Factor Pair Visualized:")
         print(f"    Embeddings: {embedding_axis_labels[0]} vs {embedding_axis_labels[1]}")
         print(f"    Empirical:  {empirical_axis_labels[0]} vs {empirical_axis_labels[1]}")
+
+if empirical_results is not None and len(all_results) > 0:
+    print(f"\n{'='*70}")
+    print("COMPARISON: DAAL Matrices")
+    print(f"{'='*70}")
+
+    model_size = list(all_results.keys())[0]
+    embedding_daal = all_results[model_size]['daal']
+    empirical_daal = empirical_results['daal']
+
+    # Get factor labels with LLM-generated names for embeddings
+    embedding_factor_labels = embedding_daal.index.tolist()
+    try:
+        embedding_factor_labels = [
+            factor_name_mappings_nn[model_size].get(factor, factor)
+            for factor in embedding_daal.index
+        ]
+    except (NameError, KeyError):
+        pass
+
+    # For empirical, map to theoretical factors if available
+    empirical_factor_labels = empirical_daal.index.tolist()
+    empirical_tucker_best = empirical_results.get('tucker_best')
+    if empirical_tucker_best is not None:
+        empirical_factor_map = {}
+        for _, row in empirical_tucker_best.iterrows():
+            empirical_factor_map[row['extracted_factor']] = row['best_match']
+        empirical_factor_labels = [
+            empirical_factor_map.get(factor, factor)
+            for factor in empirical_daal.index
+        ]
+
+    # Create side-by-side comparison
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 8))
+
+    # Create dividers for proper colorbar placement
+    divider1 = make_axes_locatable(ax1)
+    cax1 = divider1.append_axes("right", size="5%", pad=0.5)
+
+    divider2 = make_axes_locatable(ax2)
+    cax2 = divider2.append_axes("right", size="5%", pad=0.5)
+
+    # LEFT: Empirical DAAL
+    sns.heatmap(empirical_daal.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlOrRd',
+               xticklabels=empirical_daal.columns, yticklabels=empirical_factor_labels,
+               ax=ax1, cbar_ax=cax1, cbar_kws={'label': 'DAAL'})
+    ax1.set_title('DAAL Matrix (Human Responses)', fontweight='bold')
+    ax1.set_xlabel('Theoretical Factors')
+    ax1.set_ylabel('Extracted Factors')
+
+    # RIGHT: Embedding DAAL
+    sns.heatmap(embedding_daal.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlOrRd',
+               xticklabels=embedding_daal.columns, yticklabels=embedding_factor_labels,
+               ax=ax2, cbar_ax=cax2, cbar_kws={'label': 'DAAL'})
+    ax2.set_title('DAAL Matrix (Embeddings)', fontweight='bold')
+    ax2.set_xlabel('Theoretical Factors')
+    ax2.set_ylabel('Extracted Factors')
+
+    plt.tight_layout()
+
+    # Save
+    filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_daal.png'
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"  ✓ Saved: {filepath}")
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2238,7 +2387,7 @@ if empirical_results is not None and len(all_results) > 0:
     sns.heatmap(empirical_tucker.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlGnBu',
                xticklabels=empirical_tucker.columns, yticklabels=empirical_factor_labels,
                ax=ax1, vmin=0, vmax=1, cbar_ax=cax1, cbar_kws={'label': 'Tucker φ'})
-    ax1.set_title('Empirical Data (Human Responses)\nTucker Congruence with Theoretical Factors',
+    ax1.set_title('Tucker Congruence (Human Responses)',
                   fontweight='bold')
     ax1.set_xlabel('Theoretical Factors')
     ax1.set_ylabel('Extracted Factors')
@@ -2246,13 +2395,12 @@ if empirical_results is not None and len(all_results) > 0:
     sns.heatmap(embedding_tucker.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlGnBu',
                xticklabels=embedding_tucker.columns, yticklabels=embedding_factor_labels,
                ax=ax2, vmin=0, vmax=1, cbar_ax=cax2, cbar_kws={'label': 'Tucker φ'})
-    ax2.set_title(f'Embedding-Based ({model_size} Model)\nTucker Congruence with Theoretical Factors',
+    ax2.set_title('Tucker Congruence (Embeddings)',
                   fontweight='bold')
     ax2.set_xlabel('Theoretical Factors')
     ax2.set_ylabel('Extracted Factors')
     
-    fig.suptitle('Factor Congruence: Embeddings vs Empirical Data',
-                 fontsize=16, fontweight='bold', y=0.995)
+    
     
     
     filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_tucker.png'
@@ -2320,7 +2468,7 @@ if empirical_results is not None and len(all_results) > 0:
 
     ax1.set_xlabel('Factor number')
     ax1.set_ylabel('Eigenvalue')
-    ax1.set_title('Scree Plot: Human Responses (Empirical)')
+    ax1.set_title('Scree Plot (Human Responses)')
     ax1.legend(loc='upper right', fontsize=9)
     ax1.grid(True, alpha=0.3)
     ax1.set_xlim(0.5, min(20, n_eigs) + 0.5)
@@ -2340,7 +2488,7 @@ if empirical_results is not None and len(all_results) > 0:
 
     ax2.set_xlabel('Factor number')
     ax2.set_ylabel('Eigenvalue')
-    ax2.set_title(f'Scree Plot: LLM Embeddings ({model_size})')
+    ax2.set_title('Scree Plot (Embeddings)')
     ax2.legend(loc='upper right', fontsize=9)
     ax2.grid(True, alpha=0.3)
     ax2.set_xlim(0.5, min(20, n_eigs) + 0.5)
@@ -2411,7 +2559,7 @@ if empirical_results is not None and len(all_results) > 0:
     y_offset = (ax1.get_ylim()[1] - ax1.get_ylim()[0]) * 0.07
     ax1.text(0, ax1.get_ylim()[0] - y_offset, f'n={len(emp_within)}', ha='center', va='top')
     ax1.text(1, ax1.get_ylim()[0] - y_offset, f'n={len(emp_between)}', ha='center', va='top')
-    ax1.set_title(f'Empirical Data\nd = {emp_d:.3f}, p < .001' if emp_p < 0.001 else f'Empirical Data\nd = {emp_d:.3f}, p = {emp_p:.3f}',
+    ax1.set_title(f'Within vs Between (Human Responses)\nd = {emp_d:.3f}, p < .001' if emp_p < 0.001 else f'Within vs Between (Human Responses)\nd = {emp_d:.3f}, p = {emp_p:.3f}',
                   fontweight='bold')
     ax1.set_ylabel('Correlation')
     ax1.set_xlabel('')
@@ -2427,14 +2575,13 @@ if empirical_results is not None and len(all_results) > 0:
     y_offset = (ax2.get_ylim()[1] - ax2.get_ylim()[0]) * 0.07
     ax2.text(0, ax2.get_ylim()[0] - y_offset, f'n={len(emb_within)}', ha='center', va='top')
     ax2.text(1, ax2.get_ylim()[0] - y_offset, f'n={len(emb_between)}', ha='center', va='top')
-    ax2.set_title(f'Embeddings ({model_size})\nd = {emb_d:.3f}, p < .001' if emb_p < 0.001 else f'Embeddings ({model_size})\nd = {emb_d:.3f}, p = {emb_p:.3f}',
+    ax2.set_title(f'Within vs Between (Embeddings)\nd = {emb_d:.3f}, p < .001' if emb_p < 0.001 else f'Within vs Between (Embeddings)\nd = {emb_d:.3f}, p = {emb_p:.3f}',
                   fontweight='bold')
     ax2.set_ylabel('Cosine Similarity')
     ax2.set_xlabel('')
     ax2.grid(True, alpha=0.3, axis='y')
 
-    fig.suptitle('Within vs Between-Construct Analysis: Embeddings vs Empirical Data',
-                 fontsize=16, fontweight='bold', y=0.995)
+    
 
     plt.tight_layout()
 
@@ -2488,10 +2635,14 @@ if empirical_results is not None and len(all_results) > 0:
     
     llm_dist = np.nan_to_num(llm_dist, nan=0.0)
     human_dist = np.nan_to_num(human_dist, nan=0.0)
-    
+
+    # Convert to float32 for scikit-bio compatibility
+    llm_dist = llm_dist.astype(np.float32)
+    human_dist = human_dist.astype(np.float32)
+
     r_mantel, p_mantel, n_items_compared = mantel(
-        llm_dist, 
-        human_dist, 
+        llm_dist,
+        human_dist,
         method='pearson',
         permutations=10000,
         alternative='greater'
