@@ -33,7 +33,13 @@
       "Bash(GIT_SEQUENCE_EDITOR=\"sed -i '''' ''s/pick 331767f/edit 331767f/''\" git rebase -i HEAD~2)",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install openai)",
       "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install ipywidgets)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(jupyter nbconvert:*)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(\"/Users/devon7y/VS Code/LLM Factor Analysis/.conda/bin/python\" -m pip install scikit-bio)",
+      "Bash(python3.11:*)",
+      "Bash(/opt/anaconda3/envs/llm_efa/bin/python:*)"
     ],
     "deny": [],
     "ask": []

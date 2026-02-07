@@ -84,6 +84,7 @@ import sys
 import re
 import glob
 import importlib
+import subprocess
 import warnings
 from pathlib import Path
 from datetime import datetime
@@ -134,7 +135,8 @@ COMPARISON_SUBPLOT_SPACING = 1
 
 MODEL_NAMES = ["Qwen/Qwen3-Embedding-8B",]
 
-SCALE_NAMES = ["Big5", "HSQ", "431PTQ", "HEXACO"]
+SCALE_NAMES = ["DASS"]
+RUN_ALL_SCALES = True
 # SCALE_NAMES = [
 #     "Big5FM", "OSRI", "NIS", "RIASEC", "MACHIV", "HSNDD",
 #     "ECR", "16PF", "RSE", "FBPS", "DASS", "NPAS",
@@ -148,13 +150,7 @@ PREGENERATED_WORD_EMBEDDINGS = {"8B": "embeddings/2257_constructs_8B.npz",}
 
 N_FACTORS = None # None = auto via parallel analysis
 
-# ==============================================================================
-# REVERSE SCORING FOR EMBEDDINGS
-# ==============================================================================
-# Set to True to apply reverse scoring (atomic-reversed encoding) to embeddings
-# Set to False to skip reverse scoring and only normalize embeddings
-# Note: Empirical data reverse scoring is always applied
-APPLY_REVERSE_SCORING_EMBEDDINGS = False
+APPLY_REVERSE_SCORING_EMBEDDINGS = False # Guenole et al.'s atomic-reversed encoding
 
 ROTATION_METHOD = 'oblimin'
 # OBLIQUE rotations (factors can correlate):
@@ -294,12 +290,22 @@ fa_module.calculate_bartlett_sphericity = safe_calculate_bartlett
 
 print("✓ Safe KMO and Bartlett calculation functions installed")
 
-CURRENT_SCALE_INDEX = 0
+env_scale_index = os.environ.get("SFA_SCALE_INDEX")
+if env_scale_index is not None:
+    try:
+        CURRENT_SCALE_INDEX = int(env_scale_index)
+    except ValueError as exc:
+        raise ValueError(f"SFA_SCALE_INDEX must be an integer, got: {env_scale_index}") from exc
+else:
+    CURRENT_SCALE_INDEX = 0
 
 if CURRENT_SCALE_INDEX >= len(SCALE_NAMES):
     raise ValueError(f"CURRENT_SCALE_INDEX ({CURRENT_SCALE_INDEX}) is out of range. SCALE_NAMES has {len(SCALE_NAMES)} scales.")
 
 SCALE_NAME = SCALE_NAMES[CURRENT_SCALE_INDEX]
+
+if RUN_ALL_SCALES and CURRENT_SCALE_INDEX == 0 and len(SCALE_NAMES) > 1 and env_scale_index is None:
+    print(f"Batch mode enabled: processing all {len(SCALE_NAMES)} scales in sequence")
 
 print(f"{'='*80}")
 print(f"PROCESSING SCALE: {SCALE_NAME}")
@@ -1934,14 +1940,26 @@ if empirical_data is not None and len(all_results) > 0:
 
         embedding_factor_map = {}
         for _, row in embedding_assignments.iterrows():
-            assigned_factor = row['assigned_to']
             extracted_factor = row['extracted_factor']
             loadings_df = all_results[model_size]['loadings']
             for item_code in loadings_df.index:
                 if loadings_df.loc[item_code].idxmax() == extracted_factor:
-                    embedding_factor_map[item_code] = assigned_factor
+                    embedding_factor_map[item_code] = extracted_factor
 
         embedding_unique_factors = sorted(set(embedding_factor_map.values()))
+        embedding_factor_display_names = {factor: factor for factor in embedding_unique_factors}
+        try:
+            embedding_factor_display_names = {
+                factor: factor_name_mappings_nn[model_size].get(factor, factor)
+                for factor in embedding_unique_factors
+            }
+        except (NameError, KeyError):
+            pass
+
+        embedding_unique_factors = sorted(
+            embedding_unique_factors,
+            key=lambda factor: embedding_factor_display_names[factor]
+        )
         embedding_factor_colors = {factor: custom_colors[i % len(custom_colors)]
                                    for i, factor in enumerate(embedding_unique_factors)}
 
@@ -1952,7 +1970,7 @@ if empirical_data is not None and len(all_results) > 0:
                     embeddings_2d[indices, 0],
                     embeddings_2d[indices, 1],
                     c=[embedding_factor_colors[factor]],
-                    label=factor,
+                    label=embedding_factor_display_names[factor],
                     alpha=0.7,
                     s=100,
                     edgecolors='black',
@@ -2163,17 +2181,16 @@ if empirical_results is not None and len(all_results) > 0:
         
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 10))
         
-        embedding_factor_names = embedding_loadings.columns[:2]
-        empirical_factor_names = empirical_loadings.columns[:2]
+        embedding_factor_names = list(embedding_loadings.columns[:2])
+        empirical_factor_names = list(empirical_loadings.columns[:2])
+        can_plot_2d = len(embedding_factor_names) >= 2 and len(empirical_factor_names) >= 2
         
         custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
         
         embedding_axis_labels = list(embedding_factor_names)
         try:
-            embedding_axis_labels = [
-                factor_name_mappings_nn[model_size].get(embedding_factor_names[0], embedding_factor_names[0]),
-                factor_name_mappings_nn[model_size].get(embedding_factor_names[1], embedding_factor_names[1])
-            ]
+            embedding_axis_labels = [factor_name_mappings_nn[model_size].get(factor_name, factor_name)
+                                     for factor_name in embedding_factor_names]
         except (NameError, KeyError):
             pass
 
@@ -2258,26 +2275,29 @@ if empirical_results is not None and len(all_results) > 0:
                     break
             empirical_axis_labels.append(best_match if best_match else factor_name)
 
-        plot_2d_loadings(ax1, empirical_loadings, empirical_factor_names, empirical_axis_labels,
-                        'Factor Loadings Plot (Human Responses)',
-                        item_to_theoretical, empirical_factor_colors, empirical_display_names)
+        if can_plot_2d:
+            plot_2d_loadings(ax1, empirical_loadings, empirical_factor_names, empirical_axis_labels,
+                            'Factor Loadings Plot (Human Responses)',
+                            item_to_theoretical, empirical_factor_colors, empirical_display_names)
 
-        plot_2d_loadings(ax2, embedding_loadings, embedding_factor_names, embedding_axis_labels,
-                        'Factor Loadings Plot (Embeddings)',
-                        item_to_extracted_factor, embedding_factor_colors, embedding_display_names)
-        
-        
-        
-        
-        filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
-        plt.savefig(filepath, dpi=150, bbox_inches='tight')
-        plt.close()
-        
-        print(f"  ✓ Saved: {filepath}")
-        
-        print(f"\n  Factor Pair Visualized:")
-        print(f"    Embeddings: {embedding_axis_labels[0]} vs {embedding_axis_labels[1]}")
-        print(f"    Empirical:  {empirical_axis_labels[0]} vs {empirical_axis_labels[1]}")
+            plot_2d_loadings(ax2, embedding_loadings, embedding_factor_names, embedding_axis_labels,
+                            'Factor Loadings Plot (Embeddings)',
+                            item_to_extracted_factor, embedding_factor_colors, embedding_display_names)
+
+            filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
+            plt.savefig(filepath, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            print(f"  ✓ Saved: {filepath}")
+            
+            print(f"\n  Factor Pair Visualized:")
+            print(f"    Embeddings: {embedding_axis_labels[0]} vs {embedding_axis_labels[1]}")
+            print(f"    Empirical:  {empirical_axis_labels[0]} vs {empirical_axis_labels[1]}")
+        else:
+            plt.close()
+            print("  Skipping 2D factor-loading plot: requires at least 2 extracted factors in both solutions.")
+            print(f"    Embeddings extracted factors: {len(embedding_loadings.columns)}")
+            print(f"    Empirical extracted factors:  {len(empirical_loadings.columns)}")
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2694,8 +2714,24 @@ if 'logger' in dir() and hasattr(logger, 'close'):
     sys.stdout = logger.terminal
     print(f"✓ Log saved to: {log_file_path}")
 
-if len(SCALE_NAMES) > 1:
+if RUN_ALL_SCALES and len(SCALE_NAMES) > 1 and CURRENT_SCALE_INDEX < len(SCALE_NAMES) - 1:
+    next_scale_index = CURRENT_SCALE_INDEX + 1
+    next_scale_name = SCALE_NAMES[next_scale_index]
+
+    if "__file__" not in globals():
+        print("\nBatch mode requested, but __file__ is unavailable in this runtime.")
+        print("Run this file as a script to process all scales automatically.")
+    else:
+        print(f"\nLaunching next scale automatically: {next_scale_name} ({next_scale_index + 1}/{len(SCALE_NAMES)})")
+        next_env = os.environ.copy()
+        next_env["SFA_SCALE_INDEX"] = str(next_scale_index)
+        result = subprocess.run([sys.executable, os.path.abspath(__file__)], env=next_env)
+        if result.returncode != 0:
+            raise SystemExit(result.returncode)
+elif RUN_ALL_SCALES and len(SCALE_NAMES) > 1:
+    print(f"\nAll scales processed: {SCALE_NAMES}")
+elif len(SCALE_NAMES) > 1:
     print(f"\nTo process another scale:")
-    print(f"  1. Update CURRENT_SCALE_INDEX in Cell 9")
+    print(f"  1. Set SFA_SCALE_INDEX to the target index")
     print(f"  2. Run all cells again")
     print(f"\nScales available: {SCALE_NAMES}")
