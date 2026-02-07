@@ -20,7 +20,7 @@
 # - **Validation**: DAAL, Tucker φ, KMO, Bartlett
 # 
 # ### References:
-# - Yanitski, A., and Westbury, C. (2025). Title.
+# - Yanitski, D., and Westbury, C. (2025). Title.
 # 
 # ---
 
@@ -32,8 +32,33 @@
 # %%
 import os
 import sys
-from datetime import datetime
+import re
+import glob
+import importlib
 import warnings
+from pathlib import Path
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
+import torch
+
+from sentence_transformers import SentenceTransformer
+from openai import OpenAI
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.manifold import TSNE
+from scipy.stats import ttest_ind
+import scipy.stats as stats
+from skbio.stats.distance import mantel
+
+from factor_analyzer import FactorAnalyzer
+from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
+import factor_analyzer.factor_analyzer as fa_module
 
 # Suppress specific warnings
 warnings.filterwarnings('ignore', message='.*Moore-Penrose.*')
@@ -46,47 +71,6 @@ os.environ['HF_DATASETS_CACHE'] = '/Users/devon7y/.cache/huggingface'
 # Load HF token from standard cache location
 with open(os.path.expanduser('~/.cache/huggingface/token'), 'r') as f:
     os.environ['HF_TOKEN'] = f.read().strip()
-
-import pandas as pd
-import numpy as np
-import torch
-
-from sentence_transformers import SentenceTransformer
-
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import seaborn as sns
-
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import StandardScaler
-from sklearn.manifold import TSNE
-from scipy.stats import percentileofscore
-import scipy.stats as stats
-from skbio.stats.distance import mantel
-
-from factor_analyzer import FactorAnalyzer
-from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
-
-# %%
-# ==============================================================================
-# FIX WORKING DIRECTORY
-# ==============================================================================
-# Ensure we're in the correct directory for relative paths
-import os
-from pathlib import Path
-
-# Get the directory containing this notebook
-notebook_dir = Path.cwd()
-if notebook_dir.name != 'LLM_Factor_Analysis':
-    # We're in the wrong directory, change to LLM_Factor_Analysis
-    correct_dir = Path('/Users/devon7y/VS Code/LLM_Factor_Analysis')
-    if correct_dir.exists():
-        os.chdir(correct_dir)
-        print(f'Changed working directory to: {os.getcwd()}')
-    else:
-        print(f'Warning: Expected directory not found: {correct_dir}')
-else:
-    print(f'Working directory is correct: {os.getcwd()}')
 
 
 # %%
@@ -136,7 +120,7 @@ MODEL_NAMES = [
 #   - Scale embeddings: embeddings/{SCALE_NAME}_items_{MODEL_SIZE}.npz
 #   - Empirical data: scale_responses/{SCALE_NAME}_data.csv
 #   - Output directory: results/{SCALE_NAME}/
-#   - Analysis log: results/{SCALE_NAME}/analysis_log.txt
+#   - Analysis log: results/{SCALE_NAME}/{SCALE_NAME}_analysis_log.txt
 # ==============================================================================
 
 # Single scale example:
@@ -203,12 +187,6 @@ EXTRACTION_METHOD = 'minres'
 EIGEN_CRITERIA = 'parallel'  # 'parallel' (recommended) or 'eigen1'
 PARALLEL_ITER = 100
 RANDOM_STATE = 42
-
-# ==============================================================================
-# ENSEMBLE ANALYSIS
-# ==============================================================================
-
-ENSEMBLE = False  # Set to True to average similarity matrices across models
 
 # ==============================================================================
 # FACTOR NAMING METHOD 3 (LOCAL BASE MODEL)
@@ -305,71 +283,50 @@ def create_theoretical_indicators(theoretical_factors, codes):
 print("✓ Helper functions defined")
 
 # %%
-def apply_atomic_reversed(embeddings, scoring):
-    """Apply atomic-reversed encoding"""
-    scoring_array = np.array(scoring).reshape(-1, 1)
-    embeddings_signed = embeddings * scoring_array
-    norms = np.linalg.norm(embeddings_signed, axis=1)
-    zero_norm_items = np.where(norms == 0)[0]
-    if len(zero_norm_items) > 0:
-        print(f"  WARNING: {len(zero_norm_items)} items have zero norm after signing")
-        for idx in zero_norm_items:
-            embeddings_signed[idx] = embeddings[idx]
-    embeddings_normalized = embeddings_signed / np.linalg.norm(embeddings_signed, axis=1, keepdims=True)
-    return embeddings_normalized
+# ==============================================================================
+# MATRIX REGULARIZATION HELPERS
+# ==============================================================================
 
-def compute_parallel_analysis(corr_matrix, n_iter=100, percentile=95, random_state=42):
-    """Parallel analysis for factor retention"""
-    np.random.seed(random_state)
-    n_items = corr_matrix.shape[0]
-    obs_eigenvalues = np.linalg.eigvalsh(corr_matrix)
-    obs_eigenvalues = np.sort(obs_eigenvalues)[::-1]
-    random_eigenvalues = []
-    for _ in range(n_iter):
-        n_obs = n_items * 10
-        random_data = np.random.randn(n_obs, n_items)
-        random_corr = np.corrcoef(random_data, rowvar=False)
-        eigs = np.linalg.eigvalsh(random_corr)
-        eigs = np.sort(eigs)[::-1]
-        random_eigenvalues.append(eigs)
-    random_eigenvalues = np.array(random_eigenvalues)
-    percentiles = np.percentile(random_eigenvalues, percentile, axis=0)
-    n_factors = np.sum(obs_eigenvalues > percentiles)
-    return n_factors, obs_eigenvalues, percentiles
+def regularize_correlation_matrix(corr_matrix, alpha=1e-6):
+    """Add regularization to correlation matrix."""
+    is_df = isinstance(corr_matrix, pd.DataFrame)
+    corr_array = corr_matrix.values.copy() if is_df else corr_matrix.copy()
 
-def compute_daal(loadings_df, theoretical_factors):
-    """Compute DAAL (Dominant Average Absolute Loading)"""
-    theoretical_unique = sorted(set(theoretical_factors))
-    extracted_factors = loadings_df.columns
-    daal_matrix = []
-    for ext_factor in extracted_factors:
-        row = []
-        for theo_factor in theoretical_unique:
-            mask = [f == theo_factor for f in theoretical_factors]
-            loadings_subset = loadings_df.loc[mask, ext_factor]
-            daal_value = loadings_subset.abs().mean()
-            row.append(daal_value)
-        daal_matrix.append(row)
-    daal_df = pd.DataFrame(daal_matrix, index=extracted_factors, columns=theoretical_unique)
-    return daal_df
+    n = corr_array.shape[0]
+    regularized = corr_array + alpha * np.eye(n)
+    diag = np.sqrt(np.diag(regularized))
+    regularized = regularized / diag[:, None] / diag[None, :]
 
-def compute_tucker_congruence(factor_loadings, reference_loadings):
-    """Compute Tucker congruence coefficient (phi)"""
-    numerator = np.sum(factor_loadings * reference_loadings)
-    denom = np.sqrt(np.sum(factor_loadings**2)) * np.sqrt(np.sum(reference_loadings**2))
-    return numerator / denom if denom != 0 else 0.0
+    if is_df:
+        return pd.DataFrame(regularized, index=corr_matrix.index, columns=corr_matrix.columns)
+    return regularized
 
-def create_theoretical_indicators(theoretical_factors, codes):
-    """Create indicator matrix for theoretical factors"""
-    unique_factors = sorted(set(theoretical_factors))
-    indicators = []
-    for factor in unique_factors:
-        indicator = [1.0 if f == factor else 0.0 for f in theoretical_factors]
-        indicators.append(indicator)
-    indicators_df = pd.DataFrame(np.array(indicators).T, columns=unique_factors, index=codes)
-    return indicators_df
+def safe_calculate_kmo(corr_matrix, alpha=1e-6):
+    """KMO with auto-regularization."""
+    try:
+        return fa_module._original_calculate_kmo(corr_matrix)
+    except (np.linalg.LinAlgError, AssertionError):
+        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
+        return fa_module._original_calculate_kmo(regularize_correlation_matrix(corr_matrix, alpha))
 
-print("✓ Helper functions defined")
+def safe_calculate_bartlett(corr_matrix, alpha=1e-6):
+    """Bartlett with auto-regularization."""
+    try:
+        return fa_module._original_calculate_bartlett(corr_matrix)
+    except (np.linalg.LinAlgError, AssertionError):
+        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
+        return fa_module._original_calculate_bartlett(regularize_correlation_matrix(corr_matrix, alpha))
+
+# Save original functions and install safe wrappers
+if not hasattr(fa_module, '_original_calculate_kmo'):
+    importlib.reload(fa_module)
+    fa_module._original_calculate_kmo = fa_module.calculate_kmo
+    fa_module._original_calculate_bartlett = fa_module.calculate_bartlett_sphericity
+
+fa_module.calculate_kmo = safe_calculate_kmo
+fa_module.calculate_bartlett_sphericity = safe_calculate_bartlett
+
+print("✓ Safe KMO and Bartlett calculation functions installed")
 
 # %%
 # ==============================================================================
@@ -380,10 +337,6 @@ print("✓ Helper functions defined")
 #   1. Run all cells for each scale (change CURRENT_SCALE_INDEX and re-run)
 #   2. Use the batch processing script instead of this notebook
 # ==============================================================================
-
-import sys
-from pathlib import Path
-from datetime import datetime
 
 # Select which scale to process (0 = first scale in SCALE_NAMES list)
 CURRENT_SCALE_INDEX = 0
@@ -420,7 +373,7 @@ SCALE_NAME_DISPLAY = Path(SCALE_CSV_PATH).stem.replace('_items', '')
 # SET UP LOGGING TO FILE
 # ==============================================================================
 
-log_file_path = f"{SAVE_DIR}/analysis_log.txt"
+log_file_path = f"{SAVE_DIR}/{SCALE_NAME}_analysis_log.txt"
 
 # Create a custom print function that writes to both console and file
 class Logger:
@@ -464,13 +417,8 @@ missing = [c for c in required if c not in scale.columns]
 if missing:
     raise ValueError(f"Missing required columns: {missing}")
 
-# Columns validated (output suppressed)
-
 # Handle scoring column
-if 'scoring' in scale.columns:
-    pass  # Scoring column validated
-    # Scoring column found (output suppressed)
-else:
+if 'scoring' not in scale.columns:
     print("⚠ WARNING: 'scoring' column missing - defaulting to +1")
     scale['scoring'] = 1
 
@@ -510,7 +458,6 @@ if EMPIRICAL_DATA_PATH is not None:
         
         # Determine delimiter
         if tab_count > comma_count:
-            # Format detected (output suppressed)
             delimiter = '\t'
         else:
             delimiter = ','
@@ -588,14 +535,10 @@ else:
     device = 'cpu'
     print("Using CPU")
 
-# Device set (output suppressed)
-
 # %% [markdown]
 # ## Load or Generate Embeddings
 
 # %%
-import glob
-
 all_embeddings = {}
 model_sizes = []
 
@@ -609,7 +552,6 @@ for model_name in MODEL_NAMES:
     if model_size in PREGENERATED_SCALE_EMBEDDINGS:
         scale_emb_path = PREGENERATED_SCALE_EMBEDDINGS[model_size]
         if os.path.exists(scale_emb_path):
-            # Loading embeddings (output suppressed)
             try:
                 data = np.load(scale_emb_path, allow_pickle=True)
                 
@@ -747,39 +689,35 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
 
     # Step 3: Sampling adequacy tests
     print("\n[3/7] Computing KMO and Bartlett test...")
-    
-    FACTOR_ANALYZER_AVAILABLE = True
-    if FACTOR_ANALYZER_AVAILABLE:
-        kmo_per_item, kmo_total = calculate_kmo(sim_matrix)
-        print(f"  ✓ KMO overall: {kmo_total:.3f}")
 
-        if kmo_total < 0.5:
-            print("    ⚠ WARNING: KMO < 0.5 (unacceptable)")
-        elif kmo_total < 0.6:
-            print("    ⚠ WARNING: KMO < 0.6 (poor)")
-        elif kmo_total < 0.7:
-            print("    KMO is mediocre")
-        elif kmo_total < 0.8:
-            print("    KMO is middling")
-        elif kmo_total < 0.9:
-            print("    KMO is meritorious")
-        else:
-            print("    KMO is marvelous")
+    kmo_per_item, kmo_total = calculate_kmo(sim_matrix)
+    print(f"  ✓ KMO overall: {kmo_total:.3f}")
 
-        chi_square, p_value = calculate_bartlett_sphericity(sim_matrix)
-        print(f"  ✓ Bartlett: χ²={chi_square:.2f}, p={p_value:.4e}")
-
-        if p_value > 0.05:
-            print("    ⚠ WARNING: Not significant (p > 0.05)")
-        else:
-            print("    ✓ Significant (p < 0.05)")
-
-        results['kmo_total'] = kmo_total
-        results['kmo_per_item'] = kmo_per_item
-        results['bartlett_chi2'] = chi_square
-        results['bartlett_p'] = p_value
+    if kmo_total < 0.5:
+        print("    ⚠ WARNING: KMO < 0.5 (unacceptable)")
+    elif kmo_total < 0.6:
+        print("    ⚠ WARNING: KMO < 0.6 (poor)")
+    elif kmo_total < 0.7:
+        print("    KMO is mediocre")
+    elif kmo_total < 0.8:
+        print("    KMO is middling")
+    elif kmo_total < 0.9:
+        print("    KMO is meritorious")
     else:
-        print("  ⚠ Skipping (factor_analyzer not available)")
+        print("    KMO is marvelous")
+
+    chi_square, p_value = calculate_bartlett_sphericity(sim_matrix)
+    print(f"  ✓ Bartlett: χ²={chi_square:.2f}, p={p_value:.4e}")
+
+    if p_value > 0.05:
+        print("    ⚠ WARNING: Not significant (p > 0.05)")
+    else:
+        print("    ✓ Significant (p < 0.05)")
+
+    results['kmo_total'] = kmo_total
+    results['kmo_per_item'] = kmo_per_item
+    results['bartlett_chi2'] = chi_square
+    results['bartlett_p'] = p_value
 
     # Step 4: Parallel analysis for factor retention
     print("\n[4/7] Determining number of factors...")
@@ -920,10 +858,8 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
         'rotation': rotation,
     }
 
-    if FACTOR_ANALYZER_AVAILABLE:
-        diagnostics['kmo'] = kmo_total
-        diagnostics['bartlett_p'] = p_value
-
+    diagnostics['kmo'] = kmo_total
+    diagnostics['bartlett_p'] = p_value
     diagnostics['variance_explained'] = variance[2][-1]
 
     diagnostics_df = pd.DataFrame([diagnostics])
@@ -1025,9 +961,7 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     # Step 3: Sampling Adequacy Tests
     # =========================================================================
     print(f"\n[3/7] Testing sampling adequacy...")
-    
-    from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
-    
+
     kmo_per_item, kmo_total = calculate_kmo(corr_matrix)
     bartlett_chi2, bartlett_p = calculate_bartlett_sphericity(corr_matrix)
     
@@ -1088,9 +1022,7 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     # =========================================================================
     print(f"\n[5/7] Running EFA extraction...")
     print(f"  Extracting {n_factors} factors with {rotation} rotation...")
-    
-    from factor_analyzer import FactorAnalyzer
-    
+
     fa = FactorAnalyzer(n_factors=n_factors, rotation=rotation, method=extraction_method)
     fa.fit(corr_matrix)
     
@@ -1250,6 +1182,9 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
 
     print(f"\nCreating visualizations for {model_size}...")
 
+    # Extract scale name from save_dir (e.g., 'results/DASS' -> 'DASS')
+    scale_name = Path(save_dir).name
+
     fig = plt.figure(figsize=(20, 12))
 
     # 1. Scree plot
@@ -1340,10 +1275,8 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
         ax6.set_xlim(0, 1)
 
     plt.tight_layout()
-    plt.savefig(f'{save_dir}/visualizations_{model_size}.png', dpi=150, bbox_inches='tight')
-    plt.show()
-
-    # Visualization saved (output suppressed)
+    plt.savefig(f'{save_dir}/{scale_name}_visualizations_{model_size}.png', dpi=150, bbox_inches='tight')
+    plt.close()
 
 # %% [markdown]
 # ## Run SFA for All Models
@@ -1373,63 +1306,16 @@ for model_size in model_sizes:
     )
     
     all_results[model_size] = results
-    
-    # DEBUG: Check eigenvalues immediately after SFA
-#     print(f"DEBUG: {model_size} eigenvalues after SFA: {results['observed_eigenvalues'][:3]}") # Suppressed from log
-#     print(f"DEBUG: Matrix used has [0,1]={results['similarity_matrix'][0,1]:.6f}") # Suppressed from log
-    
+
     # Create visualizations
     create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
 
 
 # %%
-# Robust patching to prevent recursion
-import numpy as np
-import pandas as pd
-import factor_analyzer.factor_analyzer as fa
-import importlib
+# ==============================================================================
+# Preprocess Empirical Data
+# ==============================================================================
 
-# Ensure we have the original function
-if not hasattr(fa, '_original_calculate_kmo'):
-    # Reload to get clean state if needed
-    importlib.reload(fa)
-    fa._original_calculate_kmo = fa.calculate_kmo
-    fa._original_calculate_bartlett = fa.calculate_bartlett_sphericity
-    print("Loaded and saved original factor_analyzer functions.")
-else:
-    print("Using previously saved original factor_analyzer functions.")
-
-def regularize_correlation_matrix(corr_matrix, alpha=1e-6):
-    """Add regularization to correlation matrix."""
-    is_df = isinstance(corr_matrix, pd.DataFrame)
-    corr_array = corr_matrix.values.copy() if is_df else corr_matrix.copy()
-    
-    n = corr_array.shape[0]
-    regularized = corr_array + alpha * np.eye(n)
-    diag = np.sqrt(np.diag(regularized))
-    regularized = regularized / diag[:, None] / diag[None, :]
-    
-    if is_df:
-        return pd.DataFrame(regularized, index=corr_matrix.index, columns=corr_matrix.columns)
-    return regularized
-
-def safe_calculate_kmo(corr_matrix, alpha=1e-6):
-    """KMO with auto-regularization."""
-    try:
-        return fa._original_calculate_kmo(corr_matrix)
-    except (np.linalg.LinAlgError, AssertionError):
-        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
-        return fa._original_calculate_kmo(regularize_correlation_matrix(corr_matrix, alpha))
-
-def safe_calculate_bartlett(corr_matrix, alpha=1e-6):
-    """Bartlett with auto-regularization."""
-    try:
-        return fa._original_calculate_bartlett(corr_matrix)
-    except (np.linalg.LinAlgError, AssertionError):
-        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
-        return fa._original_calculate_bartlett(regularize_correlation_matrix(corr_matrix, alpha))
-
-# Clean data - remove missing values (handle both DataFrame and ndarray)
 print(f"\n{'='*70}")
 print("PREPROCESSING EMPIRICAL DATA")
 print(f"{'='*70}")
@@ -1446,7 +1332,6 @@ if isinstance(empirical_data, pd.DataFrame):
     print(f"Final shape: {empirical_data.shape}")
 elif isinstance(empirical_data, np.ndarray):
     print(f"Original shape: {empirical_data.shape}")
-    # For numpy arrays, remove rows with any NaN values
     mask = ~np.isnan(empirical_data).any(axis=1)
     n_before = len(empirical_data)
     empirical_data = empirical_data[mask]
@@ -1461,13 +1346,6 @@ else:
     print("Warning: Could not clean data (unexpected type)")
 
 print(f"{'='*70}\n")
-
-# Patch functions globally
-fa.calculate_kmo = safe_calculate_kmo
-fa.calculate_bartlett_sphericity = safe_calculate_bartlett
-
-print("✓ Installed safe KMO and Bartlett calculation functions (Recursion-proof)")
-print("✓ These will automatically handle singular matrices with regularization\n")
 
 
 # %%
@@ -1507,13 +1385,6 @@ else:
     print(f"\n{'='*70}")
     print("Empirical data not loaded - skipping traditional EFA")
     print(f"{'='*70}")
-
-# DEBUG: Check if all_results eigenvalues corrupted after empirical EFA
-print(f"DEBUG AFTER EMPIRICAL: 8B eigenvalues = {all_results['8B']['observed_eigenvalues'][:3]}")
-if empirical_results is not None:
-    print(f"DEBUG AFTER EMPIRICAL: Empirical eigenvalues = {empirical_results['observed_eigenvalues'][:3]}")
-else:
-    print(f"DEBUG AFTER EMPIRICAL: Empirical results = None (data not loaded or error occurred)")
 
 # %% [markdown]
 # ## Analyze Nearest Neighbors - All Models
@@ -1565,8 +1436,6 @@ print("✓ Nearest neighbors analysis complete")
 
 # %%
 print("Factor Separation Analysis:")
-
-from scipy.stats import ttest_ind
 
 for model_size in model_sizes:
     print(f"\n{model_size} Model:")
@@ -1719,7 +1588,7 @@ for model_size in model_sizes:
 
 
 # Empirical Data Analysis
-if 'empirical_results' in globals() and empirical_results is not None:
+if empirical_results is not None:
     print(f"\n{'='*70}")
     print(f"Empirical Data - Factor Separation Metrics")
     print(f"{'='*70}")
@@ -1854,9 +1723,6 @@ print(f"\nResults saved to: {SAVE_DIR}/")
 # **Note:** Generated names are stored in the `factor_name_mappings` dictionary. Original results in `all_results` remain unchanged.
 
 # %%
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-
 print("Loading word list for nearest neighbor factor naming...")
 
 # Path to word list (used only if generating embeddings)
@@ -2008,13 +1874,6 @@ else:
     print("\n⚠ Word embeddings not available - nearest neighbor method will be skipped")
 
 # %%
-import os
-from openai import OpenAI
-import re
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-import math
-
 # Check if factor naming is enabled
 if not ENABLE_FACTOR_NAMING:
     print("\n" + "="*70)
@@ -2059,7 +1918,7 @@ else:
         factor_probabilities_base = {}
 
         # Check if word embeddings are available
-        nn_available = 'all_word_embeddings' in dir() and len(all_word_embeddings) > 0 and 'words' in dir() and words is not None
+        nn_available = len(all_word_embeddings) > 0 and words is not None
 
         # Process each model
         for model_size in model_sizes:
@@ -2220,7 +2079,6 @@ else:
                       f"{factor_name_mappings_base[model_size].get(factor_name,'N/A'):<20}")
             print(f"{'-'*70}")
 
-        # Factor mappings stored (output suppressed)
     else:
         print("\n⚠ Skipping automatic factor naming due to missing HF_TOKEN.")
 
@@ -2277,10 +2135,11 @@ for model_size in model_sizes:
     print(f"\n{model_size}:")
     for factor_name, items_list in factor_items.items():
         # Get display name (LLM-generated or default)
-        if 'factor_name_mappings' in dir() and model_size in factor_name_mappings:
-            display_name = factor_name_mappings[model_size].get(factor_name, factor_name)
-        else:
-            display_name = factor_name
+        display_name = factor_name
+        try:
+            display_name = factor_name_mappings_nn[model_size].get(factor_name, factor_name)
+        except (NameError, KeyError):
+            pass
         
         print(f"  {factor_name} ('{display_name}'): {len(items_list)} items")
 
@@ -2291,11 +2150,6 @@ print("✓ Factor assignments created!")
 # T-SNE COMPUTATION: Embedding Data
 # ==============================================================================
 
-# Import visualization libraries
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-
-# Prepare data for T-SNE
 print(f"\n{'='*70}")
 print("COMPUTING T-SNE FOR EMBEDDING DATA")
 print(f"{'='*70}")
@@ -2306,21 +2160,16 @@ all_tsne_embeddings = {}
 
 for model_size, embeddings in all_embeddings.items():
     print(f"\nProcessing {model_size}...")
-    # Input shape (output suppressed) #embeddings.shape}")
 
-    # Run T-SNE dimensionality reduction
-    tsne = TSNE(verbose=0, 
-        n_components=2,      # Reduce to 2D
-        perplexity=10,       # Balance local vs global structure
-        max_iter=1000,         # Max iterations
-        random_state=42,     # Reproducibility
+    tsne = TSNE(verbose=0,
+        n_components=2,
+        perplexity=10,
+        max_iter=1000,
+        random_state=42,
     )
 
-    # Transform high-D embeddings to 2D
     embeddings_2d = tsne.fit_transform(embeddings)
     all_tsne_embeddings[model_size] = embeddings_2d
-
-    # T-SNE complete (output suppressed) #embeddings_2d.shape}")
 
 print(f"\n{'='*70}")
 print(f"✓ T-SNE complete for all {len(all_tsne_embeddings)} models!")
@@ -2354,7 +2203,6 @@ if empirical_data is not None:
     )
 
     empirical_2d = tsne_emp.fit_transform(empirical_transposed)
-    # T-SNE complete (output suppressed) # shape: {empirical_2d.shape}")
 
     print(f"\n{'='*70}")
     print("✓ EMPIRICAL T-SNE COMPUTATION COMPLETE")
@@ -2371,7 +2219,7 @@ else:
 # TSNE VISUALIZATION: EFA Factors Comparison (Embeddings vs Empirical)
 # ==============================================================================
 
-if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings' in dir() and 'empirical_2d' in dir():
+if empirical_data is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
     print("TSNE VISUALIZATION: EFA Factors Comparison")
     print(f"{'='*70}")
@@ -2385,8 +2233,8 @@ if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings'
     empirical_assignments = empirical_results.get('daal_assignments')
 
     if embedding_assignments is not None and empirical_assignments is not None:
-        # Create figure with two subplots
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+        # Create figure with two subplots (square plots side by side)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 7))
 
         # Custom color palette
         custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
@@ -2440,8 +2288,9 @@ if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings'
         ax1.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax1.set_ylabel('t-SNE Dimension 2', fontsize=12)
         ax1.set_title(f'LLM Embeddings: EFA Factors ({model_size})', fontsize=14, fontweight='bold')
-        ax1.legend(title='Assigned Factor', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
+        ax1.legend(title='Assigned Factor', loc='best', fontsize=9, framealpha=0.9)
         ax1.grid(True, alpha=0.3)
+        ax1.set_aspect('equal', adjustable='box')
 
         # ======================================================================
         # RIGHT PLOT: Human Responses (EFA Factors)
@@ -2492,8 +2341,9 @@ if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings'
         ax2.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax2.set_ylabel('t-SNE Dimension 2', fontsize=12)
         ax2.set_title('Human Responses: EFA Factors (Empirical)', fontsize=14, fontweight='bold')
-        ax2.legend(title='Assigned Factor', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
+        ax2.legend(title='Assigned Factor', loc='best', fontsize=9, framealpha=0.9)
         ax2.grid(True, alpha=0.3)
+        ax2.set_aspect('equal', adjustable='box')
 
         # ======================================================================
         # Save and display
@@ -2502,13 +2352,12 @@ if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings'
         plt.tight_layout()
 
         # Save figure
-        os.makedirs(SAVE_DIR, exist_ok=True)
-        filename = f'{SCALE_NAME}_embeddings_vs_empirical_tsne_efa.png'
+        filename = f'{SCALE_NAME}_comparison_tsne.png'
         filepath = f'{SAVE_DIR}/{filename}'
         plt.savefig(filepath, dpi=300, bbox_inches='tight')
         print(f"\n✓ TSNE EFA comparison saved to: {filepath}")
 
-        plt.show()
+        plt.close()
 
     else:
         print("\n⚠ Factor assignments not available for comparison")
@@ -2517,86 +2366,6 @@ if empirical_data is not None and len(all_results) > 0 and 'all_tsne_embeddings'
 else:
     print(f"\n{'='*70}")
     print("Skipping TSNE EFA comparison (requires both empirical and embedding data)")
-    print(f"{'='*70}")
-
-
-# %%
-# ==============================================================================
-# T-SNE COMPUTATION: Embedding Data
-# ==============================================================================
-
-# Import visualization libraries
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-
-# Prepare data for T-SNE
-print(f"\n{'='*70}")
-print("COMPUTING T-SNE FOR EMBEDDING DATA")
-print(f"{'='*70}")
-print(f"Number of items: {len(factors)}")
-print(f"Number of models: {len(all_embeddings)}")
-
-all_tsne_embeddings = {}
-
-for model_size, embeddings in all_embeddings.items():
-    print(f"\nProcessing {model_size}...")
-    # Input shape (output suppressed) #embeddings.shape}")
-
-    # Run T-SNE dimensionality reduction
-    tsne = TSNE(verbose=0, 
-        n_components=2,      # Reduce to 2D
-        perplexity=10,       # Balance local vs global structure
-        max_iter=1000,       # Max iterations
-        random_state=42,     # Reproducibility
-    )
-
-    # Transform high-D embeddings to 2D
-    embeddings_2d = tsne.fit_transform(embeddings)
-    all_tsne_embeddings[model_size] = embeddings_2d
-
-    # T-SNE complete (output suppressed) #embeddings_2d.shape}")
-
-print(f"\n{'='*70}")
-print(f"✓ T-SNE complete for all {len(all_tsne_embeddings)} models!")
-print(f"{'='*70}")
-
-
-# %%
-# ==============================================================================
-# T-SNE COMPUTATION: Empirical Data
-# ==============================================================================
-
-if empirical_data is not None:
-    print(f"\n{'='*70}")
-    print("COMPUTING T-SNE FOR EMPIRICAL DATA")
-    print(f"{'='*70}")
-    print(f"Input: {empirical_data.shape[0]:,} participants × {empirical_data.shape[1]} items")
-    print(f"Transposing to: {empirical_data.shape[1]} items × {empirical_data.shape[0]:,} participants")
-
-    # Transpose: items become rows, participants become columns
-    empirical_transposed = empirical_data.T
-    print(f"  Transposed shape: {empirical_transposed.shape}")
-    print(f"\n  Running T-SNE on items in participant space...")
-    print(f"  This visualizes item relationships based on human response patterns")
-
-    # Run T-SNE
-    tsne_emp = TSNE(verbose=0, 
-        n_components=2,
-        perplexity=10,
-        max_iter=1000,
-        random_state=42,
-    )
-
-    empirical_2d = tsne_emp.fit_transform(empirical_transposed)
-    # T-SNE complete (output suppressed) # shape: {empirical_2d.shape}")
-
-    print(f"\n{'='*70}")
-    print("✓ EMPIRICAL T-SNE COMPUTATION COMPLETE")
-    print(f"{'='*70}")
-
-else:
-    print(f"\n{'='*70}")
-    print("Empirical data not available - skipping empirical t-SNE")
     print(f"{'='*70}")
 
 
@@ -2616,13 +2385,14 @@ if empirical_results is not None and len(all_results) > 0:
     empirical_loadings = empirical_results['loadings']
     
     # Get LLM-generated factor names for embedding plot
-    if 'factor_name_mappings_nn' in dir() and model_size in factor_name_mappings_nn:
+    embedding_factor_labels = embedding_loadings.columns
+    try:
         embedding_factor_labels = [
-            factor_name_mappings_nn[model_size].get(col, col) 
+            factor_name_mappings_nn[model_size].get(col, col)
             for col in embedding_loadings.columns
         ]
-    else:
-        embedding_factor_labels = embedding_loadings.columns
+    except (NameError, KeyError):
+        pass
     
     # Get theoretical factor names for empirical plot
     empirical_tucker_best = empirical_results.get('tucker_best')
@@ -2676,10 +2446,9 @@ if empirical_results is not None and len(all_results) > 0:
     
     
     # Save
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    filepath = f'{SAVE_DIR}/comparison_loadings.png'
+    filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_loadings.png'
     plt.savefig(filepath, dpi=150, bbox_inches='tight')
-    plt.show()
+    plt.close()
     
     print(f"  ✓ Saved: {filepath}")
     
@@ -2693,7 +2462,7 @@ if empirical_results is not None and len(all_results) > 0:
     print(f"    Difference: {(empirical_variance - embedding_variance):.1%}")
     
 else:
-    print("\\nSkipping comparison - empirical results not available")
+    print("\nSkipping comparison - empirical results not available")
 
 # %%
 # ==============================================================================
@@ -2756,16 +2525,17 @@ if empirical_results is not None and len(all_results) > 0:
         custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
         
         # Get LLM-generated factor names for embedding plot (if available)
-        if 'factor_name_mappings_nn' in dir() and model_size in factor_name_mappings_nn:
+        embedding_axis_labels = list(embedding_factor_names)
+        try:
             embedding_axis_labels = [
                 factor_name_mappings_nn[model_size].get(embedding_factor_names[0], embedding_factor_names[0]),
                 factor_name_mappings_nn[model_size].get(embedding_factor_names[1], embedding_factor_names[1])
             ]
-        else:
-            embedding_axis_labels = embedding_factor_names
-        
+        except (NameError, KeyError):
+            pass
+
         # Get factor assignments for coloring
-        if 'factor_assignments' in dir() and model_size in factor_assignments:
+        if model_size in factor_assignments:
             factor_items = factor_assignments[model_size]
             extracted_factor_names = sorted(factor_items.keys())
             
@@ -2776,12 +2546,12 @@ if empirical_results is not None and len(all_results) > 0:
                     item_to_extracted_factor[item['code']] = factor_name
             
             # Get display names for extracted factors
-            embedding_display_names = {}
-            if 'factor_name_mappings_nn' in dir() and model_size in factor_name_mappings_nn:
+            embedding_display_names = {f: f for f in extracted_factor_names}
+            try:
                 for factor_name in extracted_factor_names:
                     embedding_display_names[factor_name] = factor_name_mappings_nn[model_size].get(factor_name, factor_name)
-            else:
-                embedding_display_names = {f: f for f in extracted_factor_names}
+            except (NameError, KeyError):
+                pass
             
             # Sort factors by display name and assign colors in that order
             sorted_extracted_factors = sorted(extracted_factor_names, key=lambda f: embedding_display_names[f])
@@ -2879,10 +2649,9 @@ if empirical_results is not None and len(all_results) > 0:
         
         
         # Save
-        os.makedirs(SAVE_DIR, exist_ok=True)
-        filepath = f'{SAVE_DIR}/comparison_2d_factor_loadings.png'
+        filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
         plt.savefig(filepath, dpi=150, bbox_inches='tight')
-        plt.show()
+        plt.close()
         
         print(f"  ✓ Saved: {filepath}")
         
@@ -2907,13 +2676,14 @@ if empirical_results is not None and len(all_results) > 0:
     empirical_tucker = empirical_results['tucker']
     
     # Get LLM-generated factor names for embedding plot
-    if 'factor_name_mappings_nn' in dir() and model_size in factor_name_mappings_nn:
+    embedding_factor_labels = embedding_tucker.index
+    try:
         embedding_factor_labels = [
-            factor_name_mappings_nn[model_size].get(idx, idx) 
+            factor_name_mappings_nn[model_size].get(idx, idx)
             for idx in embedding_tucker.index
         ]
-    else:
-        embedding_factor_labels = embedding_tucker.index
+    except (NameError, KeyError):
+        pass
     
     # Get theoretical factor names for empirical plot y-axis
     empirical_tucker_best = empirical_results.get('tucker_best')
@@ -2933,9 +2703,6 @@ if empirical_results is not None and len(all_results) > 0:
     
     # Create side-by-side comparison
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 8))
-
-    # Create colorbars with proper sizing
-    from mpl_toolkits.axes_grid1 import make_axes_locatable
 
     # Create dividers for proper colorbar placement
     divider1 = make_axes_locatable(ax1)
@@ -2968,10 +2735,9 @@ if empirical_results is not None and len(all_results) > 0:
     
     
     # Save
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    filepath = f'{SAVE_DIR}/comparison_tucker.png'
+    filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_tucker.png'
     plt.savefig(filepath, dpi=150, bbox_inches='tight')
-    plt.show()
+    plt.close()
     
     print(f"  ✓ Saved: {filepath}")
     
@@ -2999,7 +2765,7 @@ if empirical_results is not None and len(all_results) > 0:
     print(f"\n  Agreement: {agreement_count}/{total_factors} factors assigned to same theoretical factor")
     
 else:
-    print("\\nSkipping comparison - empirical results not available")
+    print("\nSkipping comparison - empirical results not available")
 
 # %%
 # ==============================================================================
@@ -3079,8 +2845,7 @@ if empirical_results is not None and len(all_results) > 0:
     plt.tight_layout()
 
     # Save figure
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    filename = f'{SCALE_NAME}_embeddings_vs_empirical_scree.png'
+    filename = f'{SCALE_NAME}_comparison_scree.png'
     filepath = f'{SAVE_DIR}/{filename}'
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     print(f"\n✓ Scree plots saved to: {filepath}")
@@ -3094,7 +2859,7 @@ if empirical_results is not None and len(all_results) > 0:
     print(f"    First eigenvalue: {emp_eigenvalues[0]:.2f}")
     print(f"    Factors retained: {emp_n_factors}")
 
-    plt.show()
+    plt.close()
 
 else:
     print("\nSkipping scree plot comparison (requires both empirical and embedding results)")
@@ -3135,8 +2900,6 @@ if empirical_results is not None and len(all_results) > 0:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18 + COMPARISON_SUBPLOT_SPACING, 8))
     
     # Compute statistics for both
-    from scipy.stats import ttest_ind
-    
     # Embeddings stats
     emb_t, emb_p = ttest_ind(emb_within, emb_between, equal_var=False)
     emb_mean_w = np.mean(emb_within)
@@ -3190,10 +2953,9 @@ if empirical_results is not None and len(all_results) > 0:
     plt.tight_layout()
 
     # Save
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    filepath = f'{SAVE_DIR}/comparison_within_between.png'
+    filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_within_between.png'
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.show()
+    plt.close()
     
     print(f"  ✓ Saved: {filepath}")
     
@@ -3210,7 +2972,7 @@ if empirical_results is not None and len(all_results) > 0:
     print(f"    {'p-value':<30} {emb_p:<15.2e} {emp_p:<15.2e}")
     
 else:
-    print("\\nSkipping comparison - empirical results not available")
+    print("\nSkipping comparison - empirical results not available")
 
 # %%
 # ==============================================================================
@@ -3294,13 +3056,12 @@ if empirical_results is not None and len(all_results) > 0:
     plt.tight_layout()
     
     # Save figure
-    os.makedirs(SAVE_DIR, exist_ok=True)
-    filename = f'{SCALE_NAME}_embeddings_vs_empirical_correlation.png'
+    filename = f'{SCALE_NAME}_comparison_correlation.png'
     filepath = f'{SAVE_DIR}/{filename}'
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     print(f"\nPlot saved to: {filepath}")
-    
-    plt.show()
+
+    plt.close()
     
 else:
     print("\nSkipping matrix-level correlation analysis (requires both empirical and embedding results)")

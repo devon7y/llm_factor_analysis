@@ -16,6 +16,9 @@ glove*.txt
 .env
 *.env
 
+# Claude Code
+.claude/
+
 # macOS
 .DS_Store
 
