@@ -1,0 +1,12 @@
+pandas
+numpy
+torch
+sentence_transformers
+matplotlib
+seaborn
+scikit-learn
+scipy
+scikit-bio
+factor_analyzer
+ipykernel
+openai

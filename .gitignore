@@ -27,3 +27,14 @@ glove*.txt
 *.code-workspace
 *.md
 *.json
+
+# Project data/output folders
+results/
+papers/
+scale_codebooks/
+scale_items/
+scale_responses/
+new_scales/
+embeddings/
+incomplete scales/
+old approaches/
