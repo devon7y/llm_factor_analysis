@@ -175,9 +175,18 @@ EIGEN_CRITERIA = 'parallel' # 'parallel' or 'eigen1'
 PARALLEL_ITER = 100
 RANDOM_STATE = 42
 
-ENABLE_METHOD_3 = False # Greedy token prediction for factor naming (experimental, may produce low-quality names)
-
 ENABLE_FACTOR_NAMING = True
+ENABLE_METHOD_3 = True # Greedy token prediction for factor naming (experimental, may produce low-quality names)
+
+# Optional manual ordering for extracted factors in EMBEDDING plots.
+# Leave empty [] to use existing/default ordering logic.
+# You can use either extracted names (e.g., "Factor1") or display labels
+# (e.g., LLM-generated factor names).
+PLOT_EXTRACTED_FACTOR_ORDER = []
+
+# Optional manual ordering for extracted factors in EMPIRICAL (human response)
+# plots. Leave empty [] to use existing/default ordering logic.
+PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = []
 
 np.random.seed(RANDOM_STATE)
 torch.manual_seed(RANDOM_STATE)
@@ -197,15 +206,16 @@ def apply_atomic_reversed(embeddings, scoring):
     embeddings_normalized = embeddings_signed / np.linalg.norm(embeddings_signed, axis=1, keepdims=True)
     return embeddings_normalized
 
-def compute_parallel_analysis(corr_matrix, n_iter=100, percentile=95, random_state=42):
+def compute_parallel_analysis(corr_matrix, n_iter=100, percentile=95, random_state=42, n_obs=None):
     """Parallel analysis for factor retention"""
     np.random.seed(random_state)
     n_items = corr_matrix.shape[0]
     obs_eigenvalues = np.linalg.eigvalsh(corr_matrix)
     obs_eigenvalues = np.sort(obs_eigenvalues)[::-1]
     random_eigenvalues = []
-    for _ in range(n_iter):
+    if n_obs is None:
         n_obs = n_items * 10
+    for _ in range(n_iter):
         random_data = np.random.randn(n_obs, n_items)
         random_corr = np.corrcoef(random_data, rowvar=False)
         eigs = np.linalg.eigvalsh(random_corr)
@@ -247,6 +257,129 @@ def create_theoretical_indicators(theoretical_factors, codes):
         indicators.append(indicator)
     indicators_df = pd.DataFrame(np.array(indicators).T, columns=unique_factors, index=codes)
     return indicators_df
+
+def assign_items_to_extracted_factors(loadings_df, use_abs=True):
+    """Assign each item to the extracted factor with the largest loading."""
+    item_to_factor = {}
+    for item_code in loadings_df.index:
+        loadings = loadings_df.loc[item_code].abs() if use_abs else loadings_df.loc[item_code]
+        item_to_factor[item_code] = loadings.idxmax()
+    return item_to_factor
+
+def build_unique_extracted_factor_label_map(extracted_factors, tucker_best=None):
+    """
+    Build display labels for extracted factors.
+
+    Each theoretical label is used at most once. If multiple extracted factors
+    map to the same theoretical factor, only the best-congruent one keeps that
+    label; the rest keep their original names (e.g., Factor2).
+    """
+    extracted_factors = list(extracted_factors)
+    label_map = {factor: factor for factor in extracted_factors}
+
+    if tucker_best is None or not isinstance(tucker_best, pd.DataFrame):
+        return label_map
+
+    required_cols = {'extracted_factor', 'best_match'}
+    if not required_cols.issubset(tucker_best.columns):
+        return label_map
+
+    candidates = tucker_best[tucker_best['extracted_factor'].isin(extracted_factors)].copy()
+    if candidates.empty:
+        return label_map
+
+    if 'tucker_phi' in candidates.columns:
+        candidates['tucker_phi'] = pd.to_numeric(candidates['tucker_phi'], errors='coerce')
+    else:
+        candidates['tucker_phi'] = np.nan
+
+    factor_order = {factor: i for i, factor in enumerate(extracted_factors)}
+    candidates['_factor_order'] = candidates['extracted_factor'].map(factor_order).fillna(len(factor_order)).astype(int)
+
+    candidates = candidates.sort_values(
+        by=['best_match', 'tucker_phi', '_factor_order'],
+        ascending=[True, False, True],
+        kind='mergesort'
+    )
+
+    winners = candidates.drop_duplicates(subset=['best_match'], keep='first')
+    for _, row in winners.iterrows():
+        best_match = row['best_match']
+        if pd.isna(best_match):
+            continue
+        label = str(best_match).strip()
+        if not label:
+            continue
+        label_map[row['extracted_factor']] = label
+
+    return label_map
+
+def get_extracted_factor_display_labels(extracted_factors, tucker_best=None):
+    """Return ordered display labels and factor->label mapping."""
+    extracted_factors = list(extracted_factors)
+    label_map = build_unique_extracted_factor_label_map(extracted_factors, tucker_best)
+    labels = [label_map.get(factor, factor) for factor in extracted_factors]
+    return labels, label_map
+
+def get_embedding_factor_display_labels(extracted_factors, model_size):
+    """
+    Return display labels for embedding factors.
+
+    - ENABLE_FACTOR_NAMING=True: use LLM-generated names when available.
+    - ENABLE_FACTOR_NAMING=False: keep original extracted names (Factor1, Factor2, ...).
+    """
+    extracted_factors = list(extracted_factors)
+    label_map = {factor: factor for factor in extracted_factors}
+
+    if ENABLE_FACTOR_NAMING:
+        try:
+            model_mapping = factor_name_mappings_nn.get(model_size, {})
+        except NameError:
+            model_mapping = {}
+        for factor in extracted_factors:
+            label_map[factor] = model_mapping.get(factor, factor)
+
+    labels = [label_map[factor] for factor in extracted_factors]
+    return labels, label_map
+
+def apply_manual_extracted_factor_order(factor_names, display_name_map=None, manual_order=None):
+    """
+    Reorder extracted factors based on a provided manual order list.
+
+    Matches each manual entry against either raw extracted factor names
+    (e.g., "Factor1") or display names (e.g., LLM labels). Unmatched factors
+    keep their original order after matched factors.
+    """
+    factors = list(factor_names)
+    manual_order = manual_order or []
+    if not manual_order:
+        return factors
+
+    display_name_map = display_name_map or {}
+
+    key_to_factor = {}
+    for factor in factors:
+        raw_key = str(factor).strip().lower()
+        disp_key = str(display_name_map.get(factor, factor)).strip().lower()
+        if raw_key:
+            key_to_factor.setdefault(raw_key, factor)
+        if disp_key:
+            key_to_factor.setdefault(disp_key, factor)
+
+    ordered = []
+    used = set()
+    for entry in manual_order:
+        key = str(entry).strip().lower()
+        factor = key_to_factor.get(key)
+        if factor is not None and factor not in used:
+            ordered.append(factor)
+            used.add(factor)
+
+    for factor in factors:
+        if factor not in used:
+            ordered.append(factor)
+
+    return ordered
 
 print("✓ Helper functions defined")
 
@@ -647,6 +780,7 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
         n_factors=n_factors,
         rotation=rotation,
         method=extraction_method,
+        is_corr_matrix=True,
         rotation_kwargs={'normalize': True} if rotation in ['promax', 'oblimin'] else {}
     )
 
@@ -831,9 +965,18 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     print(f"  ✓ Data shape: {response_scored.shape}")
     
     print(f"\n[2/7] Computing correlation matrix...")
-    
+
     corr_matrix = np.corrcoef(response_scored.T)
-    
+
+    print(f"  Parity stats:")
+    print(f"    Response shape: {response_scored.shape}")
+    print(f"    Missing values: {np.isnan(response_scored).sum():,}")
+    print(f"    First codes: {codes[:6]}")
+    print(f"    Non-finite in corr: {np.sum(~np.isfinite(corr_matrix))}")
+    eigs_tmp = np.linalg.eigvalsh(corr_matrix)
+    eigs_tmp = np.sort(eigs_tmp)[::-1]
+    print(f"    Obs eigs (top 6): {np.round(eigs_tmp[:6], 4)}")
+
     print(f"  ✓ Correlation matrix shape: {corr_matrix.shape}")
     print(f"  ✓ Correlation range: [{corr_matrix.min():.3f}, {corr_matrix.max():.3f}]")
     print(f"  ✓ Mean correlation: {corr_matrix[np.triu_indices_from(corr_matrix, k=1)].mean():.3f}")
@@ -894,7 +1037,12 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     print(f"\n[5/7] Running EFA extraction...")
     print(f"  Extracting {n_factors} factors with {rotation} rotation...")
 
-    fa = FactorAnalyzer(n_factors=n_factors, rotation=rotation, method=extraction_method)
+    fa = FactorAnalyzer(
+        n_factors=n_factors,
+        rotation=rotation,
+        method=extraction_method,
+        is_corr_matrix=True
+    )
     fa.fit(corr_matrix)
     
     loadings_array = fa.loadings_
@@ -1033,6 +1181,11 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
     print(f"\nCreating visualizations for {model_size}...")
 
     scale_name = Path(save_dir).name
+    manual_plot_order = (
+        PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+        if data_type == 'empirical'
+        else PLOT_EXTRACTED_FACTOR_ORDER
+    )
 
     fig = plt.figure(figsize=(20, 12))
 
@@ -1074,9 +1227,15 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
         loadings_df = results['loadings']
         factor_order = sorted(range(len(factors)), key=lambda i: (factors[i], i))
         ordered_loadings = loadings_df.loc[[codes[i] for i in factor_order]]
+        ordered_extracted = apply_manual_extracted_factor_order(
+            ordered_loadings.columns.tolist(),
+            manual_order=manual_plot_order
+        )
+        ordered_loadings = ordered_loadings[ordered_extracted]
 
         sns.heatmap(ordered_loadings.values, cmap='RdBu_r', center=0,
-                   vmin=-1, vmax=1, ax=ax3, cbar_kws={'label': 'Loading'})
+                   vmin=-1, vmax=1, ax=ax3, cbar_kws={'label': 'Loading'},
+                   xticklabels=ordered_extracted)
         ax3.set_title(f'Factor Loadings - {model_size}')
         ax3.set_xlabel('Extracted Factors')
         ax3.set_ylabel('Items')
@@ -1085,9 +1244,14 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
     ax4 = plt.subplot(2, 3, 4)
     if 'daal' in results:
         daal = results['daal']
+        ordered_extracted = apply_manual_extracted_factor_order(
+            daal.index.tolist(),
+            manual_order=manual_plot_order
+        )
+        daal = daal.loc[ordered_extracted]
         sns.heatmap(daal.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlOrRd',
                    xticklabels=daal.columns, yticklabels=daal.index,
-                   ax=ax4, cbar_kws={'label': 'DAAL'})
+                   ax=ax4, vmin=0, vmax=1, cbar_kws={'label': 'DAAL'})
         ax4.set_title(f'DAAL Matrix - {model_size}')
         ax4.set_xlabel('Theoretical Factors')
         ax4.set_ylabel('Extracted Factors')
@@ -1095,6 +1259,11 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
     ax5 = plt.subplot(2, 3, 5)
     if 'tucker' in results:
         tucker = results['tucker']
+        ordered_extracted = apply_manual_extracted_factor_order(
+            tucker.index.tolist(),
+            manual_order=manual_plot_order
+        )
+        tucker = tucker.loc[ordered_extracted]
         sns.heatmap(tucker.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlGnBu',
                    xticklabels=tucker.columns, yticklabels=tucker.index,
                    ax=ax5, vmin=0, vmax=1, cbar_kws={'label': 'Tucker φ'})
@@ -1104,7 +1273,14 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
 
     ax6 = plt.subplot(2, 3, 6)
     if 'tucker_best' in results:
-        tucker_best = results['tucker_best']
+        tucker_best = results['tucker_best'].copy()
+        ordered_extracted = apply_manual_extracted_factor_order(
+            tucker_best['extracted_factor'].tolist(),
+            manual_order=manual_plot_order
+        )
+        rank = {factor: i for i, factor in enumerate(ordered_extracted)}
+        tucker_best['_plot_order'] = tucker_best['extracted_factor'].map(rank).fillna(len(rank)).astype(int)
+        tucker_best = tucker_best.sort_values('_plot_order').drop(columns=['_plot_order'])
         colors = ['green' if x >= 0.95 else 'orange' if x >= 0.85 else 'red'
                  for x in tucker_best['tucker_phi']]
         ax6.barh(tucker_best['extracted_factor'], tucker_best['tucker_phi'], color=colors)
@@ -1886,111 +2062,143 @@ if empirical_data is not None and len(all_results) > 0:
     model_size = list(all_tsne_embeddings.keys())[0]
     embeddings_2d = all_tsne_embeddings[model_size]
 
-    embedding_assignments = all_results[model_size].get('daal_assignments')
-    empirical_assignments = empirical_results.get('daal_assignments')
+    embedding_loadings_df = all_results[model_size].get('loadings')
+    empirical_loadings_df = empirical_results.get('loadings')
 
-    if embedding_assignments is not None and empirical_assignments is not None:
+    if embedding_loadings_df is not None and empirical_loadings_df is not None:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 7))
 
         custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
 
-        empirical_factor_map = {}
-        for _, row in empirical_assignments.iterrows():
-            assigned_factor = row['assigned_to']
-            extracted_factor = row['extracted_factor']
-            loadings_df = empirical_results['loadings']
-            for item_code in loadings_df.index:
-                if loadings_df.loc[item_code].idxmax() == extracted_factor:
-                    empirical_factor_map[item_code] = assigned_factor
+        empirical_item_to_factor = assign_items_to_extracted_factors(empirical_loadings_df)
+        _, empirical_label_map = get_extracted_factor_display_labels(
+            empirical_loadings_df.columns.tolist(),
+            empirical_results.get('tucker_best')
+        )
+        ordered_empirical_extracted = apply_manual_extracted_factor_order(
+            empirical_loadings_df.columns.tolist(),
+            empirical_label_map,
+            manual_order=PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+        )
+        empirical_display_order = []
+        for factor_name in ordered_empirical_extracted:
+            label = empirical_label_map.get(factor_name, factor_name)
+            if label not in empirical_display_order:
+                empirical_display_order.append(label)
+        empirical_item_to_display = {
+            item_code: empirical_label_map.get(factor_name, factor_name)
+            for item_code, factor_name in empirical_item_to_factor.items()
+        }
+        empirical_factor_colors = {
+            label: custom_colors[i % len(custom_colors)]
+            for i, label in enumerate(empirical_display_order)
+        }
+        empirical_handles = {}
 
-        empirical_unique_factors = sorted(set(empirical_factor_map.values()))
-        empirical_factor_colors = {factor: custom_colors[i % len(custom_colors)]
-                                  for i, factor in enumerate(empirical_unique_factors)}
-
-        for factor in empirical_unique_factors:
-            indices = [i for i, code in enumerate(codes) if empirical_factor_map.get(code) == factor]
+        for label in empirical_display_order:
+            indices = [i for i, code in enumerate(codes) if empirical_item_to_display.get(code) == label]
             if indices:
-                ax1.scatter(
+                handle = ax1.scatter(
                     empirical_2d[indices, 0],
                     empirical_2d[indices, 1],
-                    c=[empirical_factor_colors[factor]],
-                    label=factor,
+                    c=[empirical_factor_colors[label]],
+                    label=label,
                     alpha=0.7,
                     s=100,
                     edgecolors='black',
                     linewidths=0.5
                 )
+                empirical_handles[label] = handle
 
         for i in range(len(empirical_2d)):
             ax1.annotate(
                 codes[i],
                 (empirical_2d[i, 0], empirical_2d[i, 1]),
                 fontsize=8,
+                textcoords='offset points',
+                xytext=(0, 6),
                 ha='center',
-                va='center',
+                va='bottom',
                 fontweight='bold'
             )
 
         ax1.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax1.set_ylabel('t-SNE Dimension 2', fontsize=12)
         ax1.set_title('t-SNE (Human Responses)', fontsize=14, fontweight='bold')
-        ax1.legend(loc='upper right', fontsize=9, framealpha=0.9)
+        empirical_legend_order = [label for label in empirical_display_order if label in empirical_handles]
+        ax1.legend(
+            [empirical_handles[label] for label in empirical_legend_order],
+            empirical_legend_order,
+            loc='upper right',
+            fontsize=9,
+            framealpha=0.9
+        )
         ax1.grid(True, alpha=0.3)
         ax1.set_aspect('equal', adjustable='datalim')
 
-        embedding_factor_map = {}
-        for _, row in embedding_assignments.iterrows():
-            extracted_factor = row['extracted_factor']
-            loadings_df = all_results[model_size]['loadings']
-            for item_code in loadings_df.index:
-                if loadings_df.loc[item_code].idxmax() == extracted_factor:
-                    embedding_factor_map[item_code] = extracted_factor
-
-        embedding_unique_factors = sorted(set(embedding_factor_map.values()))
-        embedding_factor_display_names = {factor: factor for factor in embedding_unique_factors}
-        try:
-            embedding_factor_display_names = {
-                factor: factor_name_mappings_nn[model_size].get(factor, factor)
-                for factor in embedding_unique_factors
-            }
-        except (NameError, KeyError):
-            pass
-
-        embedding_unique_factors = sorted(
-            embedding_unique_factors,
-            key=lambda factor: embedding_factor_display_names[factor]
+        embedding_item_to_factor = assign_items_to_extracted_factors(embedding_loadings_df)
+        _, embedding_label_map = get_embedding_factor_display_labels(
+            embedding_loadings_df.columns.tolist(),
+            model_size
         )
-        embedding_factor_colors = {factor: custom_colors[i % len(custom_colors)]
-                                   for i, factor in enumerate(embedding_unique_factors)}
+        ordered_embedding_extracted = apply_manual_extracted_factor_order(
+            embedding_loadings_df.columns.tolist(),
+            embedding_label_map,
+            manual_order=PLOT_EXTRACTED_FACTOR_ORDER
+        )
+        embedding_display_order = []
+        for factor_name in ordered_embedding_extracted:
+            label = embedding_label_map.get(factor_name, factor_name)
+            if label not in embedding_display_order:
+                embedding_display_order.append(label)
+        embedding_item_to_display = {
+            item_code: embedding_label_map.get(factor_name, factor_name)
+            for item_code, factor_name in embedding_item_to_factor.items()
+        }
+        embedding_factor_colors = {
+            label: custom_colors[i % len(custom_colors)]
+            for i, label in enumerate(embedding_display_order)
+        }
+        embedding_handles = {}
 
-        for factor in embedding_unique_factors:
-            indices = [i for i, code in enumerate(codes) if embedding_factor_map.get(code) == factor]
+        for label in embedding_display_order:
+            indices = [i for i, code in enumerate(codes) if embedding_item_to_display.get(code) == label]
             if indices:
-                ax2.scatter(
+                handle = ax2.scatter(
                     embeddings_2d[indices, 0],
                     embeddings_2d[indices, 1],
-                    c=[embedding_factor_colors[factor]],
-                    label=embedding_factor_display_names[factor],
+                    c=[embedding_factor_colors[label]],
+                    label=label,
                     alpha=0.7,
                     s=100,
                     edgecolors='black',
                     linewidths=0.5
                 )
+                embedding_handles[label] = handle
 
         for i in range(len(embeddings_2d)):
             ax2.annotate(
                 codes[i],
                 (embeddings_2d[i, 0], embeddings_2d[i, 1]),
                 fontsize=8,
+                textcoords='offset points',
+                xytext=(0, 6),
                 ha='center',
-                va='center',
+                va='bottom',
                 fontweight='bold'
             )
 
         ax2.set_xlabel('t-SNE Dimension 1', fontsize=12)
         ax2.set_ylabel('t-SNE Dimension 2', fontsize=12)
         ax2.set_title('t-SNE (Embeddings)', fontsize=14, fontweight='bold')
-        ax2.legend(loc='upper right', fontsize=9, framealpha=0.9)
+        embedding_legend_order = [label for label in embedding_display_order if label in embedding_handles]
+        ax2.legend(
+            [embedding_handles[label] for label in embedding_legend_order],
+            embedding_legend_order,
+            loc='upper right',
+            fontsize=9,
+            framealpha=0.9
+        )
         ax2.grid(True, alpha=0.3)
         ax2.set_aspect('equal', adjustable='datalim')
 
@@ -2004,8 +2212,8 @@ if empirical_data is not None and len(all_results) > 0:
         plt.close()
 
     else:
-        print("\n⚠ Factor assignments not available for comparison")
-        print("  Both analyses need DAAL assignments to create EFA factor visualization")
+        print("\n⚠ Factor loadings not available for comparison")
+        print("  Both analyses need extracted loadings to create EFA factor visualization")
 
 else:
     print(f"\n{'='*70}")
@@ -2071,36 +2279,35 @@ if empirical_results is not None and len(all_results) > 0:
     model_size = list(all_results.keys())[0]
     embedding_loadings = all_results[model_size]['loadings']
     empirical_loadings = empirical_results['loadings']
-    
-    embedding_factor_labels = embedding_loadings.columns
-    try:
-        embedding_factor_labels = [
-            factor_name_mappings_nn[model_size].get(col, col)
-            for col in embedding_loadings.columns
-        ]
-    except (NameError, KeyError):
-        pass
-    
-    empirical_tucker_best = empirical_results.get('tucker_best')
-    if empirical_tucker_best is not None:
-        empirical_factor_map = {}
-        for _, row in empirical_tucker_best.iterrows():
-            empirical_factor_map[row['extracted_factor']] = row['best_match']
-        
-        empirical_factor_labels = [
-            empirical_factor_map.get(col, col) 
-            for col in empirical_loadings.columns
-        ]
-    else:
-        empirical_factor_labels = empirical_loadings.columns
+
+    embedding_factor_labels, embedding_display_label_map = get_embedding_factor_display_labels(
+        embedding_loadings.columns.tolist(),
+        model_size
+    )
+    empirical_factor_labels, empirical_display_label_map = get_extracted_factor_display_labels(
+        empirical_loadings.columns.tolist(),
+        empirical_results.get('tucker_best')
+    )
+    ordered_embedding_extracted = apply_manual_extracted_factor_order(
+        embedding_loadings.columns.tolist(),
+        embedding_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER
+    )
+    ordered_empirical_extracted = apply_manual_extracted_factor_order(
+        empirical_loadings.columns.tolist(),
+        empirical_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+    )
+    embedding_factor_labels = [embedding_display_label_map.get(factor, factor) for factor in ordered_embedding_extracted]
+    empirical_factor_labels = [empirical_display_label_map.get(factor, factor) for factor in ordered_empirical_extracted]
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18 + COMPARISON_SUBPLOT_SPACING, 10))
     
     factor_order = sorted(range(len(factors)), key=lambda i: (factors[i], i))
     ordered_codes = [codes[i] for i in factor_order]
     
-    embedding_ordered = embedding_loadings.loc[ordered_codes]
-    empirical_ordered = empirical_loadings.loc[ordered_codes]
+    embedding_ordered = embedding_loadings.loc[ordered_codes, ordered_embedding_extracted]
+    empirical_ordered = empirical_loadings.loc[ordered_codes, ordered_empirical_extracted]
     
     sns.heatmap(empirical_ordered.values, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
                ax=ax1, cbar_kws={'label': 'Loading'},
@@ -2153,92 +2360,95 @@ if empirical_results is not None and len(all_results) > 0:
     empirical_tucker_best = empirical_results.get('tucker_best')
     
     if embedding_tucker_best is not None and empirical_tucker_best is not None:
-        embedding_factor_map = {}
-        for _, row in embedding_tucker_best.iterrows():
-            embedding_factor_map[row['best_match']] = row['extracted_factor']
-        
-        empirical_factor_map = {}
-        for _, row in empirical_tucker_best.iterrows():
-            empirical_factor_map[row['best_match']] = row['extracted_factor']
-        
-        embedding_theoretical_loadings = []
-        empirical_theoretical_loadings = []
-        item_labels = []
-        theoretical_factors_list = []
-        
-        for i, (code, item_factor) in enumerate(zip(codes, factors)):
-            embedding_extracted = embedding_factor_map.get(item_factor)
-            empirical_extracted = empirical_factor_map.get(item_factor)
-            
-            if embedding_extracted and empirical_extracted:
-                embedding_loading = embedding_loadings.loc[code, embedding_extracted]
-                empirical_loading = empirical_loadings.loc[code, empirical_extracted]
-                
-                embedding_theoretical_loadings.append(embedding_loading)
-                empirical_theoretical_loadings.append(empirical_loading)
-                item_labels.append(code)
-                theoretical_factors_list.append(item_factor)
-        
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 10))
-        
-        embedding_factor_names = list(embedding_loadings.columns[:2])
-        empirical_factor_names = list(empirical_loadings.columns[:2])
-        can_plot_2d = len(embedding_factor_names) >= 2 and len(empirical_factor_names) >= 2
-        
-        custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
-        
-        embedding_axis_labels = list(embedding_factor_names)
-        try:
-            embedding_axis_labels = [factor_name_mappings_nn[model_size].get(factor_name, factor_name)
-                                     for factor_name in embedding_factor_names]
-        except (NameError, KeyError):
-            pass
 
-        if model_size in factor_assignments:
-            factor_items = factor_assignments[model_size]
-            extracted_factor_names = sorted(factor_items.keys())
-            
-            item_to_extracted_factor = {}
-            for factor_name in extracted_factor_names:
-                for item in factor_items[factor_name]:
-                    item_to_extracted_factor[item['code']] = factor_name
-            
-            embedding_display_names = {f: f for f in extracted_factor_names}
-            try:
-                for factor_name in extracted_factor_names:
-                    embedding_display_names[factor_name] = factor_name_mappings_nn[model_size].get(factor_name, factor_name)
-            except (NameError, KeyError):
-                pass
-            
-            sorted_extracted_factors = sorted(extracted_factor_names, key=lambda f: embedding_display_names[f])
-            embedding_factor_colors = {factor: custom_colors[i % len(custom_colors)] 
-                                      for i, factor in enumerate(sorted_extracted_factors)}
+        custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
+
+        _, embedding_display_label_map = get_embedding_factor_display_labels(
+            embedding_loadings.columns.tolist(),
+            model_size
+        )
+        _, empirical_display_label_map = get_extracted_factor_display_labels(
+            empirical_loadings.columns.tolist(),
+            empirical_tucker_best
+        )
+        ordered_embedding_extracted = apply_manual_extracted_factor_order(
+            embedding_loadings.columns.tolist(),
+            embedding_display_label_map,
+            manual_order=PLOT_EXTRACTED_FACTOR_ORDER
+        )
+        ordered_empirical_extracted = apply_manual_extracted_factor_order(
+            empirical_loadings.columns.tolist(),
+            empirical_display_label_map,
+            manual_order=PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+        )
+        def get_2d_factor_spec(ordered_extracted, display_label_map):
+            if not ordered_extracted:
+                return [None, None], ['Factor1', 'No Factor 2 (0)']
+            if len(ordered_extracted) == 1:
+                first = ordered_extracted[0]
+                return [first, None], [display_label_map.get(first, first), 'No Factor 2 (0)']
+            first, second = ordered_extracted[:2]
+            return [first, second], [
+                display_label_map.get(first, first),
+                display_label_map.get(second, second)
+            ]
+
+        embedding_factor_names, embedding_axis_labels = get_2d_factor_spec(
+            ordered_embedding_extracted,
+            embedding_display_label_map
+        )
+        empirical_factor_names, empirical_axis_labels = get_2d_factor_spec(
+            ordered_empirical_extracted,
+            empirical_display_label_map
+        )
+
+        item_to_extracted_factor = assign_items_to_extracted_factors(embedding_loadings)
+        embedding_extracted_factors = ordered_embedding_extracted
+        embedding_display_names = {
+            factor_name: embedding_display_label_map.get(factor_name, factor_name)
+            for factor_name in embedding_extracted_factors
+        }
+        if PLOT_EXTRACTED_FACTOR_ORDER:
+            sorted_embedding_factors = embedding_extracted_factors
         else:
-            item_to_extracted_factor = {code: factor for code, factor in zip(codes, factors)}
-            extracted_factor_names = sorted(set(factors))
-            embedding_display_names = {f: f for f in extracted_factor_names}
-            sorted_extracted_factors = sorted(extracted_factor_names)
-            embedding_factor_colors = {factor: custom_colors[i % len(custom_colors)] 
-                                      for i, factor in enumerate(sorted_extracted_factors)}
-        
-        empirical_factor_names_list = sorted(set(factors))
-        empirical_factor_colors = {factor: custom_colors[i % len(custom_colors)] 
-                                  for i, factor in enumerate(empirical_factor_names_list)}
+            sorted_embedding_factors = sorted(
+                embedding_extracted_factors,
+                key=lambda factor_name: embedding_display_names[factor_name]
+            )
+        embedding_factor_colors = {
+            factor_name: custom_colors[i % len(custom_colors)]
+            for i, factor_name in enumerate(sorted_embedding_factors)
+        }
+
+        item_to_empirical_factor = assign_items_to_extracted_factors(empirical_loadings)
+        empirical_extracted_factors = ordered_empirical_extracted
+        empirical_display_names = {
+            factor_name: empirical_display_label_map.get(factor_name, factor_name)
+            for factor_name in empirical_extracted_factors
+        }
+        if PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL:
+            sorted_empirical_factors = empirical_extracted_factors
+        else:
+            sorted_empirical_factors = sorted(
+                empirical_extracted_factors,
+                key=lambda factor_name: empirical_display_names[factor_name]
+            )
+        empirical_factor_colors = {
+            factor_name: custom_colors[i % len(custom_colors)]
+            for i, factor_name in enumerate(sorted_empirical_factors)
+        }
         
         def plot_2d_loadings(ax, loadings_df, factor_names, axis_labels, title, 
-                            item_colors_map, factor_list, display_names):
-            theta = np.linspace(0, 2*np.pi, 100)
-            circle_x = np.cos(theta)
-            circle_y = np.sin(theta)
-            ax.plot(circle_x, circle_y, 'k--', alpha=0.3, linewidth=1)
-            
+                            item_colors_map, factor_list, display_names,
+                            use_manual_order=False):
             ax.axhline(y=0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
             ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
             
             for i, code in enumerate(codes):
                 if code in loadings_df.index and code in item_colors_map:
-                    x = loadings_df.loc[code, factor_names[0]]
-                    y = loadings_df.loc[code, factor_names[1]]
+                    x = loadings_df.loc[code, factor_names[0]] if factor_names[0] is not None else 0.0
+                    y = loadings_df.loc[code, factor_names[1]] if factor_names[1] is not None else 0.0
                     
                     item_factor = item_colors_map[code]
                     
@@ -2256,48 +2466,35 @@ if empirical_results is not None and len(all_results) > 0:
             ax.set_ylim(-1.1, 1.1)
             ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             
-            sorted_factors = sorted(factor_list.keys(), key=lambda f: display_names[f])
+            if use_manual_order:
+                sorted_factors = list(factor_list.keys())
+            else:
+                sorted_factors = sorted(factor_list.keys(), key=lambda f: display_names[f])
             legend_elements = [plt.Line2D([0], [0], marker='o', color='w', 
                                          markerfacecolor=factor_list[f], 
                                          markersize=10, label=display_names[f], alpha=0.7)
                               for f in sorted_factors]
-            ax.legend(handles=legend_elements, loc='best')
+            ax.legend(handles=legend_elements, loc='upper right')
+
+        plot_2d_loadings(ax1, empirical_loadings, empirical_factor_names, empirical_axis_labels,
+                        'Factor Loadings Plot (Human Responses)',
+                        item_to_empirical_factor, empirical_factor_colors, empirical_display_names,
+                        use_manual_order=bool(PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL))
+
+        plot_2d_loadings(ax2, embedding_loadings, embedding_factor_names, embedding_axis_labels,
+                        'Factor Loadings Plot (Embeddings)',
+                        item_to_extracted_factor, embedding_factor_colors, embedding_display_names,
+                        use_manual_order=bool(PLOT_EXTRACTED_FACTOR_ORDER))
+
+        filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
+        plt.savefig(filepath, dpi=150, bbox_inches='tight')
+        plt.close()
         
-        item_to_theoretical = {code: factor for code, factor in zip(codes, factors)}
-        empirical_display_names = {f: f for f in empirical_factor_names_list}
-
-        empirical_axis_labels = []
-        for factor_name in empirical_factor_names:
-            best_match = None
-            for theo_factor, extracted_factor in empirical_factor_map.items():
-                if extracted_factor == factor_name:
-                    best_match = theo_factor
-                    break
-            empirical_axis_labels.append(best_match if best_match else factor_name)
-
-        if can_plot_2d:
-            plot_2d_loadings(ax1, empirical_loadings, empirical_factor_names, empirical_axis_labels,
-                            'Factor Loadings Plot (Human Responses)',
-                            item_to_theoretical, empirical_factor_colors, empirical_display_names)
-
-            plot_2d_loadings(ax2, embedding_loadings, embedding_factor_names, embedding_axis_labels,
-                            'Factor Loadings Plot (Embeddings)',
-                            item_to_extracted_factor, embedding_factor_colors, embedding_display_names)
-
-            filepath = f'{SAVE_DIR}/{SCALE_NAME}_comparison_factor_loadings.png'
-            plt.savefig(filepath, dpi=150, bbox_inches='tight')
-            plt.close()
-            
-            print(f"  ✓ Saved: {filepath}")
-            
-            print(f"\n  Factor Pair Visualized:")
-            print(f"    Embeddings: {embedding_axis_labels[0]} vs {embedding_axis_labels[1]}")
-            print(f"    Empirical:  {empirical_axis_labels[0]} vs {empirical_axis_labels[1]}")
-        else:
-            plt.close()
-            print("  Skipping 2D factor-loading plot: requires at least 2 extracted factors in both solutions.")
-            print(f"    Embeddings extracted factors: {len(embedding_loadings.columns)}")
-            print(f"    Empirical extracted factors:  {len(empirical_loadings.columns)}")
+        print(f"  ✓ Saved: {filepath}")
+        
+        print(f"\n  Factor Pair Visualized:")
+        print(f"    Embeddings: {embedding_axis_labels[0]} vs {embedding_axis_labels[1]}")
+        print(f"    Empirical:  {empirical_axis_labels[0]} vs {empirical_axis_labels[1]}")
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2308,27 +2505,28 @@ if empirical_results is not None and len(all_results) > 0:
     embedding_daal = all_results[model_size]['daal']
     empirical_daal = empirical_results['daal']
 
-    # Get factor labels with LLM-generated names for embeddings
-    embedding_factor_labels = embedding_daal.index.tolist()
-    try:
-        embedding_factor_labels = [
-            factor_name_mappings_nn[model_size].get(factor, factor)
-            for factor in embedding_daal.index
-        ]
-    except (NameError, KeyError):
-        pass
-
-    # For empirical, map to theoretical factors if available
-    empirical_factor_labels = empirical_daal.index.tolist()
-    empirical_tucker_best = empirical_results.get('tucker_best')
-    if empirical_tucker_best is not None:
-        empirical_factor_map = {}
-        for _, row in empirical_tucker_best.iterrows():
-            empirical_factor_map[row['extracted_factor']] = row['best_match']
-        empirical_factor_labels = [
-            empirical_factor_map.get(factor, factor)
-            for factor in empirical_daal.index
-        ]
+    embedding_factor_labels, embedding_display_label_map = get_embedding_factor_display_labels(
+        embedding_daal.index.tolist(),
+        model_size
+    )
+    empirical_factor_labels, empirical_display_label_map = get_extracted_factor_display_labels(
+        empirical_daal.index.tolist(),
+        empirical_results.get('tucker_best')
+    )
+    ordered_embedding_extracted = apply_manual_extracted_factor_order(
+        embedding_daal.index.tolist(),
+        embedding_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER
+    )
+    ordered_empirical_extracted = apply_manual_extracted_factor_order(
+        empirical_daal.index.tolist(),
+        empirical_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+    )
+    embedding_daal = embedding_daal.loc[ordered_embedding_extracted]
+    empirical_daal = empirical_daal.loc[ordered_empirical_extracted]
+    embedding_factor_labels = [embedding_display_label_map.get(factor, factor) for factor in ordered_embedding_extracted]
+    empirical_factor_labels = [empirical_display_label_map.get(factor, factor) for factor in ordered_empirical_extracted]
 
     # Create side-by-side comparison
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 8))
@@ -2343,7 +2541,7 @@ if empirical_results is not None and len(all_results) > 0:
     # LEFT: Empirical DAAL
     sns.heatmap(empirical_daal.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlOrRd',
                xticklabels=empirical_daal.columns, yticklabels=empirical_factor_labels,
-               ax=ax1, cbar_ax=cax1, cbar_kws={'label': 'DAAL'})
+               ax=ax1, vmin=0, vmax=1, cbar_ax=cax1, cbar_kws={'label': 'DAAL'})
     ax1.set_title('DAAL Matrix (Human Responses)', fontweight='bold')
     ax1.set_xlabel('Theoretical Factors')
     ax1.set_ylabel('Extracted Factors')
@@ -2351,7 +2549,7 @@ if empirical_results is not None and len(all_results) > 0:
     # RIGHT: Embedding DAAL
     sns.heatmap(embedding_daal.values, annot=True, annot_kws={'fontsize': 15}, fmt='.3f', cmap='YlOrRd',
                xticklabels=embedding_daal.columns, yticklabels=embedding_factor_labels,
-               ax=ax2, cbar_ax=cax2, cbar_kws={'label': 'DAAL'})
+               ax=ax2, vmin=0, vmax=1, cbar_ax=cax2, cbar_kws={'label': 'DAAL'})
     ax2.set_title('DAAL Matrix (Embeddings)', fontweight='bold')
     ax2.set_xlabel('Theoretical Factors')
     ax2.set_ylabel('Extracted Factors')
@@ -2373,28 +2571,29 @@ if empirical_results is not None and len(all_results) > 0:
     model_size = list(all_results.keys())[0]
     embedding_tucker = all_results[model_size]['tucker']
     empirical_tucker = empirical_results['tucker']
-    
-    embedding_factor_labels = embedding_tucker.index
-    try:
-        embedding_factor_labels = [
-            factor_name_mappings_nn[model_size].get(idx, idx)
-            for idx in embedding_tucker.index
-        ]
-    except (NameError, KeyError):
-        pass
-    
-    empirical_tucker_best = empirical_results.get('tucker_best')
-    if empirical_tucker_best is not None:
-        empirical_factor_map = {}
-        for _, row in empirical_tucker_best.iterrows():
-            empirical_factor_map[row['extracted_factor']] = row['best_match']
-        
-        empirical_factor_labels = [
-            empirical_factor_map.get(idx, idx) 
-            for idx in empirical_tucker.index
-        ]
-    else:
-        empirical_factor_labels = empirical_tucker.index
+
+    embedding_factor_labels, embedding_display_label_map = get_embedding_factor_display_labels(
+        embedding_tucker.index.tolist(),
+        model_size
+    )
+    empirical_factor_labels, empirical_display_label_map = get_extracted_factor_display_labels(
+        empirical_tucker.index.tolist(),
+        empirical_results.get('tucker_best')
+    )
+    ordered_embedding_extracted = apply_manual_extracted_factor_order(
+        embedding_tucker.index.tolist(),
+        embedding_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER
+    )
+    ordered_empirical_extracted = apply_manual_extracted_factor_order(
+        empirical_tucker.index.tolist(),
+        empirical_display_label_map,
+        manual_order=PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL
+    )
+    embedding_tucker = embedding_tucker.loc[ordered_embedding_extracted]
+    empirical_tucker = empirical_tucker.loc[ordered_empirical_extracted]
+    embedding_factor_labels = [embedding_display_label_map.get(factor, factor) for factor in ordered_embedding_extracted]
+    empirical_factor_labels = [empirical_display_label_map.get(factor, factor) for factor in ordered_empirical_extracted]
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20 + COMPARISON_SUBPLOT_SPACING, 8))
 
