@@ -1,0 +1,24 @@
+The Introduction is good for now. We will move on to the Methods section.
+
+For our analyses in this study, we ran both traditional factor analysis as well as semantic factor analysis on a large number of psychometric scales. The results for all scales can be found here: /Users/devon7y/VS_Code/LLM_Factor_Analysis/results
+
+For this paper, we will not report the results for every scale we analyzed (we found similar results for many scales, and we wan't to avoid too much repetition in the paper. We may include the remaining results in the supplementary materials, but don't mention this in the Methods yet).
+
+For now, we will only include the following scales in our paper:
+- DASS
+- BDI
+- BAI
+- MACH-IV
+- MFQ
+- 
+First, describe our human data sample
+
+Our human response data came from a variety of sources. 
+
+The full method is contained in this single Python script: /Users/devon7y/VS_Code/LLM_Factor_Analysis/qwen3_efa.py
+
+
+
+
+
+For human data, we 

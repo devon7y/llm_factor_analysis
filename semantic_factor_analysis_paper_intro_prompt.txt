@@ -1,0 +1,195 @@
+Your task is to use your write-paper Skill to write a paper titled "Semantic Factor Analysis: Analyzing Psychometric Scales Using Large-Language Models" The authors are Devon Yanitski and Chris Westbury, both affiliated with the University of Alberta. Also include a third author, Claude Sonnet 4.6, who is affiliated with Anthropic.
+
+
+
+Initialize the LaTeX environment. Then, write the Introduction based on this point-form overview:
+
+- Psychological science depends fundamentally on the ability to define, measure, and interpret constructs—latent entities such as intelligence, depression, personality traits, and moral dispositions that are not directly observable but are inferred from patterns of behavior, self-report, and other indicators. 
+
+- Psychological constructs have been understood in several different ways across the history of psychology. One influential view is latent variable realism, according to which constructs are real but unobserved attributes that give rise to regularities in behavior and test responses. This way of thinking is closely tied to the early factor-analytic tradition, especially Spearman’s proposal that a general factor could account for the positive correlations among cognitive tests (Spearman, 1904). A second view is operationalism, which treats a construct as identical with the procedures used to measure it; on this account, the meaning of a construct is exhausted by the operations through which it is defined and observed (Bridgman, 1927). A third perspective is dispositional or trait realism, which regards constructs as enduring tendencies or dispositions to behave, think, or feel in certain ways across situations, rather than as merely statistical summaries of item covariation (Allport, 1937). A fourth approach is biological or natural-kind realism, which seeks to ground psychological constructs in underlying biological or neural mechanisms and often treats successful scientific constructs as those that eventually map onto stable etiological or mechanistic categories (Robins & Guze, 1970). A fifth tradition is social constructionism, which emphasizes that at least some constructs are historically and culturally produced classificatory practices rather than mind-independent natural kinds waiting to be discovered (Hacking, 1999). A sixth alternative is the network view, which denies that constructs must be common causes at all and instead interprets them as emergent systems of mutually reinforcing components, such as symptoms that directly influence one another rather than merely reflect a hidden latent disorder (Borsboom, 2008). Finally, more recent computational and representational views interpret constructs as stable patterns or dimensions in high-dimensional representational spaces, such as semantic vector spaces learned from linguistic or behavioral data (Mikolov et al., 2013).
+
+- Among these theories, the account developed by Cronbach and Meehl is especially important because it avoids two unsatisfying extremes. On the one hand, it rejects the thinness of strict operationalism, which collapses a construct into whatever a particular test happens to measure. On the other hand, it avoids a naïve essentialism in which constructs are treated as though they possessed a fully known inner essence independent of empirical inquiry. In their classic paper on construct validity, Cronbach and Meehl (1955) argued that many psychological attributes cannot be validated by direct criterion correspondence alone, because they are theoretical entities posited to explain lawful patterns among observations. For that reason, a construct should be understood through its place in a nomological network: a system of lawful relations linking the construct to other constructs, observable indicators, experimental manipulations, and behavioral outcomes. A construct such as anxiety, working memory, or extraversion is scientifically meaningful not because one has somehow peered directly into its intrinsic nature, but because it occupies a coherent and productive role in an organized body of theory and evidence (Cronbach & Meehl, 1955).
+
+- Cronbach and Meehl’s theory is particularly useful for the present purposes because it captures how psychological science actually proceeds. Psychological constructs are rarely discovered in the same way as directly observable objects. Instead, they are inferred from patterned relations: correlations among measures, regular responses to interventions, predictable links to external criteria, and systematic distinctions from neighboring constructs. The nomological-network view does justice to this inferential structure. It allows constructs to be more than arbitrary measurement conventions, because their legitimacy depends on converging empirical relations, yet it does not require that psychologists identify a single hidden essence or biological substrate before a construct can count as scientifically respectable. In this way, Cronbach and Meehl offer a form of disciplined realism: constructs are neither mere names nor fully transparent natural kinds, but theoretical nodes whose credibility increases when they participate in stable, coherent, and explanatorily useful patterns of evidence (Cronbach & Meehl, 1955; Messick, 1995).
+
+- This feature of Cronbach and Meehl’s view is captured statistically by factor analysis. Factor analysis does not by itself prove that a construct exists, but it provides a formal way to examine whether a set of observed variables behaves as though it reflects a common underlying dimension. When several items covary strongly, factor analysis represents that shared variance as a latent factor, thereby summarizing one important part of the construct’s empirical role in the nomological network. In this sense, factor loadings express the degree to which each observed indicator participates in the common relational pattern, while the correlations among factors express how multiple constructs are positioned relative to one another within a broader theoretical system (Spearman, 1904; Cronbach & Meehl, 1955). Exploratory factor analysis can reveal whether item covariation is organized in a way that is consistent with a hypothesized construct, and confirmatory factor analysis can test whether a prespecified measurement model fits the observed covariance structure. These procedures therefore operationalize, at the level of covariance structure, the idea that constructs are known through lawful relations rather than direct inspection. 
+
+- More specifically, factor analysis captures the nomological-network idea in at least three ways. First, it addresses internal structural coherence: if a proposed construct is genuine, the indicators meant to measure it should show a patterned covariance structure rather than a random collection of associations. Second, it helps establish convergent and discriminant validity: indicators of the same construct should load together, whereas indicators of distinct constructs should separate in theoretically sensible ways. Third, factor correlations and structural models permit the researcher to link the measurement model to broader theory, connecting latent variables to one another and to external outcomes. Thus, factor analysis is not the whole of construct validation, but it is a powerful statistical instantiation of Cronbach and Meehl’s central insight that constructs derive their scientific standing from organized patterns of empirical relations (Cronbach & Meehl, 1955; Clark & Watson, 2019; Messick, 1995).
+
+- For that reason, Cronbach and Meehl’s account provides a particularly useful framework for integrating statistical and semantic analyses of constructs. Pure operationalism makes constructs too local and test-bound; radical constructionism risks making them too historically contingent; strict biological realism demands a level of reduction that many successful psychological constructs may never achieve; and strong latent realism can encourage the mistaken idea that a well-fitting measurement model has already uncovered the construct’s full nature. The nomological-network view is more defensible because it is epistemically modest and scientifically productive. It treats constructs as theoretical posits whose legitimacy is earned through repeated empirical success across multiple lines of evidence. Factor analysis fits naturally into this framework because it translates one part of that success, namely coherent covariance among indicators, into a formal statistical model. In that sense, factor analysis does not replace the nomological network; it gives one of its most important components a precise mathematical expression.
+
+- Factor analysis identifies patterns of covariance among observed variables and summarizes them in terms of latent factors. These factors are then interpreted by assigning verbal labels intended to capture the meaning of the clustered items. However, this interpretive step remains fundamentally informal, subjective, and under-theorized. Different researchers may assign different labels to the same factor, and the process by which labels are derived is rarely formalized or systematically evaluated. Thus, there remains a gap between the statistical structure of constructs and their semantic interpretation.
+
+- Recent work (Milano et al.; Guenole et al.) demonstrates that applying dimensionality reduction techniques such as factor analysis or principal component analysis to LLM embeddings of scale items can recover structures similar to those obtained from human response data. This suggests that patterns of covariance observed in human responses may be partially mirrored in the semantic relationships among the items themselves. However, this correspondence has not been fully integrated into a broader theory of construct validity, including the semantic interpretation of factors.
+
+- In this work, we provide a theoretical basis for inferring factor structure from LLM embeddings and a reproducible method to name factors. We call this approach Semantic Factor Analysis (SFA). With SFA, we take the scale items and generate embeddings using an encoder LLM (Qwen3-Embedding-8B). Then, we perform factor analysis on those embeddings. Scale items that have similar meanings should cluster together, and items with comparatively different meanings should separate into separate clusters. If the nomological network of the construct is capture in the LLM's weights, then the factor structure of the embeddings of scale items should mirror the factor structure of human responses to those same items. Given the clusters identified by factor analysis of the scale item embeddings, we then calculate the centroid of those factors. These centroids represent the average meaning of each cluster. Since we are working in semantic space, this allows us to convert the centroids back to word labels. The embedding space of encoder LLMs is different from decoder LLMs. So, to convert our encoder LLM centroids to decoder LLM centroids, we find the 10 nearest-neighbours between our centroid and a list of psychology-related terms generated using word2vec. To create the corpora of psychology-related terms, we averaged the vectors for the five constructs from a list of known constructs, and wrote out the top 100 word2vec neighbours of that averaged vector. We removed duplicates, added the unique terms to a list, and repeated the process many times, taking 100 sets of 5 random words each time, so 100 * 100 = 10,000 output words at a time. This list was then filtered by GPT-5 to remove any irrelevant words. Given the 10 nearest-neighbours between our centroid and a list of psychology-related terms, we provided those terms to a decoder LLM (Qwen3-235B-A22B) with the prompt: "Give a label that best summarizes these related concepts: {words_list}. Provide ONLY the label." The label generated by this model is the factor name. Notably, the LLM is set with a temperature of 0 and uses greedy decoding, such that it always generate the same factor labels for a given set of 10 words (and a given psychometric scale). As a result, this method for naming factors is deterministic and reproducible. For a given large-language model and a set of scale items (and intermediate word list), it will always produce the exact same factor names. The benefit of this approach is twofold: it shifts the debate on factor naming from subjective, theory-laden discussions to debates on model parameters and the specific implementation of the factor-naming method. Also, this method enables the ability to test the factor structure of new scales without spending time and money on pilot studies. 
+
+- A key clarification is that the semantic content of a construct is not given independently of its measurement instrument. In practice, the closest operational definition of a construct is the set of items that comprise a scale. These items do not constitute the construct itself; rather, they represent a researcher’s proposal for how the construct is to be identified and used in practice. Thus, scale items encode the researcher’s intended meaning of the construct, and any method that analyzes these items is therefore analyzing this operationalized semantic proposal, not the construct directly. 
+
+- Thus, scale items encode the researcher’s intended meaning of the construct —often implicitly— by specifying which behaviors, experiences, or situations are taken to fall under it. Any method that analyzes these items is therefore analyzing the operationalized semantic proposal underlying the construct. By contrast, human responses to scale items encode the human endorsement of those items.
+
+- This distinction becomes crucial when introducing LLMs into psychometric analysis. LLMs are trained on large corpora of text and learn high-dimensional embedding spaces that encode patterns of semantic similarity and relational structure. These models can be understood as empirical approximations of how meaning is organized in language, reflecting the accumulated ways in which concepts are used, related, and contrasted across contexts.
+
+- Also, LLM-based methods do not operate on human responses and therefore do not model individual differences. Instead, they operate exclusively on the semantic content of scale items. Consequently, they should be understood as analyzing the researcher’s proposed definition of a construct, rather than the psychological states of participants.
+
+- A central issue is clarifying what kind of data semantic representations correspond to. In psychometrics, the fundamental data structure is a person × item matrix, where each cell represents an individual’s response to an item. Factor analysis operates on this matrix by identifying which items co-vary across people, thereby revealing latent structure in behavioral responses.
+
+- These semantic representations are not substitutes for human responses, but instead constitute a different relational structure derived from patterns of co-occurrence in language. The analogy to psychometric data is structural rather than statistical: both involve high-dimensional relational matrices from which lower-dimensional structure can be extracted.
+
+- This reveals a deeper theoretical connection: distributional models of meaning and nomological network theories of constructs both define their targets in terms of patterns of relations. In distributional semantics, meaning is inferred from co-occurrence across contexts. In construct theory, meaning is inferred from relations among observations and constructs. Both therefore treat meaning as emergent from relational structure.
+
+- This yields a direct structural parallel: Factor analysis on human data analyzes covariance across individuals. Factor analysis on scale item embeddings analyzes cosine similarity across meaning represented in high-dimensional space. Both approaches recover low-dimensional structure from high-dimensional relational data. Factor analysis identifies clusters of items that co-vary behaviorally, while embedding models identify clusters of items that co-occur in language usage. In this sense: Factor analysis detects behavioral clustering, whereas semantic models detect language usage clustering. This parallel is theoretically significant. Within a Cronbach–Meehl framework, constructs are defined by patterns of relations, not by intrinsic properties. Both behavioral covariance and semantic co-occurrence constitute such relational patterns, but they operate in different domains. 
+
+- These domains capture different aspects of a construct: Human response data reflects psychological coupling—which tendencies co-occur within individuals. Language data reflects conceptual or inferential coupling—which properties are treated as belonging together in discourse. Neither directly observes the construct itself; both provide indirect access through relational structure. This distinction can be summarized as: Human data answers: What tendencies co-occur in minds? Language data answers: What properties are treated as belonging together in reasoning and communication? These domains overlap substantially, which underlies the success of the lexical tradition originating with Francis Galton, but they are not identical. Human responses are constrained by biological, cognitive, and affective processes, whereas language is shaped by communicative utility, cultural history, and inferential practices. As a result, semantic representations are often higher-dimensional and more fine-grained, sometimes revealing distinctions that psychometric models collapse.
+
+- Agreement between the two suggests that a construct is well-stabilized across both behavior and language, whereas divergence may indicate compression, ambiguity, or theoretical underspecification.
+Crucially, such divergence is not a failure of the method. Discrepancies between LLM-derived and conventional factor structures are themselves evidence about the semantic stability and coherence of a construct, potentially reflecting ambiguity, overlap in use, or theoretical underspecification. This is particularly important given that traditional factor-analytic results themselves often vary in the number of factors extracted, the boundaries between factors, and the labels assigned to them. Under this framework, LLM analyses provide an independent perspective on this instability. When conventional structures are stable, semantic methods are expected to converge; when they are unstable, divergence is expected and theoretically informative.
+
+- This framing motivates a central contribution of the present work: the introduction of semantic–behavioral coherence as a new relation within the nomological network. Rather than replacing psychometric methods, this approach extends the nomological network by adding a new empirical relation—the alignment between semantic structure and behavioral covariance. This alignment is treated as an empirical quantity, not as a requirement. Disagreement between semantic and behavioral structure is not interpreted as methodological failure. Rather, discrepancies between LLM-derived and conventional factor structures are evidence about the semantic stability and coherence of a construct. This is particularly important given that traditional factor-analytic results themselves often show variability in: the number of factors extracted, the boundaries between factors, and the labels assigned to those factors. Under this framework, LLM analyses provide an independent perspective on this instability. When conventional results are stable (e.g., in domains such as personality), semantic methods are expected to converge. When they diverge, this divergence may indicate ambiguity in the construct’s semantic grounding. A further clarification concerns the role of LLMs in factor naming. It is misleading to describe this process as “automating the labeling of discovered factor structures,” as this implies that labels are derived from participant response patterns. In reality: LLMs generate labels from the semantic content of the items, not from behavioral covariance. Thus, LLM-based naming should be understood as: automating the interpretation of a researcher-specified construct definition, as encoded in scale items. This reframing preserves the epistemic chain: Researchers propose meaning through item selection. Factor analysis summarizes behavioral covariance. LLMs interpret the semantic content of the item set
+
+- This perspective also enables new methodological applications. Because LLMs operate directly on item meaning, they can be used to: evaluate item quality, by identifying items that are semantically peripheral to the construct; detect redundancy, by identifying semantically overlapping items; assess semantic coverage, by determining which parts of a construct’s semantic space are underrepresented; generate new items, by sampling from underrepresented regions of semantic space; improve factor naming, by evaluating how well labels capture item meaning. These applications position LLMs as tools for analyzing and refining semantic proposals embedded in psychometric instruments, rather than as substitutes for human data. At the same time, this approach raises important conceptual questions. One concern is that semantic analyses may reflect only the intentions of scale designers, rather than properties of psychological constructs themselves. Another is that some constructs—particularly clinical syndromes—may consist of heterogeneous elements that are not strongly semantically related. These concerns highlight the need to treat the relationship between semantic and behavioral structure as an empirical question, rather than assuming alignment.
+
+- More broadly, this work contributes to ongoing debates about the nature of psychological constructs. Rather than taking a stance on whether constructs correspond to underlying entities or are purely conceptual tools, the present approach focuses on measurable properties of relational systems. By introducing semantic structure into the nomological network, it provides a new way to assess: coherence, stability, and cross-domain alignment. In this sense, LLM-based semantic analysis does not replace traditional psychometric methods. Instead, it extends the nomological network by adding a new class of relations: the alignment between semantic structure and behavioral covariance. This extension enables a more comprehensive account of how constructs are defined, stabilized, and evaluated in scientific practice.
+
+
+
+Here are some key papers you should review. This is not an exhaustive list. You should use the Lightrag-Westbury database extensively to find additional papers and make novel connections. If any of these papers are not in the database, you may search the web to retrieve information on them.
+
+Cronbach, L. J., & Meehl, P. E. (1955). Construct validity in psychological tests. Psychological Bulletin, 52(4), 281–302. https://doi.org/10.1037/h0040957
+Borsboom, D., Mellenbergh, G. J., & van Heerden, J. (2004). The concept of validity. Psychological Review, 111(4), 1061–1071. https://doi.org/10.1037/0033-295X.111.4.1061
+
+Jöreskog, K. G. (1969). A general approach to confirmatory maximum likelihood factor analysis. Psychometrika, 34(2), 183–202.
+
+Kaiser, H. F. (1958). The varimax criterion for analytic rotation in factor analysis. Psychometrika, 23(3), 187–200.
+
+Galton, F. (1884). Measurement of character. Fortnightly Review, 36, 179–185.
+
+Goldberg, L. R. (1990). An alternative “description of personality”: The Big-Five factor structure. Journal of Personality and Social Psychology, 59(6), 1216–1229.
+
+Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781.
+
+Pennington, J., Socher, R., & Manning, C. D. (2014). GloVe: Global vectors for word representation. In Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP) (pp. 1532–1543).
+
+Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. In Proceedings of NAACL-HLT (pp. 4171–4186).
+
+Milano, N., Luongo, M., Ponticorvo, M., & Marocco, D. (2025). Semantic analysis of test items through large language model embeddings predicts a-priori factorial structure of personality tests. Current Research in Behavioral Sciences, 8, 100168. https://doi.org/10.1016/j.crbeha.2025.100168
+
+Guenole, N., D’Urso, E. D., Samo, A., Sun, T., & Haslbeck, J. M. B. (2024). Enhancing scale development: Pseudo factor analysis of language embedding similarity matrices. Preprint. https://doi.org/10.31234/osf.io/3mpzb
+
+Bollen, K. A., & Lennox, R. (1991). Conventional wisdom on measurement: A structural equation perspective. Psychological Bulletin, 110(2), 305–314.
+
+Jarvis, C. B., MacKenzie, S. B., & Podsakoff, P. M. (2003). A critical review of construct indicators and measurement model misspecification in marketing and consumer research. Journal of Consumer Research, 30(2), 199–218.
+
+Westbury, C. (2025). “Mathematics is holy mojo”: Why generative pre-trained transformer models are not stochastic parrots. Manuscript under review.
+
+Wittgenstein, L. (1953). Philosophical investigations. Oxford, UK: Blackwell.
+
+Allport, G. W. (1937). Personality: A psychological interpretation. Henry Holt.
+
+Borsboom, D. (2008). Psychometric perspectives on diagnostic systems. Journal of Clinical Psychology, 64(9), 1089–1108. https://pubmed.ncbi.nlm.nih.gov/18683856/  
+
+Bridgman, P. W. (1927). The logic of modern physics. Macmillan.  
+
+Clark, L. A., & Watson, D. (2019). Constructing validity: New developments in creating objective measuring instruments. Psychological Assessment, 31(12), 1412–1427.  
+
+Cronbach, L. J., & Meehl, P. E. (1955). Construct validity in psychological tests. Psychological Bulletin, 52(4), 281–302.  
+
+Hacking, I. (1999). The social construction of what? Harvard University Press.
+
+Messick, S. (1995). Validity of psychological assessment: Validation of inferences from persons’ responses and performances as scientific inquiry into score meaning. American Psychologist, 50(9), 741–749.  
+
+Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv.
+
+Robins, E., & Guze, S. B. (1970). Establishment of diagnostic validity in psychiatric illness: Its application to schizophrenia. American Journal of Psychiatry, 126(7), 983–987.
+
+Spearman, C. (1904). “General intelligence,” objectively determined and measured. The American Journal of Psychology, 15(2), 201–292.  
+
+
+
+As you write the paper, ensure you maintain a clear logical flow:
+
+If psychology studies unobservable constructs → constructs must be defined indirectly
+→ If constructs are not directly observable → their meaning must be fixed by relations
+→ If meaning is fixed by relations → constructs are defined by their place in a nomological network
+→ If constructs are nomological → validity depends on stability and coherence of relations
+→ If validity depends on relations → construct validation = identifying and extending those relations
+→ If no single operationalization exhausts a construct → scales are partial proposals
+→ If scales are proposals → items = researcher’s intended semantic grounding
+→ If items encode meaning → analyzing items = analyzing proposed construct meaning
+
+→ If scales produce responses → two structures exist:
+  semantic structure (items) + behavioral structure (responses)
+→ If these structures differ → they must not be conflated
+
+→ If a method uses only item text → it does not access participants or individual differences
+→ If it does not access individuals → it cannot replace psychometrics
+→ If it cannot replace psychometrics → its role is analyzing meaning, not behavior
+
+→ If language encodes meaning → semantic structure is empirically available
+→ If LLMs model language → they model semantic structure
+→ If LLMs model semantic structure → items can be embedded and compared
+
+→ If items can be embedded → semantic relations can be computed without responses
+→ If semantic relations exist → they can be compared to behavioral relations
+
+→ If semantic and behavioral structures can be compared → alignment is measurable
+→ If alignment is measurable → it becomes a new relation in the nomological network
+→ If it is a new relation → it extends construct validation (not replaces it)
+
+→ If semantic–behavioral coherence exists →
+  high alignment → shared linguistic + behavioral structure
+  low alignment → divergence between meaning and covariance
+
+→ If divergence occurs → it is not failure
+→ If not failure → it is evidence of ambiguity, heterogeneity, or underspecification
+
+→ If constructs vary in stability →
+  stable constructs → higher alignment expected
+  unstable constructs → lower alignment expected
+
+→ If expectations differ → the method is testable
+
+→ If factor analysis uses responses → it models behavioral covariance
+→ If LLMs use items → they model semantic structure of proposed definitions
+
+→ If LLMs model item meaning → they interpret researcher intent, not participant psychology
+→ If they interpret item meaning → factor naming reflects semantic structure, not response structure
+
+→ If naming reflects semantics →
+  LLMs label item meaning, not latent factors directly
+→ If so → naming = interpretation of operationalized construct definitions
+
+→ If naming is semantic interpretation →
+  disagreement with legacy labels → may reveal better semantic fit
+→ If labels can differ → semantic representativeness becomes evaluable
+
+→ If items occupy semantic space → constructs form regions, not points
+→ If constructs are regions → item similarity indicates centrality
+
+→ If centrality exists → semantic similarity predicts item quality
+→ If item quality is predictable → LLMs can evaluate weak or peripheral items
+
+→ If semantic space reveals structure → it can detect redundancy and gaps
+→ If gaps exist → LLMs can generate new items
+
+→ If items are theory-laden → scales are semantic proposals, not neutral measures
+→ If scales are proposals → semantic analysis informs construct theory
+
+→ If semantic + behavioral relations both exist → alignment reflects cross-domain coherence
+→ If coherence reflects integration → constructs differ in stability across domains
+
+→ If constructs are relational → semantic relations belong in the nomological network
+→ If added → psychometrics expands rather than changes foundations
+
+→ If both realist and constructivist views accept relations →
+  realists: real constructs appear in both domains
+  constructivists: stable constructs show cross-domain coherence
+
+→ If both views accommodate this → the method is theoretically neutral
+
+→ If LLMs analyze meaning → they add a new measurable domain
+→ If they add a domain → they contribute to:
+  item evaluation → item generation → construct coherence → factor interpretation
+
+→ Therefore:
+LLM-based semantic analysis = principled extension of construct validation grounded in nomological network theory, operating on researcher-specified meaning, and producing empirically testable relations between semantic structure and behavioral covariance.

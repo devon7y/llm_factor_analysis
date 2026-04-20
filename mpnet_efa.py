@@ -12,8 +12,8 @@
 #    Optionally load empirical Likert-scale responses (scale_responses/).
 #
 # 2. Obtain high-dimensional embeddings for each item from a pre-trained
-#    sentence-transformer (Qwen3-Embedding-8B). Embeddings may be loaded
-#    from pregenerated .npz files or generated on the fly.
+#    sentence-transformer (dwulff/mpnet-personality). Embeddings may be loaded
+#    from cache or generated on the fly.
 #
 # 3. Apply atomic-reversed encoding: multiply each item's embedding by its
 #    scoring direction (+1 or -1), then L2-normalize. This encodes reverse-
@@ -44,13 +44,11 @@
 #    (10 000 permutations) between the LLM cosine similarity matrix and the
 #    human inter-item correlation matrix.
 #
-# 9. Automatic factor naming via five methods:
+# 9. Automatic factor naming via three methods:
 #      Method 1 — Feed top-loading items to an instruct LLM (Qwen3-235B-A22B).
 #      Method 2 — Find nearest-neighbour words to the factor centroid in
 #                 embedding space, then summarise with the instruct LLM.
 #      Method 3 — (optional) Greedy token prediction from a base LLM.
-#      Method 4 — Raw nearest word from a loading-weighted factor centroid.
-#      Method 5 — Raw nearest constrained whole-word token (token embedding space).
 #
 # CONFIGURATION
 # -------------
@@ -63,8 +61,6 @@
 #   EXTRACTION_METHOD       — 'minres', 'ml', 'principal'
 #   ENABLE_FACTOR_NAMING    — toggle LLM-based factor naming
 #   ENABLE_METHOD_3         — toggle base-model token-prediction naming
-#   METHOD_4_TOP_K_ITEMS    — top-k assigned items for Method 4/5 centroid (None=all)
-#   ENABLE_METHOD_5         — toggle constrained nearest-token naming
 #
 # INPUT / OUTPUT
 # --------------
@@ -98,9 +94,7 @@ import pandas as pd
 import torch
 
 from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer
-from safetensors import safe_open
-from openai import OpenAI, AuthenticationError
+from openai import OpenAI
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -120,23 +114,10 @@ warnings.filterwarnings('ignore', message='.*Moore-Penrose.*')
 warnings.filterwarnings('ignore', message='.*invalid value encountered in log.*')
 warnings.filterwarnings('ignore', message=".*'force_all_finite' was renamed.*")
 
-HF_TOKEN_PATH = os.path.expanduser('~/.cache/huggingface/token')
-
 os.environ['HF_HOME'] = '/Users/devon7y/.cache/huggingface'
 os.environ['HF_DATASETS_CACHE'] = '/Users/devon7y/.cache/huggingface'
-with open(HF_TOKEN_PATH, 'r') as f:
+with open(os.path.expanduser('~/.cache/huggingface/token'), 'r') as f:
     os.environ['HF_TOKEN'] = f.read().strip()
-
-
-def create_hf_chat_completion(client, **kwargs):
-    try:
-        return client.chat.completions.create(**kwargs)
-    except AuthenticationError as exc:
-        raise RuntimeError(
-            "Hugging Face router authentication failed: the HF token appears invalid, expired, "
-            f"or unauthorized for this request. Token source: {HF_TOKEN_PATH}. "
-            "Update HF_TOKEN and rerun."
-        ) from exc
 
 plt.rcParams.update({
     'font.size': 13,
@@ -152,7 +133,11 @@ sns.set_context("notebook", font_scale=1.25)
 
 COMPARISON_SUBPLOT_SPACING = 1
 
-MODEL_NAMES = ["Qwen/Qwen3-Embedding-8B",]
+MODEL_NAMES = ["dwulff/mpnet-personality",]
+
+MODEL_SIZE_OVERRIDES = {
+    "dwulff/mpnet-personality": "mpnet",
+}
 
 SCALE_NAMES = ["DASS"]
 RUN_ALL_SCALES = True
@@ -165,7 +150,7 @@ RUN_ALL_SCALES = True
 #     "BDI", "BAI", "HSQ", "KIMS", "LLMD12", "431PTQ"]  
 # All 36 scales ordered by participant count
 
-PREGENERATED_WORD_EMBEDDINGS = {"8B": "embeddings/2257_constructs_8B.npz",}
+PREGENERATED_WORD_EMBEDDINGS = {}
 
 N_FACTORS = None # None = auto via parallel analysis
 
@@ -194,25 +179,40 @@ EIGEN_CRITERIA = 'parallel' # 'parallel' or 'eigen1'
 PARALLEL_ITER = 100
 RANDOM_STATE = 42
 
-ENABLE_METHOD_3 = False # Greedy token prediction for factor naming (experimental, may produce low-quality names)
-METHOD_4_TOP_K_ITEMS = None # None or <=0 uses all items assigned to each extracted factor
-ENABLE_METHOD_5 = True # Constrained nearest whole-word token using token embedding matrix
-METHOD_5_MIN_TOKEN_LENGTH = 3
-METHOD_5_MAX_TOKEN_LENGTH = 24
-METHOD_5_REQUIRE_WORD_START_MARKER = False # If True, require tokens with word-start marker (e.g., '▁' or 'Ġ')
-METHOD_5_ALLOW_APOSTROPHE = True
-
 ENABLE_FACTOR_NAMING = True
+ENABLE_METHOD_3 = False # Greedy token prediction for factor naming (experimental, may produce low-quality names)
 
 # Optional manual ordering for extracted factors in EMBEDDING plots.
 # Leave empty [] to use existing/default ordering logic.
 # You can use either extracted names (e.g., "Factor1") or display labels
 # (e.g., LLM-generated factor names).
-PLOT_EXTRACTED_FACTOR_ORDER = ["Despair", "Anxiety", "Irritability"]
+PLOT_EXTRACTED_FACTOR_ORDER = ["Creativity", "Order and Preparedness", "Social Dynamics", "Empathy", "Anxiety and Mood Instability", "Conceptual Thinking"]
 
 # Optional manual ordering for extracted factors in EMPIRICAL (human response)
 # plots. Leave empty [] to use existing/default ordering logic.
-PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = ["Depression", "Anxiety", "Stress"]
+PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = ["Openness to Experience", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"]
+
+def get_model_size(model_name):
+    """Return model label used for cache filenames and reporting."""
+    return MODEL_SIZE_OVERRIDES.get(model_name, model_name.split('-')[-1])
+
+def load_sentence_transformer_model(model_name, device):
+    """
+    Load a SentenceTransformer from local HF snapshots when available.
+    If no snapshot is present, load by repo id (downloads once, then caches).
+    """
+    model_cache_name = model_name.replace('/', '--')
+    snapshots_dir = f"/Users/devon7y/.cache/huggingface/models--{model_cache_name}/snapshots"
+    snapshot_dirs = glob.glob(f"{snapshots_dir}/*")
+
+    if snapshot_dirs:
+        snapshot_path = snapshot_dirs[0]
+        print(f"  Loading from local snapshot: {snapshot_path}")
+        return SentenceTransformer(snapshot_path, device=device)
+
+    print(f"  No local snapshot found for {model_name}")
+    print("  Loading from Hugging Face repo ID (downloads once, then caches locally)...")
+    return SentenceTransformer(model_name, device=device)
 
 np.random.seed(RANDOM_STATE)
 torch.manual_seed(RANDOM_STATE)
@@ -407,140 +407,6 @@ def apply_manual_extracted_factor_order(factor_names, display_name_map=None, man
 
     return ordered
 
-def resolve_snapshot_path_for_model(model_name):
-    """Resolve local Hugging Face snapshot path for a model name."""
-    model_cache_name = model_name.replace('/', '--')
-    snapshot_roots = [
-        f"/Users/devon7y/.cache/huggingface/models--{model_cache_name}/snapshots",
-        f"/Users/devon7y/.cache/huggingface/hub/models--{model_cache_name}/snapshots",
-    ]
-    for root in snapshot_roots:
-        snapshot_dirs = sorted(glob.glob(f"{root}/*"))
-        if snapshot_dirs:
-            return snapshot_dirs[0]
-    return None
-
-def load_token_embedding_matrix_from_snapshot(snapshot_path):
-    """Load token embedding matrix tensor from safetensors shards."""
-    safetensor_files = sorted(glob.glob(os.path.join(snapshot_path, "*.safetensors")))
-    key_priority = [
-        "model.embed_tokens.weight",
-        "embed_tokens.weight",
-        "word_embeddings.weight",
-        "transformer.wte.weight",
-    ]
-
-    for filepath in safetensor_files:
-        try:
-            with safe_open(filepath, framework="pt", device="cpu") as f:
-                keys = list(f.keys())
-                matched_key = None
-                for key in key_priority:
-                    if key in keys:
-                        matched_key = key
-                        break
-                if matched_key is None:
-                    for key in keys:
-                        if (
-                            key.endswith("embed_tokens.weight")
-                            or key.endswith("wte.weight")
-                            or "word_embeddings.weight" in key
-                        ):
-                            matched_key = key
-                            break
-                if matched_key is not None:
-                    return f.get_tensor(matched_key), matched_key, filepath
-        except Exception:
-            continue
-
-    return None, None, None
-
-def is_valid_method5_token(raw_token, decoded_token):
-    """Check whether a token is a clean whole-word candidate for Method 5."""
-    if raw_token is None:
-        return False
-
-    token_text = decoded_token.strip()
-    if len(token_text) < METHOD_5_MIN_TOKEN_LENGTH or len(token_text) > METHOD_5_MAX_TOKEN_LENGTH:
-        return False
-
-    if METHOD_5_REQUIRE_WORD_START_MARKER:
-        if not (raw_token.startswith("▁") or raw_token.startswith("Ġ") or raw_token.startswith(" ")):
-            return False
-
-    if METHOD_5_ALLOW_APOSTROPHE:
-        return re.fullmatch(r"[A-Za-z]+(?:['-][A-Za-z]+)*", token_text) is not None
-    return re.fullmatch(r"[A-Za-z]+(?:-[A-Za-z]+)*", token_text) is not None
-
-def prepare_method5_resources(model_name):
-    """
-    Prepare constrained token candidates and normalized token embeddings for Method 5.
-    Returns None when local tokenizer/token embeddings are unavailable.
-    """
-    snapshot_path = resolve_snapshot_path_for_model(model_name)
-    if snapshot_path is None:
-        return None, "No local snapshot found"
-
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(
-            snapshot_path,
-            local_files_only=True,
-            trust_remote_code=True
-        )
-    except Exception as exc:
-        return None, f"Tokenizer load failed: {type(exc).__name__}: {str(exc)}"
-
-    token_matrix, matrix_key, matrix_file = load_token_embedding_matrix_from_snapshot(snapshot_path)
-    if token_matrix is None:
-        return None, "Token embedding matrix not found in local safetensors"
-
-    if token_matrix.ndim != 2:
-        return None, f"Unexpected token matrix shape: {tuple(token_matrix.shape)}"
-
-    special_ids = set(getattr(tokenizer, "all_special_ids", []) or [])
-    max_token_id = min(token_matrix.shape[0], len(tokenizer))
-
-    candidate_ids = []
-    candidate_words = []
-    seen_words = set()
-
-    for token_id in range(max_token_id):
-        if token_id in special_ids:
-            continue
-
-        raw_token = tokenizer.convert_ids_to_tokens(token_id)
-        if raw_token is None:
-            continue
-
-        decoded = tokenizer.convert_tokens_to_string([raw_token]).strip()
-        if not is_valid_method5_token(raw_token, decoded):
-            continue
-
-        lower_word = decoded.lower()
-        if lower_word in seen_words:
-            continue
-
-        seen_words.add(lower_word)
-        candidate_ids.append(token_id)
-        candidate_words.append(decoded)
-
-    if not candidate_ids:
-        return None, "No tokens passed Method 5 filters"
-
-    candidate_id_tensor = torch.tensor(candidate_ids, dtype=torch.long)
-    candidate_matrix = token_matrix.index_select(0, candidate_id_tensor).to(dtype=torch.float32)
-    norms = torch.linalg.norm(candidate_matrix, dim=1, keepdim=True)
-    norms = torch.where(norms == 0, torch.ones_like(norms), norms)
-    candidate_matrix_norm = candidate_matrix / norms
-
-    resources = {
-        "candidate_words": candidate_words,
-        "candidate_matrix_norm": candidate_matrix_norm,
-        "matrix_key": matrix_key,
-        "matrix_file": matrix_file,
-    }
-    return resources, None
-
 print("✓ Helper functions defined")
 
 def regularize_correlation_matrix(corr_matrix, alpha=1e-6):
@@ -605,9 +471,7 @@ print(f"PROCESSING SCALE: {SCALE_NAME}")
 print(f"  (Scale {CURRENT_SCALE_INDEX + 1} of {len(SCALE_NAMES)})")
 print(f"{'='*80}\n")
 
-PREGENERATED_SCALE_EMBEDDINGS = {
-     "8B": f"embeddings/{SCALE_NAME}_items_8B.npz",
-}
+PREGENERATED_SCALE_EMBEDDINGS = {}
 
 SCALE_CSV_PATH = f'scale_items/{SCALE_NAME}_items.csv'
 EMPIRICAL_DATA_PATH = f"scale_responses/{SCALE_NAME}_data.csv"
@@ -650,9 +514,6 @@ if missing:
 if 'scoring' not in scale.columns:
     print("⚠ WARNING: 'scoring' column missing - defaulting to +1")
     scale['scoring'] = 1
-
-# CSV values like "+1" may be read as strings; force integer dtype
-scale['scoring'] = pd.to_numeric(scale['scoring']).astype(int)
 
 print(f"\nScoring: {(scale['scoring']==1).sum()} normal, {(scale['scoring']==-1).sum()} reverse")
 print(f"Factors: {scale['factor'].nunique()} unique")
@@ -751,7 +612,7 @@ all_embeddings = {}
 model_sizes = []
 
 for model_name in MODEL_NAMES:
-    model_size = model_name.split('-')[-1]
+    model_size = get_model_size(model_name)
     model_sizes.append(model_size)
     
     print(f"\nModel: {model_name} ({model_size})")
@@ -789,29 +650,47 @@ for model_name in MODEL_NAMES:
             print(f"  ⚠ Pregenerated path specified but file not found: {scale_emb_path}")
             print(f"    Falling back to cache or generation...")
     
-    save_path = f"embeddings/scale_items_{model_size}.npz"
-    
-    if os.path.exists(save_path):
+    scale_cache_path = f"embeddings/{SCALE_NAME}_items_{model_size}.npz"
+    legacy_cache_path = f"embeddings/scale_items_{model_size}.npz"
+    cache_candidates = [scale_cache_path]
+    if legacy_cache_path not in cache_candidates:
+        cache_candidates.append(legacy_cache_path)
+
+    loaded_from_cache = False
+    for save_path in cache_candidates:
+        if not os.path.exists(save_path):
+            continue
+
         print(f"  Loading from cache: {save_path}...")
-        data = np.load(save_path, allow_pickle=True)
-        embeddings = data['embeddings']
-        print(f"  ✓ Loaded: {embeddings.shape}")
-        all_embeddings[model_size] = embeddings
+        try:
+            data = np.load(save_path, allow_pickle=True)
+            embeddings = data['embeddings']
+
+            if embeddings.shape[0] != len(items):
+                print(f"  ⚠ Cached embedding count ({embeddings.shape[0]}) != item count ({len(items)})")
+                print(f"    Skipping cache file: {save_path}")
+                continue
+
+            if 'codes' in data:
+                cached_codes = data['codes'].tolist()
+                if cached_codes != codes:
+                    print(f"  ⚠ Cached codes do not match current scale codes")
+                    print(f"    Skipping cache file: {save_path}")
+                    continue
+
+            print(f"  ✓ Loaded: {embeddings.shape}")
+            all_embeddings[model_size] = embeddings
+            loaded_from_cache = True
+            break
+        except Exception as e:
+            print(f"  ⚠ Warning: Failed to load cache file {save_path}")
+            print(f"    {type(e).__name__}: {str(e)}")
+
+    if loaded_from_cache:
         continue
     
     print(f"  Generating embeddings...")
-    
-    model_cache_name = model_name.replace('/', '--')
-    snapshots_dir = f"/Users/devon7y/.cache/huggingface/models--{model_cache_name}/snapshots"
-    
-    snapshot_dirs = glob.glob(f"{snapshots_dir}/*")
-    if not snapshot_dirs:
-        raise FileNotFoundError(f"No snapshots found in {snapshots_dir}")
-    
-    snapshot_path = snapshot_dirs[0]
-    print(f"  Loading from: {snapshot_path}")
-    
-    model = SentenceTransformer(snapshot_path, device=device)
+    model = load_sentence_transformer_model(model_name=model_name, device=device)
     
     embeddings = model.encode(items, show_progress_bar=True, batch_size=21, 
                               convert_to_numpy=True, normalize_embeddings=False)
@@ -819,8 +698,8 @@ for model_name in MODEL_NAMES:
     all_embeddings[model_size] = embeddings
     
     os.makedirs("embeddings", exist_ok=True)
-    np.savez(save_path, embeddings=embeddings, codes=codes, items=items)
-    print(f"  ✓ Saved to {save_path}")
+    np.savez(scale_cache_path, embeddings=embeddings, codes=codes, items=items)
+    print(f"  ✓ Saved to {scale_cache_path}")
 
 print(f"\n✓ All embeddings ready: {list(all_embeddings.keys())}")
 
@@ -1459,146 +1338,6 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
     plt.savefig(f'{save_dir}/{scale_name}_visualizations_{model_size}.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-
-def create_embedding_tsne_plot(
-    embeddings_2d,
-    loadings_df,
-    codes,
-    model_size,
-    save_dir,
-    scale_name,
-):
-    fig, ax = plt.subplots(figsize=(9, 8))
-
-    custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
-    item_to_factor = assign_items_to_extracted_factors(loadings_df)
-    _, display_label_map = get_embedding_factor_display_labels(
-        loadings_df.columns.tolist(),
-        model_size
-    )
-    ordered_extracted = apply_manual_extracted_factor_order(
-        loadings_df.columns.tolist(),
-        display_label_map,
-        manual_order=PLOT_EXTRACTED_FACTOR_ORDER
-    )
-
-    display_order = []
-    for factor_name in ordered_extracted:
-        label = display_label_map.get(factor_name, factor_name)
-        if label not in display_order:
-            display_order.append(label)
-
-    item_to_display = {
-        item_code: display_label_map.get(factor_name, factor_name)
-        for item_code, factor_name in item_to_factor.items()
-    }
-    factor_colors = {
-        label: custom_colors[i % len(custom_colors)]
-        for i, label in enumerate(display_order)
-    }
-
-    handles = {}
-    for label in display_order:
-        indices = [i for i, code in enumerate(codes) if item_to_display.get(code) == label]
-        if indices:
-            handle = ax.scatter(
-                embeddings_2d[indices, 0],
-                embeddings_2d[indices, 1],
-                c=[factor_colors[label]],
-                label=label,
-                alpha=0.75,
-                s=100,
-                edgecolors='black',
-                linewidths=0.5,
-            )
-            handles[label] = handle
-
-    for i in range(len(embeddings_2d)):
-        ax.annotate(
-            codes[i],
-            (embeddings_2d[i, 0], embeddings_2d[i, 1]),
-            fontsize=8,
-            textcoords='offset points',
-            xytext=(0, 6),
-            ha='center',
-            va='bottom',
-            fontweight='bold',
-        )
-
-    legend_order = [label for label in display_order if label in handles]
-    ax.legend(
-        [handles[label] for label in legend_order],
-        legend_order,
-        loc='upper right',
-        fontsize=9,
-        framealpha=0.9,
-    )
-    ax.set_xlabel('t-SNE Dimension 1', fontsize=12)
-    ax.set_ylabel('t-SNE Dimension 2', fontsize=12)
-    ax.set_title(f't-SNE (Embeddings, {model_size})', fontsize=14, fontweight='bold')
-    ax.grid(True, alpha=0.3)
-    ax.set_aspect('equal', adjustable='datalim')
-
-    plt.tight_layout()
-    filepath = f'{save_dir}/{scale_name}_embeddings_tsne_{model_size}.png'
-    plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"✓ Embedding t-SNE saved to: {filepath}")
-
-
-def create_embedding_within_between_plot(
-    within_sims,
-    between_sims,
-    model_size,
-    save_dir,
-    scale_name,
-):
-    within_sims = np.asarray(within_sims)
-    between_sims = np.asarray(between_sims)
-    mean_within = float(np.mean(within_sims))
-    mean_between = float(np.mean(between_sims))
-    t_stat, p_value = ttest_ind(within_sims, between_sims, equal_var=False)
-    cohens_d = (mean_within - mean_between) / np.sqrt(
-        (np.std(within_sims) ** 2 + np.std(between_sims) ** 2) / 2
-    )
-
-    fig, ax = plt.subplots(figsize=(8, 7))
-    plot_df = pd.DataFrame({
-        'value': within_sims.tolist() + between_sims.tolist(),
-        'type': ['Within'] * len(within_sims) + ['Between'] * len(between_sims)
-    })
-    sns.violinplot(
-        data=plot_df,
-        x='type',
-        y='value',
-        hue='type',
-        ax=ax,
-        palette=['#2ecc71', '#e74c3c'],
-        legend=False,
-    )
-    ax.plot([0], [mean_within], 'D', color='darkgreen', markersize=10)
-    ax.plot([1], [mean_between], 'D', color='darkred', markersize=10)
-    y_offset = (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.07
-    ax.text(0, ax.get_ylim()[0] - y_offset, f'n={len(within_sims)}', ha='center', va='top')
-    ax.text(1, ax.get_ylim()[0] - y_offset, f'n={len(between_sims)}', ha='center', va='top')
-    title = (
-        f'Within vs Between (Embeddings, {model_size})\n'
-        f"d = {cohens_d:.3f}, p < .001"
-        if p_value < 0.001 else
-        f'Within vs Between (Embeddings, {model_size})\n'
-        f"d = {cohens_d:.3f}, p = {p_value:.3f}"
-    )
-    ax.set_title(title, fontweight='bold')
-    ax.set_ylabel('Cosine Similarity')
-    ax.set_xlabel('')
-    ax.grid(True, alpha=0.3, axis='y')
-
-    plt.tight_layout()
-    filepath = f'{save_dir}/{scale_name}_embeddings_within_between_{model_size}.png'
-    plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"✓ Embedding within/between plot saved to: {filepath}")
-
 all_results = {}
 
 for model_size in model_sizes:
@@ -1622,7 +1361,7 @@ for model_size in model_sizes:
     
     all_results[model_size] = results
 
-    create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
+    # create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
 
 print(f"\n{'='*70}")
 print("PREPROCESSING EMPIRICAL DATA")
@@ -1678,8 +1417,8 @@ if empirical_data is not None:
         save_dir=SAVE_DIR
     )
 
-    create_visualizations(empirical_results, factors, codes, "Empirical",
-                         save_dir=SAVE_DIR, data_type='empirical')
+    # create_visualizations(empirical_results, factors, codes, "Empirical",
+    #                      save_dir=SAVE_DIR, data_type='empirical')
 
     print(f"\n✓ TRADITIONAL EFA COMPLETE")
 else:
@@ -1781,21 +1520,10 @@ for model_size in model_sizes:
     else:
         print(f"  ⚠ No significant difference in within- vs between-construct similarity.")
 
-    if empirical_results is None:
-        create_embedding_within_between_plot(
-            within_sims,
-            between_sims,
-            model_size,
-            SAVE_DIR,
-            SCALE_NAME,
-        )
-
 print("✓ Factor Separation Analysis Complete")
 
 print("FACTOR SEPARATION ANALYSIS")
 print("=" * 70)
-
-separation_metrics_by_model = {}
 
 for model_size in model_sizes:
     print(f"\n{'='*70}")
@@ -1823,16 +1551,7 @@ for model_size in model_sizes:
     
     within_mean = np.mean(all_within_sims)
     between_mean = np.mean(between_factor_sims)
-    if np.isclose(between_mean, 0.0):
-        separation_ratio = np.inf if within_mean > 0 else np.nan
-    else:
-        separation_ratio = within_mean / between_mean
-    
-    separation_metrics_by_model[model_size] = {
-        "within_mean": float(within_mean),
-        "between_mean": float(between_mean),
-        "separation_ratio": float(separation_ratio),
-    }
+    separation_ratio = within_mean / between_mean
     
     print(f"\nOverall Separation Metrics:")
     print(f"  Within-factor similarity:  {within_mean:.4f}")
@@ -1863,34 +1582,6 @@ for model_size in model_sizes:
         pair_std = np.std(factor_pairs[pair], ddof=1)
         n_pairs = len(factor_pairs[pair])
         print(f"  {pair[0]:12s} vs {pair[1]:12s}: {pair_mean:.4f} ± {pair_std:.4f}  (n={n_pairs} pairs)")
-
-if separation_metrics_by_model:
-    def _ratio_sort_key(item):
-        ratio = item[1]["separation_ratio"]
-        if np.isnan(ratio):
-            return -np.inf
-        return ratio
-
-    ranked_models = sorted(
-        separation_metrics_by_model.items(),
-        key=_ratio_sort_key,
-        reverse=True
-    )
-
-    print(f"\n{'='*70}")
-    print("Cross-Model Separation Ratio Comparison (Within / Between)")
-    print(f"{'='*70}")
-    print(f"{'Model':<8} {'Within':>10} {'Between':>10} {'Ratio':>10}")
-    print(f"{'-'*8} {'-'*10} {'-'*10} {'-'*10}")
-    for model_size, metrics in ranked_models:
-        ratio_text = f"{metrics['separation_ratio']:.4f}" if np.isfinite(metrics['separation_ratio']) else "inf"
-        print(
-            f"{model_size:<8} "
-            f"{metrics['within_mean']:>10.4f} "
-            f"{metrics['between_mean']:>10.4f} "
-            f"{ratio_text:>10}"
-        )
-    print(f"Best separation ratio: {ranked_models[0][0]} ({ranked_models[0][1]['separation_ratio']:.4f})")
 
 if empirical_results is not None:
     print(f"\n{'='*70}")
@@ -1991,10 +1682,11 @@ print("Loading word list for nearest neighbor factor naming...")
 
 word_list_path = "word_lists/constructs.csv"
 
-has_pregenerated = any(model_size in PREGENERATED_WORD_EMBEDDINGS for model_size in [m.split('-')[-1] for m in MODEL_NAMES])
+configured_model_sizes = [get_model_size(m) for m in MODEL_NAMES]
+has_pregenerated = any(model_size in PREGENERATED_WORD_EMBEDDINGS for model_size in configured_model_sizes)
 
 if has_pregenerated:
-    first_model_size = [m.split('-')[-1] for m in MODEL_NAMES][0]
+    first_model_size = configured_model_sizes[0]
     if first_model_size in PREGENERATED_WORD_EMBEDDINGS:
         pregenerated_path = PREGENERATED_WORD_EMBEDDINGS[first_model_size]
         if os.path.exists(pregenerated_path):
@@ -2087,33 +1779,40 @@ if words is not None:
             print(f"  Loading from cache: {word_emb_path}...")
             data = np.load(word_emb_path, allow_pickle=True)
             word_embeddings = data['word_embeddings']
-            print(f"  ✓ Loaded: {word_embeddings.shape}")
-        else:
-            print(f"  Generating embeddings for {len(words)} words...")
-            
-            model_cache_name = MODEL_NAMES[model_sizes.index(model_size)].replace('/', '--')
-            snapshots_dir = f"/Users/devon7y/.cache/huggingface/models--{model_cache_name}/snapshots"
-            snapshot_dirs = glob.glob(f"{snapshots_dir}/*")
-            
-            if snapshot_dirs:
-                snapshot_path = snapshot_dirs[0]
-                model = SentenceTransformer(snapshot_path, device=device)
-                
+            if word_embeddings.shape[0] != len(words):
+                print(f"  ⚠ WARNING: Cached word embedding count ({word_embeddings.shape[0]}) != word count ({len(words)})")
+                print("  Regenerating word embeddings...")
+                model_name = MODEL_NAMES[model_sizes.index(model_size)]
+                model = load_sentence_transformer_model(model_name=model_name, device=device)
                 word_embeddings = model.encode(
-                    words, 
-                    show_progress_bar=True, 
+                    words,
+                    show_progress_bar=True,
                     batch_size=256,
-                    convert_to_numpy=True, 
+                    convert_to_numpy=True,
                     normalize_embeddings=False
                 )
-                
                 print(f"  ✓ Generated: {word_embeddings.shape}")
-                
                 np.savez(word_emb_path, word_embeddings=word_embeddings, words=words)
                 print(f"  ✓ Saved to {word_emb_path}")
             else:
-                print(f"  ✗ Could not find model snapshots")
-                word_embeddings = None
+                print(f"  ✓ Loaded: {word_embeddings.shape}")
+        else:
+            print(f"  Generating embeddings for {len(words)} words...")
+            model_name = MODEL_NAMES[model_sizes.index(model_size)]
+            model = load_sentence_transformer_model(model_name=model_name, device=device)
+            
+            word_embeddings = model.encode(
+                words, 
+                show_progress_bar=True, 
+                batch_size=256,
+                convert_to_numpy=True, 
+                normalize_embeddings=False
+            )
+            
+            print(f"  ✓ Generated: {word_embeddings.shape}")
+            
+            np.savez(word_emb_path, word_embeddings=word_embeddings, words=words)
+            print(f"  ✓ Saved to {word_emb_path}")
         
         all_word_embeddings[model_size] = word_embeddings
     
@@ -2147,24 +1846,16 @@ else:
 
     if client is not None:
         print(f"\n{'='*70}")
-        print("COMPARING FIVE FACTOR NAMING APPROACHES")
+        print("COMPARING THREE FACTOR NAMING APPROACHES")
         print(f"{'='*70}")
         print("\nMethod 1: Direct Scale Items (with psychological context)")
         print("Method 2: Nearest Neighbor Words (vocabulary-based, instruction-tuned)")
         print("Method 3: Base Model Token Prediction (non-instruct, greedy sampling)")
-        print("Method 4: Raw Nearest Word (loading-weighted centroid, no generation)")
-        print("Method 5: Constrained Whole-Word Token (token embedding space)")
-        if METHOD_4_TOP_K_ITEMS is None or METHOD_4_TOP_K_ITEMS <= 0:
-            print("  Method 4/5 item scope: all items assigned to each extracted factor")
-        else:
-            print(f"  Method 4/5 item scope: top {METHOD_4_TOP_K_ITEMS} assigned items by |loading|")
         print(f"{'='*70}\n")
 
         factor_name_mappings_direct = {}
         factor_name_mappings_nn = {}
         factor_name_mappings_base = {}
-        factor_name_mappings_raw = {}
-        factor_name_mappings_token = {}
 
         factor_probabilities_base = {}
 
@@ -2181,38 +1872,13 @@ else:
             factor_name_mappings_direct[model_size] = {}
             factor_name_mappings_nn[model_size] = {}
             factor_name_mappings_base[model_size] = {}
-            factor_name_mappings_raw[model_size] = {}
-            factor_name_mappings_token[model_size] = {}
             factor_probabilities_base[model_size] = {}
 
             if nn_available:
                 word_embeddings = all_word_embeddings[model_size]
                 print(f"\n✓ Word embeddings available: {word_embeddings.shape}")
-                word_norms = np.linalg.norm(word_embeddings, axis=1, keepdims=True)
-                word_norms[word_norms == 0] = 1.0
-                word_embeddings_norm = word_embeddings / word_norms
             else:
                 print(f"\n⚠ Word embeddings not available - only Method 1 will run")
-
-            code_to_idx = {code: idx for idx, code in enumerate(codes)}
-            primary_factor_by_code = loadings_df.abs().idxmax(axis=1).to_dict()
-
-            method5_resources = None
-            method5_error = None
-            if ENABLE_METHOD_5:
-                try:
-                    model_name_for_size = MODEL_NAMES[model_sizes.index(model_size)]
-                except Exception:
-                    model_name_for_size = MODEL_NAMES[0]
-                method5_resources, method5_error = prepare_method5_resources(model_name_for_size)
-                if method5_resources is not None:
-                    matrix_shape = tuple(method5_resources['candidate_matrix_norm'].shape)
-                    print(f"  ✓ Method 5 token candidates ready: {matrix_shape[0]:,} tokens, dim={matrix_shape[1]}")
-                    print(f"    Source tensor: {method5_resources['matrix_key']}")
-                else:
-                    print(f"  ⚠ Method 5 unavailable: {method5_error}")
-            else:
-                print("  Method 5 disabled via ENABLE_METHOD_5=False")
 
             for factor_name in loadings_df.columns:
                 print(f"\n{'='*70}")
@@ -2237,8 +1903,7 @@ else:
 
                 system_prompt = "You are a helpful assistant that provides concise, one or two-word summaries."
 
-                completion = create_hf_chat_completion(
-                    client,
+                completion = client.chat.completions.create(
                     model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                     messages=[
                         {"role": "system", "content": system_prompt},
@@ -2279,8 +1944,7 @@ else:
                     words_list = ", ".join(top_words)
                     user_prompt_nn = f"Give a label that best summarizes these related concepts: {words_list}. Provide ONLY the label."
 
-                    completion = create_hf_chat_completion(
-                        client,
+                    completion = client.chat.completions.create(
                         model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                         messages=[
                             {"role": "system", "content": system_prompt},
@@ -2323,104 +1987,12 @@ else:
                     else:
                         print(f"\n[METHOD 3: DISABLED]")
                         factor_name_mappings_base[model_size][factor_name] = "(disabled)"
-
-                    print(f"\n[METHOD 4: Raw Nearest Word (Loading-Weighted)]")
-                    assigned_codes = [
-                        code for code, assigned_factor in primary_factor_by_code.items()
-                        if assigned_factor == factor_name
-                    ]
-                    if not assigned_codes:
-                        assigned_codes = loadings_df.index.tolist()
-
-                    assigned_codes = sorted(
-                        assigned_codes,
-                        key=lambda code: abs(loadings_df.loc[code, factor_name]),
-                        reverse=True
-                    )
-
-                    if METHOD_4_TOP_K_ITEMS is None or METHOD_4_TOP_K_ITEMS <= 0:
-                        selected_codes = assigned_codes
-                    else:
-                        selected_codes = assigned_codes[:METHOD_4_TOP_K_ITEMS]
-
-                    selected_indices = [code_to_idx[code] for code in selected_codes if code in code_to_idx]
-                    if not selected_indices:
-                        factor_name_mappings_raw[model_size][factor_name] = "(not available)"
-                        if ENABLE_METHOD_5:
-                            factor_name_mappings_token[model_size][factor_name] = "(not available)"
-                        else:
-                            factor_name_mappings_token[model_size][factor_name] = "(disabled)"
-                        print("  ⚠ No valid selected items available for Method 4.")
-                    else:
-                        selected_loadings = np.array(
-                            [abs(loadings_df.loc[code, factor_name]) for code in selected_codes if code in code_to_idx],
-                            dtype=float
-                        )
-                        if selected_loadings.sum() <= 0:
-                            weights = np.ones_like(selected_loadings) / len(selected_loadings)
-                        else:
-                            weights = selected_loadings / selected_loadings.sum()
-
-                        selected_embeddings = embeddings[selected_indices]
-                        selected_norms = np.linalg.norm(selected_embeddings, axis=1, keepdims=True)
-                        selected_norms[selected_norms == 0] = 1.0
-                        selected_embeddings_norm = selected_embeddings / selected_norms
-
-                        weighted_centroid = np.sum(selected_embeddings_norm * weights[:, None], axis=0)
-                        centroid_norm = np.linalg.norm(weighted_centroid)
-                        if centroid_norm > 0:
-                            weighted_centroid = weighted_centroid / centroid_norm
-
-                        similarities_raw = word_embeddings_norm @ weighted_centroid
-                        top_word_indices_raw = np.argsort(similarities_raw)[::-1][:10]
-                        top_words_raw = [words[idx] for idx in top_word_indices_raw]
-
-                        raw_label = top_words_raw[0] if len(top_words_raw) > 0 else factor_name
-                        factor_name_mappings_raw[model_size][factor_name] = raw_label
-
-                        print(f"  Assigned items in factor: {len(assigned_codes)}")
-                        print(f"  Items used in centroid: {len(selected_indices)}")
-                        print(f"  Method 4 Result: '{raw_label}'")
-                        print("  Top 5 nearest words:")
-                        for i, idx in enumerate(top_word_indices_raw[:5], 1):
-                            print(f"    {i}. {words[idx]:<20} (sim={similarities_raw[idx]:.4f})")
-
-                        print(f"\n[METHOD 5: Constrained Whole-Word Token]")
-                        if not ENABLE_METHOD_5:
-                            factor_name_mappings_token[model_size][factor_name] = "(disabled)"
-                            print("  Method 5 is disabled.")
-                        elif method5_resources is None:
-                            factor_name_mappings_token[model_size][factor_name] = "(not available)"
-                            if method5_error:
-                                print(f"  ⚠ {method5_error}")
-                            else:
-                                print("  ⚠ Method 5 resources not available.")
-                        else:
-                            centroid_tensor = torch.tensor(weighted_centroid, dtype=torch.float32)
-                            token_matrix_norm = method5_resources['candidate_matrix_norm']
-                            token_scores = torch.matmul(token_matrix_norm, centroid_tensor)
-                            top_k_tokens = min(10, token_scores.shape[0])
-                            top_token_idx = torch.topk(token_scores, k=top_k_tokens).indices.tolist()
-
-                            token_words = method5_resources['candidate_words']
-                            best_token = token_words[top_token_idx[0]] if top_token_idx else factor_name
-                            factor_name_mappings_token[model_size][factor_name] = best_token
-
-                            print(f"  Method 5 Result: '{best_token}'")
-                            print("  Top 5 nearest tokens:")
-                            for rank, idx in enumerate(top_token_idx[:5], 1):
-                                print(f"    {rank}. {token_words[idx]:<20} (sim={float(token_scores[idx]):.4f})")
                 else:
                     factor_name_mappings_nn[model_size][factor_name] = "(not available)"
                     if ENABLE_METHOD_3:
                         factor_name_mappings_base[model_size][factor_name] = "(not available)"
                     else:
                         factor_name_mappings_base[model_size][factor_name] = "(disabled)"
-                    factor_name_mappings_raw[model_size][factor_name] = "(not available)"
-                    if ENABLE_METHOD_5:
-                        factor_name_mappings_token[model_size][factor_name] = "(not available)"
-                    else:
-                        factor_name_mappings_token[model_size][factor_name] = "(disabled)"
 
         print(f"\n{'='*70}")
         print("FACTOR NAME COMPARISON SUMMARY")
@@ -2428,15 +2000,13 @@ else:
         for model_size in model_sizes:
             print(f"\n{model_size} Model:")
             print(f"{'-'*70}")
-            print(f"{'Factor':<12} {'Method 1':<20} {'Method 2':<20} {'Method 3':<20} {'Method 4':<20} {'Method 5':<20}")
+            print(f"{'Factor':<12} {'Method 1':<20} {'Method 2':<20} {'Method 3':<20}")
             print(f"{'-'*70}")
             for factor_name in sorted(factor_name_mappings_direct[model_size].keys()):
                 print(f"{factor_name:<12} "
                       f"{factor_name_mappings_direct[model_size][factor_name]:<20} "
                       f"{factor_name_mappings_nn[model_size].get(factor_name,'N/A'):<20} "
-                      f"{factor_name_mappings_base[model_size].get(factor_name,'N/A'):<20} "
-                      f"{factor_name_mappings_raw[model_size].get(factor_name,'N/A'):<20} "
-                      f"{factor_name_mappings_token[model_size].get(factor_name,'N/A'):<20}")
+                      f"{factor_name_mappings_base[model_size].get(factor_name,'N/A'):<20}")
             print(f"{'-'*70}")
 
     else:
@@ -2699,18 +2269,6 @@ else:
     print(f"\n{'='*70}")
     print("Skipping TSNE EFA comparison (requires both empirical and embedding data)")
     print(f"{'='*70}")
-    if len(all_results) > 0:
-        for model_size, embeddings_2d in all_tsne_embeddings.items():
-            embedding_loadings_df = all_results[model_size].get('loadings')
-            if embedding_loadings_df is not None:
-                create_embedding_tsne_plot(
-                    embeddings_2d,
-                    embedding_loadings_df,
-                    codes,
-                    model_size,
-                    SAVE_DIR,
-                    SCALE_NAME,
-                )
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2720,7 +2278,7 @@ if empirical_results is not None and len(all_results) > 0:
     model_size = list(all_results.keys())[0]
 
     # Get correlation/similarity matrices
-    empirical_corr = empirical_results['similarity_matrix']  # Reverse-scored correlation matrix
+    empirical_corr = empirical_results['similarity_matrix']  # Actually correlation matrix
     embedding_sim = all_results[model_size]['similarity_matrix']  # Cosine similarity
 
     # Create side-by-side comparison

@@ -100,7 +100,7 @@ import torch
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer
 from safetensors import safe_open
-from openai import OpenAI, AuthenticationError
+from openai import OpenAI
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -120,23 +120,10 @@ warnings.filterwarnings('ignore', message='.*Moore-Penrose.*')
 warnings.filterwarnings('ignore', message='.*invalid value encountered in log.*')
 warnings.filterwarnings('ignore', message=".*'force_all_finite' was renamed.*")
 
-HF_TOKEN_PATH = os.path.expanduser('~/.cache/huggingface/token')
-
 os.environ['HF_HOME'] = '/Users/devon7y/.cache/huggingface'
 os.environ['HF_DATASETS_CACHE'] = '/Users/devon7y/.cache/huggingface'
-with open(HF_TOKEN_PATH, 'r') as f:
+with open(os.path.expanduser('~/.cache/huggingface/token'), 'r') as f:
     os.environ['HF_TOKEN'] = f.read().strip()
-
-
-def create_hf_chat_completion(client, **kwargs):
-    try:
-        return client.chat.completions.create(**kwargs)
-    except AuthenticationError as exc:
-        raise RuntimeError(
-            "Hugging Face router authentication failed: the HF token appears invalid, expired, "
-            f"or unauthorized for this request. Token source: {HF_TOKEN_PATH}. "
-            "Update HF_TOKEN and rerun."
-        ) from exc
 
 plt.rcParams.update({
     'font.size': 13,
@@ -208,11 +195,11 @@ ENABLE_FACTOR_NAMING = True
 # Leave empty [] to use existing/default ordering logic.
 # You can use either extracted names (e.g., "Factor1") or display labels
 # (e.g., LLM-generated factor names).
-PLOT_EXTRACTED_FACTOR_ORDER = ["Despair", "Anxiety", "Irritability"]
+PLOT_EXTRACTED_FACTOR_ORDER = []
 
 # Optional manual ordering for extracted factors in EMPIRICAL (human response)
 # plots. Leave empty [] to use existing/default ordering logic.
-PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = ["Depression", "Anxiety", "Stress"]
+PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = []
 
 np.random.seed(RANDOM_STATE)
 torch.manual_seed(RANDOM_STATE)
@@ -1143,7 +1130,7 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     print(f"  ✓ Correlation matrix shape: {corr_matrix.shape}")
     print(f"  ✓ Correlation range: [{corr_matrix.min():.3f}, {corr_matrix.max():.3f}]")
     print(f"  ✓ Mean correlation: {corr_matrix[np.triu_indices_from(corr_matrix, k=1)].mean():.3f}")
-    
+
     print(f"\n[3/7] Testing sampling adequacy...")
 
     kmo_per_item, kmo_total = calculate_kmo(corr_matrix)
@@ -2237,8 +2224,7 @@ else:
 
                 system_prompt = "You are a helpful assistant that provides concise, one or two-word summaries."
 
-                completion = create_hf_chat_completion(
-                    client,
+                completion = client.chat.completions.create(
                     model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                     messages=[
                         {"role": "system", "content": system_prompt},
@@ -2279,8 +2265,7 @@ else:
                     words_list = ", ".join(top_words)
                     user_prompt_nn = f"Give a label that best summarizes these related concepts: {words_list}. Provide ONLY the label."
 
-                    completion = create_hf_chat_completion(
-                        client,
+                    completion = client.chat.completions.create(
                         model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                         messages=[
                             {"role": "system", "content": system_prompt},
@@ -2723,13 +2708,27 @@ if empirical_results is not None and len(all_results) > 0:
     empirical_corr = empirical_results['similarity_matrix']  # Reverse-scored correlation matrix
     embedding_sim = all_results[model_size]['similarity_matrix']  # Cosine similarity
 
+    # Shift LLM cosine similarities so off-diagonal mean matches human correlations
+    n = embedding_sim.shape[0]
+    off_diag = ~np.eye(n, dtype=bool)
+    emp_mean = empirical_corr[off_diag].mean()
+    llm_mean = embedding_sim[off_diag].mean()
+    shift = emp_mean - llm_mean
+    print(f"  Human corr mean: {emp_mean:.4f}")
+    print(f"  LLM cosine mean: {llm_mean:.4f}")
+    print(f"  Shift applied:   {shift:+.4f}")
+    embedding_sim_rescaled = embedding_sim + shift
+    np.fill_diagonal(embedding_sim_rescaled, 1.0)
+    print(f"  LLM rescaled mean: {embedding_sim_rescaled[off_diag].mean():.4f}")
+    print(f"  LLM rescaled range: [{embedding_sim_rescaled[off_diag].min():.4f}, {embedding_sim_rescaled[off_diag].max():.4f}]")
+
     # Create side-by-side comparison
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18 + COMPARISON_SUBPLOT_SPACING, 10))
 
     # Order items by theoretical factors for better visualization
     factor_order = sorted(range(len(factors)), key=lambda i: (factors[i], i))
     empirical_ordered = empirical_corr[factor_order][:, factor_order]
-    embedding_ordered = embedding_sim[factor_order][:, factor_order]
+    embedding_ordered = embedding_sim_rescaled[factor_order][:, factor_order]
 
     # Create dividers for proper colorbar placement
     divider1 = make_axes_locatable(ax1)
@@ -2746,11 +2745,11 @@ if empirical_results is not None and len(all_results) > 0:
     ax1.set_xlabel('Items (grouped by factor)')
     ax1.set_ylabel('Items (grouped by factor)')
 
-    # RIGHT: Embedding similarity matrix
+    # RIGHT: Embedding similarity matrix (rescaled to match human distribution)
     sns.heatmap(embedding_ordered, cmap='RdBu_r', center=0, vmin=-1, vmax=1,
-               square=True, ax=ax2, cbar_ax=cax2, cbar_kws={'label': 'Cosine Similarity'},
+               square=True, ax=ax2, cbar_ax=cax2, cbar_kws={'label': 'Cosine Similarity (rescaled)'},
                xticklabels=False, yticklabels=False)
-    ax2.set_title('Similarity Matrix (Embeddings)', fontweight='bold')
+    ax2.set_title('Similarity Matrix (Embeddings, rescaled)', fontweight='bold')
     ax2.set_xlabel('Items (grouped by factor)')
     ax2.set_ylabel('Items (grouped by factor)')
 

@@ -100,7 +100,7 @@ import torch
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer
 from safetensors import safe_open
-from openai import OpenAI, AuthenticationError
+from openai import OpenAI
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -120,23 +120,10 @@ warnings.filterwarnings('ignore', message='.*Moore-Penrose.*')
 warnings.filterwarnings('ignore', message='.*invalid value encountered in log.*')
 warnings.filterwarnings('ignore', message=".*'force_all_finite' was renamed.*")
 
-HF_TOKEN_PATH = os.path.expanduser('~/.cache/huggingface/token')
-
 os.environ['HF_HOME'] = '/Users/devon7y/.cache/huggingface'
 os.environ['HF_DATASETS_CACHE'] = '/Users/devon7y/.cache/huggingface'
-with open(HF_TOKEN_PATH, 'r') as f:
+with open(os.path.expanduser('~/.cache/huggingface/token'), 'r') as f:
     os.environ['HF_TOKEN'] = f.read().strip()
-
-
-def create_hf_chat_completion(client, **kwargs):
-    try:
-        return client.chat.completions.create(**kwargs)
-    except AuthenticationError as exc:
-        raise RuntimeError(
-            "Hugging Face router authentication failed: the HF token appears invalid, expired, "
-            f"or unauthorized for this request. Token source: {HF_TOKEN_PATH}. "
-            "Update HF_TOKEN and rerun."
-        ) from exc
 
 plt.rcParams.update({
     'font.size': 13,
@@ -208,11 +195,11 @@ ENABLE_FACTOR_NAMING = True
 # Leave empty [] to use existing/default ordering logic.
 # You can use either extracted names (e.g., "Factor1") or display labels
 # (e.g., LLM-generated factor names).
-PLOT_EXTRACTED_FACTOR_ORDER = ["Despair", "Anxiety", "Irritability"]
+PLOT_EXTRACTED_FACTOR_ORDER = []
 
 # Optional manual ordering for extracted factors in EMPIRICAL (human response)
 # plots. Leave empty [] to use existing/default ordering logic.
-PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = ["Depression", "Anxiety", "Stress"]
+PLOT_EXTRACTED_FACTOR_ORDER_EMPIRICAL = []
 
 np.random.seed(RANDOM_STATE)
 torch.manual_seed(RANDOM_STATE)
@@ -650,9 +637,6 @@ if missing:
 if 'scoring' not in scale.columns:
     print("⚠ WARNING: 'scoring' column missing - defaulting to +1")
     scale['scoring'] = 1
-
-# CSV values like "+1" may be read as strings; force integer dtype
-scale['scoring'] = pd.to_numeric(scale['scoring']).astype(int)
 
 print(f"\nScoring: {(scale['scoring']==1).sum()} normal, {(scale['scoring']==-1).sum()} reverse")
 print(f"Factors: {scale['factor'].nunique()} unique")
@@ -1459,146 +1443,6 @@ def create_visualizations(results, factors, codes, model_size, save_dir='results
     plt.savefig(f'{save_dir}/{scale_name}_visualizations_{model_size}.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-
-def create_embedding_tsne_plot(
-    embeddings_2d,
-    loadings_df,
-    codes,
-    model_size,
-    save_dir,
-    scale_name,
-):
-    fig, ax = plt.subplots(figsize=(9, 8))
-
-    custom_colors = ['#0907FF', '#00EAFF', '#0CCF14', '#FF2F00', '#C62FF4', '#F4B62F']
-    item_to_factor = assign_items_to_extracted_factors(loadings_df)
-    _, display_label_map = get_embedding_factor_display_labels(
-        loadings_df.columns.tolist(),
-        model_size
-    )
-    ordered_extracted = apply_manual_extracted_factor_order(
-        loadings_df.columns.tolist(),
-        display_label_map,
-        manual_order=PLOT_EXTRACTED_FACTOR_ORDER
-    )
-
-    display_order = []
-    for factor_name in ordered_extracted:
-        label = display_label_map.get(factor_name, factor_name)
-        if label not in display_order:
-            display_order.append(label)
-
-    item_to_display = {
-        item_code: display_label_map.get(factor_name, factor_name)
-        for item_code, factor_name in item_to_factor.items()
-    }
-    factor_colors = {
-        label: custom_colors[i % len(custom_colors)]
-        for i, label in enumerate(display_order)
-    }
-
-    handles = {}
-    for label in display_order:
-        indices = [i for i, code in enumerate(codes) if item_to_display.get(code) == label]
-        if indices:
-            handle = ax.scatter(
-                embeddings_2d[indices, 0],
-                embeddings_2d[indices, 1],
-                c=[factor_colors[label]],
-                label=label,
-                alpha=0.75,
-                s=100,
-                edgecolors='black',
-                linewidths=0.5,
-            )
-            handles[label] = handle
-
-    for i in range(len(embeddings_2d)):
-        ax.annotate(
-            codes[i],
-            (embeddings_2d[i, 0], embeddings_2d[i, 1]),
-            fontsize=8,
-            textcoords='offset points',
-            xytext=(0, 6),
-            ha='center',
-            va='bottom',
-            fontweight='bold',
-        )
-
-    legend_order = [label for label in display_order if label in handles]
-    ax.legend(
-        [handles[label] for label in legend_order],
-        legend_order,
-        loc='upper right',
-        fontsize=9,
-        framealpha=0.9,
-    )
-    ax.set_xlabel('t-SNE Dimension 1', fontsize=12)
-    ax.set_ylabel('t-SNE Dimension 2', fontsize=12)
-    ax.set_title(f't-SNE (Embeddings, {model_size})', fontsize=14, fontweight='bold')
-    ax.grid(True, alpha=0.3)
-    ax.set_aspect('equal', adjustable='datalim')
-
-    plt.tight_layout()
-    filepath = f'{save_dir}/{scale_name}_embeddings_tsne_{model_size}.png'
-    plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"✓ Embedding t-SNE saved to: {filepath}")
-
-
-def create_embedding_within_between_plot(
-    within_sims,
-    between_sims,
-    model_size,
-    save_dir,
-    scale_name,
-):
-    within_sims = np.asarray(within_sims)
-    between_sims = np.asarray(between_sims)
-    mean_within = float(np.mean(within_sims))
-    mean_between = float(np.mean(between_sims))
-    t_stat, p_value = ttest_ind(within_sims, between_sims, equal_var=False)
-    cohens_d = (mean_within - mean_between) / np.sqrt(
-        (np.std(within_sims) ** 2 + np.std(between_sims) ** 2) / 2
-    )
-
-    fig, ax = plt.subplots(figsize=(8, 7))
-    plot_df = pd.DataFrame({
-        'value': within_sims.tolist() + between_sims.tolist(),
-        'type': ['Within'] * len(within_sims) + ['Between'] * len(between_sims)
-    })
-    sns.violinplot(
-        data=plot_df,
-        x='type',
-        y='value',
-        hue='type',
-        ax=ax,
-        palette=['#2ecc71', '#e74c3c'],
-        legend=False,
-    )
-    ax.plot([0], [mean_within], 'D', color='darkgreen', markersize=10)
-    ax.plot([1], [mean_between], 'D', color='darkred', markersize=10)
-    y_offset = (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.07
-    ax.text(0, ax.get_ylim()[0] - y_offset, f'n={len(within_sims)}', ha='center', va='top')
-    ax.text(1, ax.get_ylim()[0] - y_offset, f'n={len(between_sims)}', ha='center', va='top')
-    title = (
-        f'Within vs Between (Embeddings, {model_size})\n'
-        f"d = {cohens_d:.3f}, p < .001"
-        if p_value < 0.001 else
-        f'Within vs Between (Embeddings, {model_size})\n'
-        f"d = {cohens_d:.3f}, p = {p_value:.3f}"
-    )
-    ax.set_title(title, fontweight='bold')
-    ax.set_ylabel('Cosine Similarity')
-    ax.set_xlabel('')
-    ax.grid(True, alpha=0.3, axis='y')
-
-    plt.tight_layout()
-    filepath = f'{save_dir}/{scale_name}_embeddings_within_between_{model_size}.png'
-    plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.close()
-    print(f"✓ Embedding within/between plot saved to: {filepath}")
-
 all_results = {}
 
 for model_size in model_sizes:
@@ -1622,7 +1466,7 @@ for model_size in model_sizes:
     
     all_results[model_size] = results
 
-    create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
+    # create_visualizations(results, factors, codes, model_size, save_dir=SAVE_DIR)
 
 print(f"\n{'='*70}")
 print("PREPROCESSING EMPIRICAL DATA")
@@ -1678,8 +1522,8 @@ if empirical_data is not None:
         save_dir=SAVE_DIR
     )
 
-    create_visualizations(empirical_results, factors, codes, "Empirical",
-                         save_dir=SAVE_DIR, data_type='empirical')
+    # create_visualizations(empirical_results, factors, codes, "Empirical",
+    #                      save_dir=SAVE_DIR, data_type='empirical')
 
     print(f"\n✓ TRADITIONAL EFA COMPLETE")
 else:
@@ -1781,21 +1625,10 @@ for model_size in model_sizes:
     else:
         print(f"  ⚠ No significant difference in within- vs between-construct similarity.")
 
-    if empirical_results is None:
-        create_embedding_within_between_plot(
-            within_sims,
-            between_sims,
-            model_size,
-            SAVE_DIR,
-            SCALE_NAME,
-        )
-
 print("✓ Factor Separation Analysis Complete")
 
 print("FACTOR SEPARATION ANALYSIS")
 print("=" * 70)
-
-separation_metrics_by_model = {}
 
 for model_size in model_sizes:
     print(f"\n{'='*70}")
@@ -1823,16 +1656,7 @@ for model_size in model_sizes:
     
     within_mean = np.mean(all_within_sims)
     between_mean = np.mean(between_factor_sims)
-    if np.isclose(between_mean, 0.0):
-        separation_ratio = np.inf if within_mean > 0 else np.nan
-    else:
-        separation_ratio = within_mean / between_mean
-    
-    separation_metrics_by_model[model_size] = {
-        "within_mean": float(within_mean),
-        "between_mean": float(between_mean),
-        "separation_ratio": float(separation_ratio),
-    }
+    separation_ratio = within_mean / between_mean
     
     print(f"\nOverall Separation Metrics:")
     print(f"  Within-factor similarity:  {within_mean:.4f}")
@@ -1863,34 +1687,6 @@ for model_size in model_sizes:
         pair_std = np.std(factor_pairs[pair], ddof=1)
         n_pairs = len(factor_pairs[pair])
         print(f"  {pair[0]:12s} vs {pair[1]:12s}: {pair_mean:.4f} ± {pair_std:.4f}  (n={n_pairs} pairs)")
-
-if separation_metrics_by_model:
-    def _ratio_sort_key(item):
-        ratio = item[1]["separation_ratio"]
-        if np.isnan(ratio):
-            return -np.inf
-        return ratio
-
-    ranked_models = sorted(
-        separation_metrics_by_model.items(),
-        key=_ratio_sort_key,
-        reverse=True
-    )
-
-    print(f"\n{'='*70}")
-    print("Cross-Model Separation Ratio Comparison (Within / Between)")
-    print(f"{'='*70}")
-    print(f"{'Model':<8} {'Within':>10} {'Between':>10} {'Ratio':>10}")
-    print(f"{'-'*8} {'-'*10} {'-'*10} {'-'*10}")
-    for model_size, metrics in ranked_models:
-        ratio_text = f"{metrics['separation_ratio']:.4f}" if np.isfinite(metrics['separation_ratio']) else "inf"
-        print(
-            f"{model_size:<8} "
-            f"{metrics['within_mean']:>10.4f} "
-            f"{metrics['between_mean']:>10.4f} "
-            f"{ratio_text:>10}"
-        )
-    print(f"Best separation ratio: {ranked_models[0][0]} ({ranked_models[0][1]['separation_ratio']:.4f})")
 
 if empirical_results is not None:
     print(f"\n{'='*70}")
@@ -2237,8 +2033,7 @@ else:
 
                 system_prompt = "You are a helpful assistant that provides concise, one or two-word summaries."
 
-                completion = create_hf_chat_completion(
-                    client,
+                completion = client.chat.completions.create(
                     model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                     messages=[
                         {"role": "system", "content": system_prompt},
@@ -2279,8 +2074,7 @@ else:
                     words_list = ", ".join(top_words)
                     user_prompt_nn = f"Give a label that best summarizes these related concepts: {words_list}. Provide ONLY the label."
 
-                    completion = create_hf_chat_completion(
-                        client,
+                    completion = client.chat.completions.create(
                         model="Qwen/Qwen3-235B-A22B-Instruct-2507:novita",
                         messages=[
                             {"role": "system", "content": system_prompt},
@@ -2699,18 +2493,6 @@ else:
     print(f"\n{'='*70}")
     print("Skipping TSNE EFA comparison (requires both empirical and embedding data)")
     print(f"{'='*70}")
-    if len(all_results) > 0:
-        for model_size, embeddings_2d in all_tsne_embeddings.items():
-            embedding_loadings_df = all_results[model_size].get('loadings')
-            if embedding_loadings_df is not None:
-                create_embedding_tsne_plot(
-                    embeddings_2d,
-                    embedding_loadings_df,
-                    codes,
-                    model_size,
-                    SAVE_DIR,
-                    SCALE_NAME,
-                )
 
 if empirical_results is not None and len(all_results) > 0:
     print(f"\n{'='*70}")
@@ -2720,7 +2502,7 @@ if empirical_results is not None and len(all_results) > 0:
     model_size = list(all_results.keys())[0]
 
     # Get correlation/similarity matrices
-    empirical_corr = empirical_results['similarity_matrix']  # Reverse-scored correlation matrix
+    empirical_corr = empirical_results['similarity_matrix']  # Actually correlation matrix
     embedding_sim = all_results[model_size]['similarity_matrix']  # Cosine similarity
 
     # Create side-by-side comparison
