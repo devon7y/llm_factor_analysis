@@ -87,7 +87,6 @@ import os
 import sys
 import re
 import glob
-import importlib
 import subprocess
 import warnings
 from pathlib import Path
@@ -113,8 +112,6 @@ import scipy.stats as stats
 from skbio.stats.distance import mantel
 
 from factor_analyzer import FactorAnalyzer
-from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
-import factor_analyzer.factor_analyzer as fa_module
 
 warnings.filterwarnings('ignore', message='.*Moore-Penrose.*')
 warnings.filterwarnings('ignore', message='.*invalid value encountered in log.*')
@@ -233,24 +230,88 @@ def apply_atomic_reversed(embeddings, scoring):
     return embeddings_normalized
 
 def compute_parallel_analysis(corr_matrix, n_iter=100, percentile=95, random_state=42, n_obs=None):
-    """Parallel analysis for factor retention"""
-    np.random.seed(random_state)
+    """Horn-style parallel analysis for a correlation matrix with a real sample size."""
+    if n_obs is None:
+        raise ValueError("Standard parallel analysis requires an explicit n_obs.")
+
+    rng = np.random.default_rng(random_state)
     n_items = corr_matrix.shape[0]
     obs_eigenvalues = np.linalg.eigvalsh(corr_matrix)
     obs_eigenvalues = np.sort(obs_eigenvalues)[::-1]
     random_eigenvalues = []
-    if n_obs is None:
-        n_obs = n_items * 10
+
     for _ in range(n_iter):
-        random_data = np.random.randn(n_obs, n_items)
+        random_data = rng.standard_normal((n_obs, n_items))
         random_corr = np.corrcoef(random_data, rowvar=False)
         eigs = np.linalg.eigvalsh(random_corr)
         eigs = np.sort(eigs)[::-1]
         random_eigenvalues.append(eigs)
+
     random_eigenvalues = np.array(random_eigenvalues)
     percentiles = np.percentile(random_eigenvalues, percentile, axis=0)
     n_factors = np.sum(obs_eigenvalues > percentiles)
     return n_factors, obs_eigenvalues, percentiles
+
+def compute_embedding_parallel_analysis(sim_matrix, embeddings, n_iter=100, percentile=95, random_state=42):
+    """
+    Parallel analysis for cosine-similarity matrices.
+
+    The null matches the analyzed object: n_items random unit vectors in the
+    actual embedding dimension. That avoids inventing a participant count for a
+    matrix that was never estimated from human observations.
+    """
+    rng = np.random.default_rng(random_state)
+    n_items, embedding_dim = embeddings.shape
+    obs_eigenvalues = np.linalg.eigvalsh(sim_matrix)
+    obs_eigenvalues = np.sort(obs_eigenvalues)[::-1]
+    random_eigenvalues = []
+
+    for _ in range(n_iter):
+        random_vectors = rng.standard_normal((n_items, embedding_dim))
+        random_vectors /= np.linalg.norm(random_vectors, axis=1, keepdims=True)
+        random_sim = random_vectors @ random_vectors.T
+        eigs = np.linalg.eigvalsh(random_sim)
+        eigs = np.sort(eigs)[::-1]
+        random_eigenvalues.append(eigs)
+
+    random_eigenvalues = np.array(random_eigenvalues)
+    percentiles = np.percentile(random_eigenvalues, percentile, axis=0)
+    n_factors = np.sum(obs_eigenvalues > percentiles)
+    return n_factors, obs_eigenvalues, percentiles
+
+def compute_kmo_from_corr_matrix(corr_matrix, alpha=1e-6):
+    """KMO computed directly from a correlation-like matrix."""
+    corr_matrix = regularize_correlation_matrix(corr_matrix, alpha=alpha)
+    inv_corr = np.linalg.inv(corr_matrix)
+    partial_corr = -inv_corr / np.sqrt(np.outer(np.diag(inv_corr), np.diag(inv_corr)))
+    np.fill_diagonal(partial_corr, 0)
+
+    corr_sq = np.array(corr_matrix, copy=True)
+    np.fill_diagonal(corr_sq, 0)
+    corr_sq = corr_sq**2
+    partial_sq = partial_corr**2
+
+    partial_corr_sum = np.sum(partial_sq, axis=0)
+    corr_sum = np.sum(corr_sq, axis=0)
+    kmo_per_item = corr_sum / (corr_sum + partial_corr_sum)
+
+    corr_sum_total = np.sum(corr_sq)
+    partial_corr_sum_total = np.sum(partial_sq)
+    kmo_total = corr_sum_total / (corr_sum_total + partial_corr_sum_total)
+    return kmo_per_item, kmo_total
+
+def compute_bartlett_sphericity_from_corr_matrix(corr_matrix, n_obs, alpha=1e-6):
+    """Bartlett's test computed from a correlation matrix and a real sample size."""
+    corr_matrix = regularize_correlation_matrix(corr_matrix, alpha=alpha)
+    n_items = corr_matrix.shape[0]
+    sign, logdet = np.linalg.slogdet(corr_matrix)
+    if sign <= 0:
+        raise ValueError("Correlation matrix must be positive definite for Bartlett's test.")
+
+    statistic = -logdet * (n_obs - 1 - (2 * n_items + 5) / 6)
+    degrees_of_freedom = n_items * (n_items - 1) / 2
+    p_value = stats.chi2.sf(statistic, degrees_of_freedom)
+    return statistic, p_value
 
 def compute_daal(loadings_df, theoretical_factors):
     """Compute DAAL (Dominant Average Absolute Loading)"""
@@ -557,32 +618,6 @@ def regularize_correlation_matrix(corr_matrix, alpha=1e-6):
         return pd.DataFrame(regularized, index=corr_matrix.index, columns=corr_matrix.columns)
     return regularized
 
-def safe_calculate_kmo(corr_matrix, alpha=1e-6):
-    """KMO with auto-regularization."""
-    try:
-        return fa_module._original_calculate_kmo(corr_matrix)
-    except (np.linalg.LinAlgError, AssertionError):
-        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
-        return fa_module._original_calculate_kmo(regularize_correlation_matrix(corr_matrix, alpha))
-
-def safe_calculate_bartlett(corr_matrix, alpha=1e-6):
-    """Bartlett with auto-regularization."""
-    try:
-        return fa_module._original_calculate_bartlett(corr_matrix)
-    except (np.linalg.LinAlgError, AssertionError):
-        print(f"  ⚠️  Singular matrix detected, applying regularization (alpha={alpha})...")
-        return fa_module._original_calculate_bartlett(regularize_correlation_matrix(corr_matrix, alpha))
-
-if not hasattr(fa_module, '_original_calculate_kmo'):
-    importlib.reload(fa_module)
-    fa_module._original_calculate_kmo = fa_module.calculate_kmo
-    fa_module._original_calculate_bartlett = fa_module.calculate_bartlett_sphericity
-
-fa_module.calculate_kmo = safe_calculate_kmo
-fa_module.calculate_bartlett_sphericity = safe_calculate_bartlett
-
-print("✓ Safe KMO and Bartlett calculation functions installed")
-
 env_scale_index = os.environ.get("SFA_SCALE_INDEX")
 if env_scale_index is not None:
     try:
@@ -884,9 +919,9 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
 
     results['similarity_matrix'] = sim_matrix
 
-    print("\n[3/7] Computing KMO and Bartlett test...")
+    print("\n[3/7] Computing matrix diagnostics...")
 
-    kmo_per_item, kmo_total = calculate_kmo(sim_matrix)
+    kmo_per_item, kmo_total = compute_kmo_from_corr_matrix(sim_matrix)
     print(f"  ✓ KMO overall: {kmo_total:.3f}")
 
     if kmo_total < 0.5:
@@ -902,13 +937,10 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
     else:
         print("    KMO is marvelous")
 
-    chi_square, p_value = calculate_bartlett_sphericity(sim_matrix)
-    print(f"  ✓ Bartlett: χ²={chi_square:.2f}, p={p_value:.4e}")
-
-    if p_value > 0.05:
-        print("    ⚠ WARNING: Not significant (p > 0.05)")
-    else:
-        print("    ✓ Significant (p < 0.05)")
+    chi_square = np.nan
+    p_value = np.nan
+    print("  Bartlett's test not reported for embedding similarity matrices")
+    print("    Reason: there is no participant-level sample size for this matrix")
 
     results['kmo_total'] = kmo_total
     results['kmo_per_item'] = kmo_per_item
@@ -923,13 +955,21 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
 
     if n_factors is None:
         if eigen_criteria == 'parallel':
-            print(f"  Running parallel analysis ({parallel_iter} iterations)...")
-            n_factors_auto, obs_eigs, percentile_eigs = compute_parallel_analysis(
-                sim_matrix, n_iter=parallel_iter, random_state=random_state
+            print(
+                f"  Running embedding parallel analysis ({parallel_iter} iterations, "
+                f"{embeddings_ar.shape[1]}-D random-unit null)..."
+            )
+            n_factors_auto, obs_eigs, percentile_eigs = compute_embedding_parallel_analysis(
+                sim_matrix,
+                embeddings_ar,
+                n_iter=parallel_iter,
+                random_state=random_state
             )
             print(f"  ✓ Suggested {n_factors_auto} factors")
             n_factors = max(1, n_factors_auto)
             results['percentile_eigenvalues'] = percentile_eigs
+            results['parallel_analysis_null'] = 'random_unit_vectors'
+            results['parallel_analysis_dimension'] = embeddings_ar.shape[1]
         else:
             n_factors = np.sum(eigs > 1)
             print(f"  ✓ Kaiser rule (eigen>1): {n_factors} factors")
