@@ -1186,8 +1186,11 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     
     print(f"\n[3/7] Testing sampling adequacy...")
 
-    kmo_per_item, kmo_total = calculate_kmo(corr_matrix)
-    bartlett_chi2, bartlett_p = calculate_bartlett_sphericity(corr_matrix)
+    kmo_per_item, kmo_total = compute_kmo_from_corr_matrix(corr_matrix)
+    bartlett_chi2, bartlett_p = compute_bartlett_sphericity_from_corr_matrix(
+        corr_matrix,
+        n_obs=response_scored.shape[0]
+    )
     
     print(f"  KMO Measure of Sampling Adequacy: {kmo_total:.3f}")
     if kmo_total >= 0.9:
@@ -1217,11 +1220,16 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     if n_factors is None:
         if eigen_criteria == 'parallel':
             n_factors_auto, obs_eigs, pct_eigs = compute_parallel_analysis(
-                corr_matrix, n_iter=parallel_iter, percentile=95, random_state=random_state
+                corr_matrix,
+                n_iter=parallel_iter,
+                percentile=95,
+                random_state=random_state,
+                n_obs=response_scored.shape[0]
             )
             print(f"  Parallel Analysis (95th percentile, {parallel_iter} iterations):")
+            print(f"    Null sample size: n = {response_scored.shape[0]:,} participants")
             print(f"    → Suggested factors: {n_factors_auto}")
-            n_factors = n_factors_auto
+            n_factors = max(1, n_factors_auto)
         elif eigen_criteria == 'eigen1':
             eigenvalues = np.linalg.eigvalsh(corr_matrix)[::-1]
             n_factors_auto = np.sum(eigenvalues > 1.0)
@@ -1229,7 +1237,7 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
             pct_eigs = None
             print(f"  Kaiser Criterion (eigenvalue > 1):")
             print(f"    → Suggested factors: {n_factors_auto}")
-            n_factors = n_factors_auto
+            n_factors = max(1, n_factors_auto)
         else:
             raise ValueError(f"Unknown eigen_criteria: {eigen_criteria}")
     else:
