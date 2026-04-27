@@ -1,9 +1,28 @@
 # ==============================================================================
-# Semantic Factor Analysis (SFA) — Yanitski, D. and Westbury, C. (2025)
+# Semantic Factor Analysis (SFA) v2 — Yanitski, D. and Westbury, C. (2025)
 # ==============================================================================
 #
 # Validates psychological scales by comparing factor structures extracted from
 # LLM embeddings against those extracted from human response data.
+#
+# v2 additions integrate methodological advances from the 2024-2026 literature:
+#   - Alternative similarity transformations: SQuID questionnaire-mean centering
+#     (Pellert et al. 2026) and mean-centered cosine ≡ Pearson (Pokropek 2026,
+#     Kmetty et al. 2021).
+#   - Additional fit diagnostics for the cosine matrix without n_obs: TEFI
+#     (Golino preprint), RMSR, CAF (Lorenzo-Seva; Suárez-Álvarez et al. 2025),
+#     residual-correlation heatmap and histogram.
+#   - Random-item Monte Carlo calibration of fit thresholds on this scale's
+#     dimensionality (Pokropek 2026).
+#   - McDonald's omega per extracted factor on both sides (Milano et al. 2025a).
+#   - Factor-partition agreement via NMI and ARI (Garrido/Golino; Wang preprint).
+#   - Frobenius similarity of inter-factor correlation matrices (Wang preprint).
+#   - Comparison-to-human upgrades: polychoric option for Likert input (Kojima
+#     et al. 2026), top-K accuracy (Ravenda et al. 2025), sign-stratified
+#     calibration scatter and bucketed-accuracy table (Schoenegger et al. 2025),
+#     weighted-mixture sweep (Kojima et al. 2026).
+#   - Sixth factor-naming method using c-TF-IDF keyword extraction on top-loading
+#     items (Wang preprint).
 #
 # PIPELINE
 # --------
@@ -15,42 +34,47 @@
 #    sentence-transformer (Qwen3-Embedding-8B). Embeddings may be loaded
 #    from pregenerated .npz files or generated on the fly.
 #
-# 3. Apply atomic-reversed encoding: multiply each item's embedding by its
-#    scoring direction (+1 or -1), then L2-normalize. This encodes reverse-
-#    scored items as pointing in the opposite semantic direction.
+# 3. Transform embeddings into an item-similarity matrix. Three modes:
+#      'atomic_reversed' (default) — multiply each embedding by its scoring
+#          direction (+1 or -1), L2-normalize, cosine similarity (Guenole et al.).
+#      'squid' — mean-center each embedding by the questionnaire-mean embedding,
+#          then cosine similarity (Pellert et al. 2026). Sign-flipping is still
+#          applied, preserving negative off-diagonals for reverse-keyed items.
+#      'mean_centered_pearson' — mean-center across items for every embedding
+#          dimension, then cosine similarity. This equals the Pearson correlation
+#          of the embedding vectors and makes the matrix a true correlation matrix,
+#          enabling CFA-style fit indices (Pokropek 2026; Kmetty et al. 2021).
 #
-# 4. Compute the item-by-item cosine similarity matrix from the signed
-#    embeddings. This matrix serves as a pseudo-correlation matrix for EFA.
-#
-# 5. Run exploratory factor analysis (EFA) on the cosine similarity matrix:
-#      a. Parallel analysis (95th-percentile, 100 iterations) to determine
-#         the number of factors to retain.
+# 4. Run exploratory factor analysis (EFA) on the similarity matrix:
+#      a. Parallel analysis (95th-percentile, 100 iterations, random unit vectors
+#         in the embedding dimension) to determine the number of factors to retain.
 #      b. Factor extraction (default: minres/ULS) with oblique rotation
 #         (default: oblimin) to allow correlated factors.
-#      c. Compute diagnostics: KMO sampling adequacy, Bartlett sphericity,
-#         DAAL (Dominant Average Absolute Loading) for factor-to-construct
-#         assignment, and Tucker congruence (phi) against theoretical factors.
+#      c. Diagnostics: KMO sampling adequacy, TEFI (Von Neumann entropy fit),
+#         RMSR + CAF residual diagnostics, DAAL, Tucker phi, NMI, ARI, and
+#         McDonald's omega per extracted factor.
 #
-# 6. Repeat step 5 on the empirical Pearson correlation matrix (traditional
-#    EFA) when human response data is available. Reverse-scored items are
-#    reflected before computing correlations.
+# 5. Repeat step 4 on the empirical correlation matrix (Pearson or polychoric;
+#    configurable) when human response data is available.
 #
-# 7. Generate comparison visualizations between embedding-based and empirical
+# 6. Generate comparison visualizations between embedding-based and empirical
 #    factor structures: scree plots, loading heatmaps, 2-D loading plots,
 #    Tucker congruence heatmaps, within- vs between-construct similarity
 #    violin plots, and t-SNE scatter plots.
 #
-# 8. Compute matrix-level agreement: Pearson correlation and Mantel test
-#    (10 000 permutations) between the LLM cosine similarity matrix and the
-#    human inter-item correlation matrix.
+# 7. Matrix-level agreement: Pearson, Mantel (10k permutations), disattenuated
+#    latent correlation, top-K accuracy, sign-stratified calibration scatter,
+#    bucketed-accuracy table, Frobenius similarity of inter-factor correlation
+#    matrices, and a weighted-mixture sweep w*S_human + (1-w)*S_emb.
 #
-# 9. Automatic factor naming via five methods:
+# 8. Automatic factor naming via six methods:
 #      Method 1 — Feed top-loading items to an instruct LLM (Qwen3-235B-A22B).
 #      Method 2 — Find nearest-neighbour words to the factor centroid in
 #                 embedding space, then summarise with the instruct LLM.
 #      Method 3 — (optional) Greedy token prediction from a base LLM.
 #      Method 4 — Raw nearest word from a loading-weighted factor centroid.
 #      Method 5 — Raw nearest constrained whole-word token (token embedding space).
+#      Method 6 — c-TF-IDF keywords on top-loading items (Wang preprint).
 #
 # CONFIGURATION
 # -------------
@@ -167,6 +191,35 @@ PREGENERATED_WORD_EMBEDDINGS = {"8B": "embeddings/2257_constructs_8B.npz",}
 N_FACTORS = None # None = auto via parallel analysis
 
 APPLY_REVERSE_SCORING_EMBEDDINGS = False # Guenole et al.'s atomic-reversed encoding
+
+# v2: similarity-matrix transformation.
+# 'atomic_reversed'       — signed embeddings + L2 normalize + cosine (Guenole et al.).
+# 'squid'                 — subtract questionnaire-mean embedding then cosine (Pellert et al. 2026).
+# 'mean_centered_pearson' — subtract per-dimension mean across items then cosine
+#                           (= Pearson correlation of embeddings; Pokropek 2026, Kmetty 2021).
+SIMILARITY_MODE = 'atomic_reversed'
+
+# v2: empirical correlation type.
+# 'pearson'   — standard Pearson on reverse-scored responses (current default).
+# 'polychoric'— polychoric correlation for ordinal Likert items (Kojima et al. 2026);
+#               falls back to Pearson with a warning if `semopy` is unavailable.
+EMPIRICAL_CORR_TYPE = 'pearson'
+
+# v2: random-item Monte Carlo calibration of fit-index thresholds.
+# None disables; positive int = iterations of random-item CFAs to establish
+# empirical 95th-percentile nulls for RMSR/CAF/TEFI at this item count (Pokropek 2026).
+RANDOM_ITEM_CALIBRATION_ITER = None
+
+# v2: enable Method 6 c-TF-IDF keywords per factor (Wang preprint).
+ENABLE_METHOD_6_CTFIDF = True
+METHOD_6_TOP_K_ITEMS = 10
+METHOD_6_N_KEYWORDS = 5
+
+# v2: top-K accuracy in comparison-to-human block (Ravenda et al. 2025).
+TOPK_VALUES = (1, 3, 5, 10)
+
+# v2: weighted-mixture sweep w*S_human + (1-w)*S_emb (Kojima et al. 2026).
+WEIGHT_SWEEP = (0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0)
 
 ROTATION_METHOD = 'oblimin'
 # OBLIQUE rotations (factors can correlate):
@@ -618,6 +671,447 @@ def regularize_correlation_matrix(corr_matrix, alpha=1e-6):
         return pd.DataFrame(regularized, index=corr_matrix.index, columns=corr_matrix.columns)
     return regularized
 
+
+# ==============================================================================
+# v2 utility functions
+# ==============================================================================
+
+def apply_squid_centering(embeddings, scoring=None):
+    """
+    SQuID: subtract the questionnaire-mean embedding (Pellert et al. 2026).
+
+    Expands the correlation range and lets opposing items produce negative
+    off-diagonals without fine-tuning. Scoring direction is still applied if
+    provided (SQuID + sign-flipping compose cleanly).
+    """
+    centered = embeddings - embeddings.mean(axis=0, keepdims=True)
+    if scoring is not None:
+        scoring_array = np.array(scoring).reshape(-1, 1)
+        centered = centered * scoring_array
+    norms = np.linalg.norm(centered, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1.0, norms)
+    return centered / norms
+
+
+def apply_mean_centered_pearson(embeddings, scoring=None):
+    """
+    Mean-center across items per embedding dimension (Pokropek 2026; Kmetty 2021).
+
+    With this centering, pairwise cosine similarity equals Pearson correlation
+    of embedding vectors, so the matrix is a true correlation matrix and admits
+    CFA-style fit indices, McDonald's omega, and multigroup invariance machinery.
+    """
+    x = embeddings.astype(np.float64)
+    if scoring is not None:
+        x = x * np.array(scoring).reshape(-1, 1)
+    x_centered = x - x.mean(axis=1, keepdims=True)
+    norms = np.linalg.norm(x_centered, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1.0, norms)
+    return x_centered / norms
+
+
+def build_similarity_matrix(embeddings, scoring, mode='atomic_reversed'):
+    """Unified entry point for the three supported similarity transforms."""
+    if mode == 'atomic_reversed':
+        transformed = apply_atomic_reversed(embeddings, scoring)
+    elif mode == 'squid':
+        transformed = apply_squid_centering(embeddings, scoring)
+    elif mode == 'mean_centered_pearson':
+        transformed = apply_mean_centered_pearson(embeddings, scoring)
+    else:
+        raise ValueError(f"Unknown SIMILARITY_MODE: {mode}")
+    sim = cosine_similarity(transformed)
+    np.fill_diagonal(sim, 1.0)
+    return sim, transformed
+
+
+def compute_tefi(corr_matrix):
+    """
+    Total Entropy Fit Index (TEFI) — Von Neumann entropy of the normalized
+    correlation matrix (Golino preprint). Lower TEFI = tighter block structure.
+
+    TEFI = -Tr(rho * log(rho)) where rho = C / tr(C). Eigenvalues <= 0 (from
+    numerical noise) are floored at a tiny positive value before the log.
+    """
+    c = np.asarray(corr_matrix, dtype=np.float64)
+    trace = np.trace(c)
+    if trace <= 0:
+        return np.nan
+    rho = c / trace
+    eigs = np.linalg.eigvalsh(rho)
+    eigs = np.clip(eigs, 1e-12, None)
+    return float(-np.sum(eigs * np.log(eigs)))
+
+
+def compute_rmsr_and_caf(observed_corr, fa_model):
+    """
+    Residual-based fit diagnostics for a fitted FactorAnalyzer on a corr matrix.
+
+    Reproduced correlation: R_hat = L L^T + diag(uniquenesses) (oblique rotations
+    need the factor correlation matrix; we fall back to the orthogonal form when
+    phi is unavailable, which matches the minres/ULS default interpretation).
+
+    Returns RMSR (root mean square residual, off-diagonal) and Lorenzo-Seva's
+    CAF (Common Part Accounted For) = 1 - KMO(residual).
+    """
+    loadings = fa_model.loadings_
+    uniquenesses = fa_model.get_uniquenesses()
+    phi = getattr(fa_model, 'phi_', None)
+    if phi is None:
+        phi = np.eye(loadings.shape[1])
+    reproduced = loadings @ phi @ loadings.T + np.diag(uniquenesses)
+
+    residual = observed_corr - reproduced
+    n = residual.shape[0]
+    off = residual[np.triu_indices(n, k=1)]
+    rmsr = float(np.sqrt(np.mean(off ** 2)))
+
+    residual_corr = residual.copy()
+    d = np.sqrt(np.clip(np.diag(residual_corr).copy(), 1e-12, None))
+    residual_corr = residual_corr / d[:, None] / d[None, :]
+    np.fill_diagonal(residual_corr, 1.0)
+    try:
+        _, kmo_residual = compute_kmo_from_corr_matrix(residual_corr)
+        caf = float(1.0 - kmo_residual)
+    except Exception:
+        caf = np.nan
+
+    return rmsr, caf, residual
+
+
+def compute_mcdonalds_omega(loadings_df, factor_col, theoretical_factors=None,
+                             item_codes=None, target_factor=None):
+    """
+    McDonald's omega for one factor from a single-factor loading vector and its
+    implied uniquenesses.
+
+    omega = (sum(l))^2 / ((sum(l))^2 + sum(u))
+    where u_i = 1 - l_i^2 for items assigned to this factor.
+
+    If `target_factor` + `theoretical_factors` + `item_codes` are given, the
+    omega uses items whose theoretical label matches `target_factor`. Otherwise
+    items are assigned by highest absolute loading on `factor_col`.
+    """
+    loadings = loadings_df[factor_col].values
+    if target_factor is not None and theoretical_factors is not None and item_codes is not None:
+        mask = np.array([t == target_factor for t in theoretical_factors])
+    else:
+        max_abs = loadings_df.abs().idxmax(axis=1).values
+        mask = np.array([m == factor_col for m in max_abs])
+    if mask.sum() < 2:
+        return np.nan
+    l = loadings[mask]
+    u = 1.0 - l ** 2
+    denom = (l.sum()) ** 2 + u.sum()
+    if denom <= 0:
+        return np.nan
+    return float((l.sum()) ** 2 / denom)
+
+
+def compute_nmi(labels_a, labels_b):
+    """Normalized mutual information (geometric normalization)."""
+    labels_a = np.asarray(labels_a)
+    labels_b = np.asarray(labels_b)
+    unique_a = {v: i for i, v in enumerate(np.unique(labels_a))}
+    unique_b = {v: i for i, v in enumerate(np.unique(labels_b))}
+    a = np.array([unique_a[v] for v in labels_a])
+    b = np.array([unique_b[v] for v in labels_b])
+    n = len(a)
+    contingency = np.zeros((len(unique_a), len(unique_b)))
+    for i, j in zip(a, b):
+        contingency[i, j] += 1
+    p_ab = contingency / n
+    p_a = p_ab.sum(axis=1, keepdims=True)
+    p_b = p_ab.sum(axis=0, keepdims=True)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        mi = np.nansum(p_ab * (np.log(p_ab) - np.log(p_a) - np.log(p_b)))
+        h_a = -np.nansum(p_a * np.log(p_a))
+        h_b = -np.nansum(p_b * np.log(p_b))
+    denom = np.sqrt(h_a * h_b)
+    return float(mi / denom) if denom > 0 else 0.0
+
+
+def compute_ari(labels_a, labels_b):
+    """Adjusted Rand Index, analytical form."""
+    from math import comb
+    labels_a = np.asarray(labels_a)
+    labels_b = np.asarray(labels_b)
+    unique_a = np.unique(labels_a)
+    unique_b = np.unique(labels_b)
+    contingency = np.zeros((len(unique_a), len(unique_b)), dtype=int)
+    for i, va in enumerate(unique_a):
+        for j, vb in enumerate(unique_b):
+            contingency[i, j] = np.sum((labels_a == va) & (labels_b == vb))
+    sum_comb_c = sum(comb(n, 2) for n in contingency.flatten() if n >= 2)
+    sum_comb_a = sum(comb(int(n), 2) for n in contingency.sum(axis=1) if n >= 2)
+    sum_comb_b = sum(comb(int(n), 2) for n in contingency.sum(axis=0) if n >= 2)
+    n_total = contingency.sum()
+    if n_total < 2:
+        return 0.0
+    expected = sum_comb_a * sum_comb_b / comb(int(n_total), 2)
+    max_index = 0.5 * (sum_comb_a + sum_comb_b)
+    denom = max_index - expected
+    if denom == 0:
+        return 1.0 if sum_comb_c == expected else 0.0
+    return float((sum_comb_c - expected) / denom)
+
+
+def compute_frobenius_similarity(matrix_a, matrix_b):
+    """Normalized Frobenius similarity between two matrices of the same shape."""
+    a = np.asarray(matrix_a, dtype=np.float64)
+    b = np.asarray(matrix_b, dtype=np.float64)
+    if a.shape != b.shape:
+        return np.nan
+    num = np.sum(a * b)
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    if denom == 0:
+        return np.nan
+    return float(num / denom)
+
+
+def compute_inter_factor_correlation(loadings_df):
+    """
+    Return the factor-score correlation matrix implied by factor loadings.
+    For oblique solutions this is phi; for orthogonal solutions it is identity.
+    Falls back to Pearson correlation of the loading columns if nothing else.
+    """
+    return loadings_df.corr().values
+
+
+def compute_topk_accuracy(sim_a, sim_b, k_values=(1, 3, 5, 10)):
+    """
+    Top-K agreement (Ravenda et al. 2025). For each item, what fraction of its
+    k nearest items in matrix B appear among its k nearest in matrix A?
+    """
+    sim_a = np.asarray(sim_a).copy()
+    sim_b = np.asarray(sim_b).copy()
+    n = sim_a.shape[0]
+    np.fill_diagonal(sim_a, -np.inf)
+    np.fill_diagonal(sim_b, -np.inf)
+    results = {}
+    for k in k_values:
+        hits = 0
+        total = 0
+        for i in range(n):
+            top_a = set(np.argsort(-sim_a[i])[:k])
+            top_b = set(np.argsort(-sim_b[i])[:k])
+            hits += len(top_a & top_b)
+            total += k
+        results[k] = hits / total if total else np.nan
+    return results
+
+
+def compute_sign_stratified_calibration(x, y):
+    """
+    Sign-stratified calibration of embedding cosines vs human correlations
+    (Schoenegger et al. 2025). Fits separate linear regressions for pairs where
+    human r < -0.1, -0.1 <= r <= 0.1, and r > 0.1, and returns their slopes,
+    intercepts, and bucketed sign-accuracy confusion-matrix counts.
+    """
+    x = np.asarray(x)
+    y = np.asarray(y)
+    buckets = {
+        'negative (r < -0.1)': (x < -0.1),
+        'near-zero (|r| <= 0.1)': (np.abs(x) <= 0.1),
+        'positive (r > 0.1)': (x > 0.1),
+    }
+    results = {}
+    for label, mask in buckets.items():
+        if mask.sum() < 3:
+            results[label] = {'n': int(mask.sum()), 'slope': np.nan,
+                              'intercept': np.nan, 'r': np.nan,
+                              'mean_x': np.nan, 'mean_y': np.nan}
+            continue
+        slope, intercept, r_val, _, _ = stats.linregress(x[mask], y[mask])
+        results[label] = {
+            'n': int(mask.sum()),
+            'slope': float(slope),
+            'intercept': float(intercept),
+            'r': float(r_val),
+            'mean_x': float(x[mask].mean()),
+            'mean_y': float(y[mask].mean()),
+        }
+    return results
+
+
+def compute_bucketed_accuracy(x, y, thresholds=(-0.1, 0.1)):
+    """Bucketed confusion matrix between sign-bins of x and y."""
+    def bin_vals(v):
+        lo, hi = thresholds
+        out = np.full(v.shape, 1, dtype=int)
+        out[v < lo] = 0
+        out[v > hi] = 2
+        return out
+    a = bin_vals(np.asarray(x))
+    b = bin_vals(np.asarray(y))
+    labels = ['negative', 'near-zero', 'positive']
+    cm = np.zeros((3, 3), dtype=int)
+    for i, j in zip(a, b):
+        cm[i, j] += 1
+    overall = np.trace(cm) / cm.sum() if cm.sum() else np.nan
+    return cm, labels, float(overall)
+
+
+def compute_polychoric_correlation_matrix(response_data):
+    """
+    Polychoric correlation matrix for ordinal Likert data (Kojima et al. 2026).
+
+    Uses `semopy.polycorr.polychoric_corr` when available; falls back to
+    Pearson with a warning. Operates on reverse-scored integer responses.
+    """
+    try:
+        from semopy.polycorr import polychoric_corr
+    except Exception as exc:
+        print(f"  ⚠ semopy.polycorr unavailable ({type(exc).__name__}); using Pearson instead")
+        return np.corrcoef(response_data.T), 'pearson_fallback'
+    n_items = response_data.shape[1]
+    corr = np.eye(n_items)
+    for i in range(n_items):
+        for j in range(i + 1, n_items):
+            try:
+                r = float(polychoric_corr(response_data[:, i], response_data[:, j]))
+            except Exception:
+                r = float(np.corrcoef(response_data[:, i], response_data[:, j])[0, 1])
+            if not np.isfinite(r):
+                r = 0.0
+            corr[i, j] = corr[j, i] = r
+    return corr, 'polychoric'
+
+
+def compute_disattenuated_correlation(x, y, reliability_x=None, reliability_y=None):
+    """
+    Spearman disattenuation of the manifest correlation (Hommel & Arslan 2025).
+
+    If reliabilities are unspecified we use the split-half reliability of each
+    vector's pairwise representation (odd vs even halves of the flattened
+    off-diagonal). Returns (manifest_r, disattenuated_r, rel_x, rel_y).
+    """
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    manifest = float(np.corrcoef(x, y)[0, 1])
+    if reliability_x is None:
+        rel_x = float(np.corrcoef(x[::2], x[1::2])[0, 1]) if len(x) >= 4 else np.nan
+        rel_x = 2 * rel_x / (1 + rel_x) if np.isfinite(rel_x) and abs(rel_x) < 1 else rel_x
+    else:
+        rel_x = reliability_x
+    if reliability_y is None:
+        rel_y = float(np.corrcoef(y[::2], y[1::2])[0, 1]) if len(y) >= 4 else np.nan
+        rel_y = 2 * rel_y / (1 + rel_y) if np.isfinite(rel_y) and abs(rel_y) < 1 else rel_y
+    else:
+        rel_y = reliability_y
+    if not (np.isfinite(rel_x) and np.isfinite(rel_y)) or rel_x <= 0 or rel_y <= 0:
+        return manifest, np.nan, rel_x, rel_y
+    disatt = manifest / np.sqrt(rel_x * rel_y)
+    return manifest, float(disatt), float(rel_x), float(rel_y)
+
+
+def weighted_mixture_sweep(sim_human, sim_emb, weights):
+    """
+    Sweep w over [0, 1] and return, for each w, the parallel-analysis eigenvalue
+    spectrum and factor-retention count for w*S_human + (1-w)*S_emb
+    (Kojima et al. 2026).
+    """
+    out = []
+    for w in weights:
+        mix = w * sim_human + (1 - w) * sim_emb
+        eigs = np.sort(np.linalg.eigvalsh(mix))[::-1]
+        n_ev1 = int(np.sum(eigs > 1.0))
+        out.append({
+            'w_human': float(w),
+            'top_eigenvalue': float(eigs[0]),
+            'n_factors_kaiser': n_ev1,
+            'tefi': compute_tefi(mix),
+        })
+    return pd.DataFrame(out)
+
+
+def ctfidf_factor_keywords(loadings_df, items, codes, top_k_items=10,
+                            n_keywords=5, stop_words=None):
+    """
+    Method 6: c-TF-IDF keywords per extracted factor (Wang preprint).
+
+    For each factor, take the top_k_items by absolute loading, then score each
+    word by (tf-in-factor) * log(n_factors / df-across-factors). Returns a dict
+    {factor_name: [(word, score), ...]}.
+    """
+    import collections
+    default_sw = {
+        'a', 'an', 'the', 'and', 'or', 'but', 'i', 'me', 'my', 'you', 'your',
+        'he', 'she', 'it', 'we', 'they', 'them', 'is', 'am', 'are', 'was',
+        'were', 'be', 'been', 'being', 'to', 'of', 'in', 'on', 'at', 'for',
+        'with', 'by', 'from', 'as', 'that', 'this', 'these', 'those', 'not',
+        'no', 'do', 'does', 'did', 'have', 'has', 'had', 'will', 'would',
+        'can', 'could', 'should', 'may', 'might', 'so', 'if', 'when', 'than',
+        'then', 'there', 'here', 'about', 'like', "don't", 'just', 'very',
+        'really', 'also', 'more', 'most', 'some', 'any',
+    }
+    stop_words = set(stop_words) if stop_words else default_sw
+    code_to_item = dict(zip(codes, items))
+    factor_tokens = {}
+    for factor in loadings_df.columns:
+        top_codes = loadings_df[factor].abs().sort_values(ascending=False).head(top_k_items).index.tolist()
+        tokens = []
+        for code in top_codes:
+            text = str(code_to_item.get(code, '')).lower()
+            for tok in re.findall(r"[a-z']+", text):
+                if tok in stop_words or len(tok) < 3:
+                    continue
+                tokens.append(tok)
+        factor_tokens[factor] = collections.Counter(tokens)
+
+    n_factors = max(len(factor_tokens), 1)
+    doc_freq = collections.Counter()
+    for counter in factor_tokens.values():
+        for tok in counter.keys():
+            doc_freq[tok] += 1
+
+    keywords = {}
+    for factor, counter in factor_tokens.items():
+        scored = []
+        total = sum(counter.values()) or 1
+        for tok, tf in counter.items():
+            idf = np.log((1 + n_factors) / (1 + doc_freq[tok])) + 1
+            scored.append((tok, (tf / total) * idf))
+        scored.sort(key=lambda x: -x[1])
+        keywords[factor] = scored[:n_keywords]
+    return keywords
+
+
+def random_item_fit_calibration(n_items, embedding_dim, n_factors, rotation,
+                                 extraction_method, n_iter=100, random_state=42):
+    """
+    Monte Carlo null distributions of RMSR / CAF / TEFI on random item sets of
+    the same dimensionality (Pokropek 2026). Useful for calibrating fit-index
+    thresholds specifically for embedding matrices.
+    """
+    rng = np.random.default_rng(random_state)
+    rmsr_null, caf_null, tefi_null = [], [], []
+    for _ in range(n_iter):
+        rand = rng.standard_normal((n_items, embedding_dim))
+        rand /= np.linalg.norm(rand, axis=1, keepdims=True)
+        sim = rand @ rand.T
+        np.fill_diagonal(sim, 1.0)
+        try:
+            fa_rand = FactorAnalyzer(
+                n_factors=max(1, n_factors),
+                rotation=rotation,
+                method=extraction_method,
+                is_corr_matrix=True,
+            )
+            fa_rand.fit(sim)
+            rmsr, caf, _ = compute_rmsr_and_caf(sim, fa_rand)
+            rmsr_null.append(rmsr)
+            caf_null.append(caf)
+        except Exception:
+            pass
+        tefi_null.append(compute_tefi(sim))
+    return {
+        'rmsr': np.array(rmsr_null),
+        'caf': np.array(caf_null),
+        'tefi': np.array(tefi_null),
+    }
+
+
 env_scale_index = os.environ.get("SFA_SCALE_INDEX")
 if env_scale_index is not None:
     try:
@@ -902,22 +1396,25 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
 
     results = {'model_size': model_size}
 
-    if APPLY_REVERSE_SCORING_EMBEDDINGS:
-        print("\n[1/7] Applying atomic-reversed encoding...")
-        embeddings_ar = apply_atomic_reversed(embeddings, scoring)
-        print(f"  ✓ Shape: {embeddings_ar.shape}")
-    else:
-        print("\n[1/7] Normalizing embeddings (reverse scoring disabled)...")
-        # Just normalize without applying scoring direction
-        embeddings_ar = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
-        print(f"  ✓ Shape: {embeddings_ar.shape}")
-        print(f"  ⚠ Reverse scoring disabled - all items treated as normally scored")
+    effective_scoring = scoring if APPLY_REVERSE_SCORING_EMBEDDINGS else None
 
-    print("\n[2/7] Computing cosine similarity matrix...")
-    sim_matrix = cosine_similarity(embeddings_ar)
-    print(f"  ✓ Shape: {sim_matrix.shape}")
+    print(f"\n[1/7] Building similarity matrix (mode='{SIMILARITY_MODE}')...")
+    if not APPLY_REVERSE_SCORING_EMBEDDINGS:
+        print("  ⚠ Reverse scoring disabled - opposing items will not be sign-flipped")
+    sim_matrix, embeddings_ar = build_similarity_matrix(
+        embeddings, effective_scoring, mode=SIMILARITY_MODE
+    )
+    print(f"  ✓ Similarity shape: {sim_matrix.shape}; transformed embeddings: {embeddings_ar.shape}")
+    if SIMILARITY_MODE == 'mean_centered_pearson':
+        print("  ✓ Matrix equals Pearson correlation of embeddings (CFA-admissible)")
+    elif SIMILARITY_MODE == 'squid':
+        print("  ✓ Questionnaire-mean centering applied (SQuID; Pellert et al. 2026)")
+    else:
+        print("  ✓ Atomic-reversed encoding (Guenole et al.)")
 
     results['similarity_matrix'] = sim_matrix
+    results['similarity_mode'] = SIMILARITY_MODE
+    results['transformed_embeddings'] = embeddings_ar
 
     print("\n[3/7] Computing matrix diagnostics...")
 
@@ -942,10 +1439,14 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
     print("  Bartlett's test not reported for embedding similarity matrices")
     print("    Reason: there is no participant-level sample size for this matrix")
 
+    tefi_value = compute_tefi(sim_matrix)
+    print(f"  ✓ TEFI (Von Neumann entropy fit): {tefi_value:.4f}")
+
     results['kmo_total'] = kmo_total
     results['kmo_per_item'] = kmo_per_item
     results['bartlett_chi2'] = chi_square
     results['bartlett_p'] = p_value
+    results['tefi'] = tefi_value
 
     print("\n[4/7] Determining number of factors...")
 
@@ -1012,6 +1513,52 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
     results['variance'] = variance
     results['communalities'] = communalities
     results['uniquenesses'] = uniquenesses
+
+    print("\n[5b] Residual-based fit diagnostics (Suárez-Álvarez et al. 2025)...")
+    try:
+        rmsr, caf, residual_matrix = compute_rmsr_and_caf(sim_matrix, fa)
+        print(f"  ✓ RMSR: {rmsr:.4f}")
+        if np.isfinite(caf):
+            print(f"  ✓ CAF (Common Part Accounted For): {caf:.4f}")
+            if caf >= 0.90:
+                print("    CAF ≥ .90 → excellent residual structure")
+            elif caf >= 0.80:
+                print("    CAF ≥ .80 → good residual structure")
+            else:
+                print("    CAF < .80 → weak residual structure")
+        results['rmsr'] = rmsr
+        results['caf'] = caf
+        results['residual_matrix'] = residual_matrix
+    except Exception as exc:
+        print(f"  ⚠ Residual diagnostics failed: {type(exc).__name__}: {exc}")
+        results['rmsr'] = np.nan
+        results['caf'] = np.nan
+
+    if RANDOM_ITEM_CALIBRATION_ITER:
+        print(
+            f"\n[5c] Random-item Monte Carlo fit calibration "
+            f"({RANDOM_ITEM_CALIBRATION_ITER} iters; Pokropek 2026)..."
+        )
+        try:
+            null = random_item_fit_calibration(
+                n_items=sim_matrix.shape[0],
+                embedding_dim=embeddings_ar.shape[1],
+                n_factors=n_factors,
+                rotation=rotation,
+                extraction_method=extraction_method,
+                n_iter=int(RANDOM_ITEM_CALIBRATION_ITER),
+                random_state=random_state,
+            )
+            for metric, arr in null.items():
+                arr = arr[np.isfinite(arr)]
+                if arr.size:
+                    print(
+                        f"  {metric.upper():>5} null:  mean={arr.mean():.4f}  "
+                        f"5%={np.percentile(arr, 5):.4f}  95%={np.percentile(arr, 95):.4f}"
+                    )
+            results['random_item_null'] = null
+        except Exception as exc:
+            print(f"  ⚠ Monte Carlo calibration failed: {type(exc).__name__}: {exc}")
 
     print("\n[6/7] Computing DAAL...")
 
@@ -1081,6 +1628,44 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
     results['tucker'] = tucker_df
     results['tucker_best'] = tucker_best_df
 
+    print("\n[7b] McDonald's omega per extracted factor...")
+    omega_rows = []
+    for ext_factor, row in tucker_best_df.iterrows() if False else tucker_best_df.iterrows():
+        target = row['best_match']
+        omega_theo = compute_mcdonalds_omega(
+            loadings_df, row['extracted_factor'],
+            theoretical_factors=factors, item_codes=codes, target_factor=target
+        )
+        omega_assigned = compute_mcdonalds_omega(loadings_df, row['extracted_factor'])
+        omega_rows.append({
+            'extracted_factor': row['extracted_factor'],
+            'best_match': target,
+            'omega_theoretical_items': omega_theo,
+            'omega_assigned_items': omega_assigned,
+        })
+    omega_df = pd.DataFrame(omega_rows)
+    for _, r in omega_df.iterrows():
+        print(
+            f"  {r['extracted_factor']} ↔ {r['best_match']}: "
+            f"ω_theo={r['omega_theoretical_items']:.3f}  "
+            f"ω_assigned={r['omega_assigned_items']:.3f}"
+        )
+    results['omega'] = omega_df
+
+    print("\n[7c] Partition-agreement metrics (NMI, ARI; Garrido/Wang)...")
+    assigned = assign_items_to_extracted_factors(loadings_df)
+    extracted_labels = [assigned[c] for c in codes]
+    nmi_score = compute_nmi(extracted_labels, factors)
+    ari_score = compute_ari(extracted_labels, factors)
+    print(f"  ✓ NMI: {nmi_score:.3f}  (1.0 = perfect partition agreement)")
+    print(f"  ✓ ARI: {ari_score:.3f}  (1.0 = perfect partition agreement)")
+    results['nmi'] = nmi_score
+    results['ari'] = ari_score
+    results['item_factor_assignments'] = extracted_labels
+
+    inter_factor_corr = compute_inter_factor_correlation(loadings_df)
+    results['inter_factor_corr'] = inter_factor_corr
+
     diagnostics = {
         'model': model_size,
         'n_items': len(codes),
@@ -1091,6 +1676,11 @@ def run_pfa_for_model(model_size, embeddings, codes, items, factors, scoring,
     diagnostics['kmo'] = kmo_total
     diagnostics['bartlett_p'] = p_value
     diagnostics['variance_explained'] = variance[2][-1]
+    diagnostics['tefi'] = results.get('tefi', np.nan)
+    diagnostics['rmsr'] = results.get('rmsr', np.nan)
+    diagnostics['caf'] = results.get('caf', np.nan)
+    diagnostics['nmi'] = nmi_score
+    diagnostics['ari'] = ari_score
 
     diagnostics_df = pd.DataFrame([diagnostics])
 
@@ -1167,9 +1757,15 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     print(f"  ✓ Applied reverse scoring to {reverse_count}/{len(scoring)} items")
     print(f"  ✓ Data shape: {response_scored.shape}")
     
-    print(f"\n[2/7] Computing correlation matrix...")
+    print(f"\n[2/7] Computing correlation matrix (type='{EMPIRICAL_CORR_TYPE}')...")
 
-    corr_matrix = np.corrcoef(response_scored.T)
+    if EMPIRICAL_CORR_TYPE == 'polychoric':
+        int_data = np.round(response_scored).astype(int)
+        corr_matrix, corr_actual = compute_polychoric_correlation_matrix(int_data)
+        print(f"  ✓ Correlation method: {corr_actual}")
+    else:
+        corr_matrix = np.corrcoef(response_scored.T)
+        corr_actual = 'pearson'
 
     print(f"  Parity stats:")
     print(f"    Response shape: {response_scored.shape}")
@@ -1339,18 +1935,53 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
     for _, row in tucker_best_df.iterrows():
         print(f"    {row['extracted_factor']} → {row['best_match']} (φ = {row['tucker_phi']:.3f}, {row['quality']})")
     
+    print("\n[7b] McDonald's omega per extracted factor...")
+    omega_rows_emp = []
+    for _, row in tucker_best_df.iterrows():
+        target = row['best_match']
+        omega_theo = compute_mcdonalds_omega(
+            loadings_df, row['extracted_factor'],
+            theoretical_factors=factors, item_codes=codes, target_factor=target
+        )
+        omega_assigned = compute_mcdonalds_omega(loadings_df, row['extracted_factor'])
+        omega_rows_emp.append({
+            'extracted_factor': row['extracted_factor'],
+            'best_match': target,
+            'omega_theoretical_items': omega_theo,
+            'omega_assigned_items': omega_assigned,
+        })
+    omega_df_emp = pd.DataFrame(omega_rows_emp)
+    for _, r in omega_df_emp.iterrows():
+        print(
+            f"  {r['extracted_factor']} ↔ {r['best_match']}: "
+            f"ω_theo={r['omega_theoretical_items']:.3f}  "
+            f"ω_assigned={r['omega_assigned_items']:.3f}"
+        )
+
+    print("\n[7c] Partition-agreement metrics (NMI, ARI)...")
+    assigned_emp = assign_items_to_extracted_factors(loadings_df)
+    extracted_labels_emp = [assigned_emp[c] for c in codes]
+    nmi_emp = compute_nmi(extracted_labels_emp, factors)
+    ari_emp = compute_ari(extracted_labels_emp, factors)
+    print(f"  ✓ NMI: {nmi_emp:.3f}")
+    print(f"  ✓ ARI: {ari_emp:.3f}")
+    inter_factor_corr_emp = compute_inter_factor_correlation(loadings_df)
+
     diagnostics_df = pd.DataFrame({
-        'metric': ['KMO', 'Bartlett χ²', 'Bartlett p', 'n_factors', 'variance_explained'],
-        'value': [kmo_total, bartlett_chi2, bartlett_p, n_factors, variance_array[2][-1]]
+        'metric': ['KMO', 'Bartlett χ²', 'Bartlett p', 'n_factors',
+                   'variance_explained', 'NMI', 'ARI', 'correlation_type'],
+        'value': [kmo_total, bartlett_chi2, bartlett_p, n_factors,
+                  variance_array[2][-1], nmi_emp, ari_emp, corr_actual]
     })
-    
+
     print(f"\n{'='*70}")
     print(f"✓ EFA COMPLETE - {data_label}")
     print(f"{'='*70}")
-    
+
     return {
         'data_label': data_label,
         'similarity_matrix': corr_matrix,
+        'correlation_type': corr_actual,
         'kmo_total': kmo_total,
         'kmo_per_item': kmo_per_item,
         'bartlett_chi2': bartlett_chi2,
@@ -1366,6 +1997,11 @@ def run_efa_on_data(data_label, response_data, codes, items, factors, scoring,
         'daal_assignments': daal_assignments_df,
         'tucker': tucker_df,
         'tucker_best': tucker_best_df,
+        'omega': omega_df_emp,
+        'nmi': nmi_emp,
+        'ari': ari_emp,
+        'item_factor_assignments': extracted_labels_emp,
+        'inter_factor_corr': inter_factor_corr_emp,
         'diagnostics': diagnostics_df
     }
 
@@ -2195,13 +2831,14 @@ else:
 
     if client is not None:
         print(f"\n{'='*70}")
-        print("COMPARING FIVE FACTOR NAMING APPROACHES")
+        print("COMPARING SIX FACTOR NAMING APPROACHES")
         print(f"{'='*70}")
         print("\nMethod 1: Direct Scale Items (with psychological context)")
         print("Method 2: Nearest Neighbor Words (vocabulary-based, instruction-tuned)")
         print("Method 3: Base Model Token Prediction (non-instruct, greedy sampling)")
         print("Method 4: Raw Nearest Word (loading-weighted centroid, no generation)")
         print("Method 5: Constrained Whole-Word Token (token embedding space)")
+        print("Method 6: c-TF-IDF keywords on top-loading items (Wang preprint)")
         if METHOD_4_TOP_K_ITEMS is None or METHOD_4_TOP_K_ITEMS <= 0:
             print("  Method 4/5 item scope: all items assigned to each extracted factor")
         else:
@@ -2213,6 +2850,7 @@ else:
         factor_name_mappings_base = {}
         factor_name_mappings_raw = {}
         factor_name_mappings_token = {}
+        factor_name_mappings_ctfidf = {}
 
         factor_probabilities_base = {}
 
@@ -2231,6 +2869,28 @@ else:
             factor_name_mappings_base[model_size] = {}
             factor_name_mappings_raw[model_size] = {}
             factor_name_mappings_token[model_size] = {}
+            factor_name_mappings_ctfidf[model_size] = {}
+
+            if ENABLE_METHOD_6_CTFIDF:
+                try:
+                    ctfidf_keywords = ctfidf_factor_keywords(
+                        loadings_df, items, codes,
+                        top_k_items=METHOD_6_TOP_K_ITEMS,
+                        n_keywords=METHOD_6_N_KEYWORDS,
+                    )
+                    for fname, kws in ctfidf_keywords.items():
+                        label = ", ".join(w for w, _ in kws) if kws else "(no keywords)"
+                        factor_name_mappings_ctfidf[model_size][fname] = label
+                    print(f"\n  Method 6 (c-TF-IDF) keywords for {model_size}:")
+                    for fname, label in factor_name_mappings_ctfidf[model_size].items():
+                        print(f"    {fname}: {label}")
+                except Exception as exc:
+                    print(f"  ⚠ Method 6 (c-TF-IDF) failed: {type(exc).__name__}: {exc}")
+                    for fname in loadings_df.columns:
+                        factor_name_mappings_ctfidf[model_size][fname] = "(unavailable)"
+            else:
+                for fname in loadings_df.columns:
+                    factor_name_mappings_ctfidf[model_size][fname] = "(disabled)"
             factor_probabilities_base[model_size] = {}
 
             if nn_available:
@@ -3422,21 +4082,135 @@ if empirical_results is not None and len(all_results) > 0:
     plt.xlabel("Human item correlations")
     plt.ylabel("LLM cosine similarities")
     plt.title(f"r = {r:.2f}, Mantel r = {r_mantel:.2f}, p = {p_mantel:.3g}")
-    
+
     min_val = min(human_corr.min(), llm_cos.min())
     max_val = max(human_corr.max(), llm_cos.max())
     plt.plot([min_val, max_val], [min_val, max_val], 'r--', alpha=0.5, linewidth=1, label='Perfect agreement')
     plt.legend()
-    
+
     plt.tight_layout()
-    
+
     filename = f'{SCALE_NAME}_comparison_correlation.png'
     filepath = f'{SAVE_DIR}/{filename}'
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     print(f"\nPlot saved to: {filepath}")
 
     plt.close()
-    
+
+    print(f"\n{'='*70}")
+    print("COMPARISON v2: Disattenuated / Top-K / Sign-stratified / Frobenius")
+    print(f"{'='*70}")
+
+    manifest_r, disatt_r, rel_x, rel_y = compute_disattenuated_correlation(llm_cos, human_corr)
+    print(
+        f"\nDisattenuated correlation (Hommel & Arslan 2025):\n"
+        f"  manifest r = {manifest_r:.4f}\n"
+        f"  split-half rel(LLM pairs)    = {rel_x:.4f}\n"
+        f"  split-half rel(human pairs)  = {rel_y:.4f}\n"
+        f"  disattenuated r = {disatt_r:.4f}"
+        if np.isfinite(disatt_r) else
+        f"\nDisattenuated correlation unavailable (reliability non-finite); manifest r = {manifest_r:.4f}"
+    )
+
+    topk_results = compute_topk_accuracy(llm_similarity, human_correlation, k_values=TOPK_VALUES)
+    print(f"\nTop-K neighbour agreement (Ravenda et al. 2025):")
+    for k, frac in topk_results.items():
+        print(f"  top-{k:<3}: {frac*100:.1f}%")
+
+    cm, bucket_labels, overall_bucket_acc = compute_bucketed_accuracy(human_corr, llm_cos)
+    print(f"\nSign-bin confusion matrix (Schoenegger et al. 2025):")
+    print(f"  Rows = human bin, columns = embedding bin. Labels: {bucket_labels}")
+    header = "          " + "  ".join(f"{l:>12}" for l in bucket_labels)
+    print(header)
+    for i, row_label in enumerate(bucket_labels):
+        row_str = f"  {row_label:>8} " + "  ".join(f"{cm[i, j]:>12d}" for j in range(3))
+        print(row_str)
+    print(f"  Overall sign-bin accuracy: {overall_bucket_acc*100:.1f}%")
+
+    sign_stats = compute_sign_stratified_calibration(human_corr, llm_cos)
+    print(f"\nSign-stratified calibration (slope, intercept per human-r bucket):")
+    for label, s in sign_stats.items():
+        print(
+            f"  {label:<25} n={s['n']:>6}  "
+            f"slope={s['slope']:.3f}  intercept={s['intercept']:.3f}  r={s['r']:.3f}"
+        )
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    axes[0].scatter(human_corr, llm_cos, alpha=0.3, s=10, color='#666666')
+    colors_bucket = {'negative (r < -0.1)': 'tab:red',
+                     'near-zero (|r| <= 0.1)': 'tab:gray',
+                     'positive (r > 0.1)': 'tab:blue'}
+    xs_line = np.linspace(human_corr.min(), human_corr.max(), 100)
+    for label, s in sign_stats.items():
+        if not np.isfinite(s['slope']):
+            continue
+        axes[0].plot(
+            xs_line,
+            s['slope'] * xs_line + s['intercept'],
+            color=colors_bucket.get(label, 'black'),
+            linewidth=2,
+            label=f"{label}: slope={s['slope']:.2f}"
+        )
+    mn = min(human_corr.min(), llm_cos.min())
+    mx = max(human_corr.max(), llm_cos.max())
+    axes[0].plot([mn, mx], [mn, mx], 'k--', alpha=0.4, linewidth=1, label='y = x')
+    axes[0].axvline(0, color='k', alpha=0.2)
+    axes[0].axhline(0, color='k', alpha=0.2)
+    axes[0].set_xlabel('Human item correlation')
+    axes[0].set_ylabel('LLM cosine similarity')
+    axes[0].set_title('Sign-stratified calibration')
+    axes[0].legend(fontsize=10)
+    axes[0].grid(True, alpha=0.3)
+
+    sns.heatmap(
+        cm, annot=True, fmt='d', cmap='Blues',
+        xticklabels=bucket_labels, yticklabels=bucket_labels, ax=axes[1]
+    )
+    axes[1].set_xlabel('Embedding bin')
+    axes[1].set_ylabel('Human bin')
+    axes[1].set_title(f'Sign-bin confusion (accuracy = {overall_bucket_acc*100:.1f}%)')
+    plt.tight_layout()
+    calib_path = f'{SAVE_DIR}/{SCALE_NAME}_sign_calibration.png'
+    plt.savefig(calib_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"\nSign calibration plot saved to: {calib_path}")
+
+    try:
+        llm_ifc = all_results[model_size].get('inter_factor_corr')
+        human_ifc = empirical_results.get('inter_factor_corr')
+        if llm_ifc is not None and human_ifc is not None and llm_ifc.shape == human_ifc.shape:
+            frob_sim = compute_frobenius_similarity(llm_ifc, human_ifc)
+            print(f"\nInter-factor correlation matrix similarity (Frobenius; Wang preprint):")
+            print(f"  Frobenius cos = {frob_sim:.4f}")
+        else:
+            print(
+                "\nSkipped Frobenius similarity of inter-factor correlation matrices:"
+                " factor counts differ between embedding and empirical solutions."
+            )
+    except Exception as exc:
+        print(f"\n⚠ Frobenius similarity unavailable: {type(exc).__name__}: {exc}")
+
+    try:
+        mix_df = weighted_mixture_sweep(
+            human_correlation, llm_similarity, weights=WEIGHT_SWEEP
+        )
+        print(f"\nWeighted-mixture sweep (Kojima et al. 2026): w*S_human + (1-w)*S_emb")
+        print(mix_df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(mix_df['w_human'], mix_df['tefi'], 'o-', label='TEFI')
+        plt.xlabel('w (weight on human matrix)')
+        plt.ylabel('TEFI (Von Neumann entropy fit)')
+        plt.title('Weighted-mixture TEFI sweep')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        mix_path = f'{SAVE_DIR}/{SCALE_NAME}_weighted_mixture_sweep.png'
+        plt.savefig(mix_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"Weighted-mixture plot saved to: {mix_path}")
+    except Exception as exc:
+        print(f"\n⚠ Weighted-mixture sweep failed: {type(exc).__name__}: {exc}")
+
 else:
     print("\nSkipping matrix-level correlation analysis (requires both empirical and embedding results)")
 
