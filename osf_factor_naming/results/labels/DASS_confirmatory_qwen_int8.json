@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR1",
+    "label": "irritability",
+    "rule": "tier1",
+    "n_items": 17,
+    "collision_moved": false,
+    "candidates": ["irritability", "irascibility"]
+  },
+  {
+    "factor": "MR2",
+    "label": "depression",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["depressed mood", "depression"]
+  },
+  {
+    "factor": "MR3",
+    "label": "panic disorder",
+    "rule": "tier1",
+    "n_items": 11,
+    "collision_moved": false,
+    "candidates": ["panic anxiety", "cardiac phobia", "panic disorder"]
+  }
+]

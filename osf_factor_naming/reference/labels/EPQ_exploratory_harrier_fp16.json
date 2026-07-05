@@ -1,0 +1,74 @@
+[
+  {
+    "factor": "MR8",
+    "label": "anxiety reaction",
+    "rule": "tier1",
+    "n_items": 24,
+    "collision_moved": false,
+    "candidates": ["health assessment", "anxiety reaction"]
+  },
+  {
+    "factor": "MR7",
+    "label": "impulsivity",
+    "rule": "tier1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": "impulsivity"
+  },
+  {
+    "factor": "MR6",
+    "label": "extroversion",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": "extroversion"
+  },
+  {
+    "factor": "MR3",
+    "label": "intrusion countermeasures electronics",
+    "rule": "top1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["intrusion countermeasures electronics", "social informational influence"]
+  },
+  {
+    "factor": "MR2",
+    "label": "hostility",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["hostile aggression", "cruel lag", "hostility"]
+  },
+  {
+    "factor": "MR4",
+    "label": "shyness",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social signal", "shyness"]
+  },
+  {
+    "factor": "MR9",
+    "label": "excitement seeking",
+    "rule": "top1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": "excitement seeking"
+  },
+  {
+    "factor": "MR1",
+    "label": "sensational literature",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["sensational literature", "risk sharing"]
+  },
+  {
+    "factor": "MR5",
+    "label": "secrecy",
+    "rule": "tier1",
+    "n_items": 1,
+    "collision_moved": false,
+    "candidates": ["forbidden topic", "secrecy"]
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR1",
+    "label": "antisocial personality trait",
+    "rule": "top1",
+    "n_items": 15,
+    "collision_moved": false,
+    "candidates": ["antisocial personality trait", "trauma symptom inventory", "victimization symptoms"]
+  },
+  {
+    "factor": "MR2",
+    "label": "justice as fairness",
+    "rule": "top1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["justice as fairness", "virtue of justice", "psychology of morality"]
+  },
+  {
+    "factor": "MR3",
+    "label": "moral disgust",
+    "rule": "top1",
+    "n_items": 1,
+    "collision_moved": false,
+    "candidates": "moral disgust"
+  }
+]

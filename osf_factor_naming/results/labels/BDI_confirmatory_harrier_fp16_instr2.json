@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "depression treatment",
+    "rule": "top1",
+    "n_items": 21,
+    "collision_moved": false,
+    "candidates": ["depression treatment", "depressor muscle", "depression pill", "psychological disturbance"]
+  }
+]

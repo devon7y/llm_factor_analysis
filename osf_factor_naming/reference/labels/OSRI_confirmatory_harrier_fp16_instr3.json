@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "excitement seeking",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["excitement seeking", "sensational literature", "opera basic topics", "psychological extraversion", "psychological trauma"]
+  },
+  {
+    "factor": "MR1",
+    "label": "interest",
+    "rule": "tier1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["interest", "militarism in japan", "interest in gambling"]
+  }
+]

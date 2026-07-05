@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR1",
+    "label": "betrayal",
+    "rule": "tier1",
+    "n_items": 15,
+    "collision_moved": false,
+    "candidates": ["betrothed numbers", "perpetrator walk", "betrayal", "relationship violence"]
+  },
+  {
+    "factor": "MR2",
+    "label": "value contribution",
+    "rule": "top1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["value contribution", "social venture", "ethic whole value", "gender role reversal", "gender empowerment"]
+  },
+  {
+    "factor": "MR3",
+    "label": "domains of life",
+    "rule": "top1",
+    "n_items": 1,
+    "collision_moved": false,
+    "candidates": "domains of life"
+  }
+]

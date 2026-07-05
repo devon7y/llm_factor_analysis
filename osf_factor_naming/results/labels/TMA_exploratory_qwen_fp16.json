@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR1",
+    "label": "anxiety disorder",
+    "rule": "tier1",
+    "n_items": 19,
+    "collision_moved": false,
+    "candidates": ["sleep anxiety", "anxiety dreams", "anxiety disorder"]
+  },
+  {
+    "factor": "MR2",
+    "label": "calmness",
+    "rule": "tier1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["emotional stability", "calmness", "social confidence"]
+  },
+  {
+    "factor": "MR4",
+    "label": "despondency",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["low self-esteem", "learned hopelessness", "despondency"]
+  },
+  {
+    "factor": "MR3",
+    "label": "embarrassment",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["fear of blushing", "empathic embarrassment", "embarrassment"]
+  },
+  {
+    "factor": "MR5",
+    "label": "gastrointestinal disorder",
+    "rule": "tier1",
+    "n_items": 4,
+    "collision_moved": false,
+    "candidates": ["intestinal disorder", "digestive disorder", "digestive health", "intestinal motility", "gastrointestinal disorder"]
+  }
+]

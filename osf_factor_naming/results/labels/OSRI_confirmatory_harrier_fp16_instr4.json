@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "opera basic topics",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["opera basic topics", "excitement seeking", "sensational literature", "psychological extraversion", "personality transfer"]
+  },
+  {
+    "factor": "MR1",
+    "label": "interest",
+    "rule": "tier1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["militarism in japan", "interest", "interest in gambling"]
+  }
+]

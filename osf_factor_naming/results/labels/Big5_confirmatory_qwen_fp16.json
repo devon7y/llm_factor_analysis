@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR2",
+    "label": "emotional instability",
+    "rule": "top1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": "emotional instability"
+  },
+  {
+    "factor": "MR5",
+    "label": "conscientiousness",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["structured procrastination", "conscientiousness"]
+  },
+  {
+    "factor": "MR1",
+    "label": "reclusiveness",
+    "rule": "tier1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["social withdrawal", "social anhedonia", "reclusiveness"]
+  },
+  {
+    "factor": "MR4",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": "sociability"
+  },
+  {
+    "factor": "MR3",
+    "label": "creative thinking",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["creative imagination", "creative thinking"]
+  }
+]

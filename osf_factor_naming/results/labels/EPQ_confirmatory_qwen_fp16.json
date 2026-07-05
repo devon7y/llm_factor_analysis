@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR1",
+    "label": "psychosomatic assessment",
+    "rule": "top1",
+    "n_items": 37,
+    "collision_moved": false,
+    "candidates": "psychosomatic assessment"
+  },
+  {
+    "factor": "MR5",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 18,
+    "collision_moved": false,
+    "candidates": ["social withdrawal", "psychology introversion", "sociability"]
+  },
+  {
+    "factor": "MR4",
+    "label": "conviviality",
+    "rule": "tier1",
+    "n_items": 11,
+    "collision_moved": false,
+    "candidates": ["social pleasure", "conviviality"]
+  },
+  {
+    "factor": "MR3",
+    "label": "impulsiveness",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["impulsiveness", "mental quickness"]
+  },
+  {
+    "factor": "MR2",
+    "label": "dishonesty",
+    "rule": "tier1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["moral courage", "dishonesty", "test of courage"]
+  }
+]

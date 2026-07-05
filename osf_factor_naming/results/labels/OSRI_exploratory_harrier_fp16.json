@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "interest",
+    "rule": "tier1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["excitement seeking", "interest in gambling", "sensational literature", "interest"]
+  },
+  {
+    "factor": "MR1",
+    "label": "self-love",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["self compassion", "self catering", "kindness walls", "loving relationship", "self-love"]
+  }
+]

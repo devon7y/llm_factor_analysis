@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "neuroticism",
+    "rule": "tier1",
+    "n_items": 15,
+    "collision_moved": false,
+    "candidates": ["neuroticism trait", "psychological construct", "neuroticism"]
+  },
+  {
+    "factor": "MR1",
+    "label": "low sexual interest",
+    "rule": "top1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": "low sexual interest"
+  }
+]

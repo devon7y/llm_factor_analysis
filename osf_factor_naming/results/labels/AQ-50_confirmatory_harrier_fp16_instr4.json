@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR4",
+    "label": "attentional focusing",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["attentional focusing", "focused attention", "attention to orders"]
+  },
+  {
+    "factor": "MR2",
+    "label": "social degeneracy",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["social degeneracy", "social companion system", "social signal", "double ended control"]
+  },
+  {
+    "factor": "MR1",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social confidence", "social interest", "social boldness", "sociability"]
+  },
+  {
+    "factor": "MR3",
+    "label": "imagination",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["imagination inflation", "embodied intelligence", "creative impulse", "imagination"]
+  },
+  {
+    "factor": "MR5",
+    "label": "leisure activity",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["leisure activity", "cultural adaptation", "intrusion countermeasures electronics"]
+  }
+]

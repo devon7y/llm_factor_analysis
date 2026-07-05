@@ -1,0 +1,50 @@
+[
+  {
+    "factor": "MR3",
+    "label": "social ineptitude",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["social ineptitude", "mind blindness"]
+  },
+  {
+    "factor": "MR5",
+    "label": "selective attention",
+    "rule": "top1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["selective attention", "perceptual vigilance", "attention to detail", "gestalt perception"]
+  },
+  {
+    "factor": "MR6",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["sociability", "social fluency"]
+  },
+  {
+    "factor": "MR4",
+    "label": "imaginary play",
+    "rule": "top1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["imaginary play", "visual imagery"]
+  },
+  {
+    "factor": "MR1",
+    "label": "stress resilience",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["stress resilience", "attention switching", "emotional stability"]
+  },
+  {
+    "factor": "MR2",
+    "label": "openness to experience",
+    "rule": "top1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["openness to experience", "individual preference", "conscientiousness"]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR2",
+    "label": "justice as fairness",
+    "rule": "top1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["justice as fairness", "social egalitarianism"]
+  },
+  {
+    "factor": "MR3",
+    "label": "disloyalty",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["loyalty test", "disloyalty", "tribal loyalty"]
+  },
+  {
+    "factor": "MR1",
+    "label": "squeamishness",
+    "rule": "tier1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": ["sexual disgust", "moral disgust", "squeamishness"]
+  },
+  {
+    "factor": "MR5",
+    "label": "exposure to discrimination",
+    "rule": "top1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["exposure to discrimination", "symptoms of victimization"]
+  },
+  {
+    "factor": "MR4",
+    "label": "compassion",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["compassion in spirituality", "empathic concern", "compassion"]
+  }
+]

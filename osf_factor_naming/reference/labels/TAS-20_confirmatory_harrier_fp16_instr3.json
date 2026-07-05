@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR2",
+    "label": "confusion",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["mental content", "medicare donut hole", "confusion", "identity construction"]
+  },
+  {
+    "factor": "MR1",
+    "label": "emotional investment",
+    "rule": "top1",
+    "n_items": 10,
+    "collision_moved": false,
+    "candidates": ["emotional investment", "emotional computing"]
+  },
+  {
+    "factor": "MR3",
+    "label": "recreational riding",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["recreational riding", "popular errors", "light ergonomics"]
+  }
+]

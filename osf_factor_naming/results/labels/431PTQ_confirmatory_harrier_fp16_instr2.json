@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "anxiety medication",
+    "rule": "top1",
+    "n_items": 18,
+    "collision_moved": false,
+    "candidates": ["anxiety medication", "psychological archetype", "anxiety state", "trait class", "anxiety dream", "mental substance"]
+  },
+  {
+    "factor": "MR1",
+    "label": "procrastination",
+    "rule": "tier1",
+    "n_items": 10,
+    "collision_moved": false,
+    "candidates": "procrastination"
+  }
+]

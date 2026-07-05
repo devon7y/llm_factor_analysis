@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR4",
+    "label": "perceptual vigilance",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["perceptual vigilance", "selective attention", "focused attention"]
+  },
+  {
+    "factor": "MR2",
+    "label": "social ineptitude",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["social ineptitude", "mind blindness"]
+  },
+  {
+    "factor": "MR1",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social fluency", "sociability"]
+  },
+  {
+    "factor": "MR3",
+    "label": "imaginary play",
+    "rule": "top1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["imaginary play", "visual imagery"]
+  },
+  {
+    "factor": "MR5",
+    "label": "social preferences",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["social preferences", "psychology introversion", "artistic interests"]
+  }
+]

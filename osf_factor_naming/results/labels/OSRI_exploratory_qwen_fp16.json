@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR1",
+    "label": "psychological construct",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": "psychological construct"
+  },
+  {
+    "factor": "MR2",
+    "label": "psychology of war",
+    "rule": "top1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["psychology of war", "military psychology", "interest in sports"]
+  }
+]

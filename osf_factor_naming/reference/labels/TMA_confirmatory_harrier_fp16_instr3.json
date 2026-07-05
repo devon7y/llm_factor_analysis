@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "trait class",
+    "rule": "top1",
+    "n_items": 50,
+    "collision_moved": false,
+    "candidates": ["trait class", "neuroticism trait"]
+  }
+]

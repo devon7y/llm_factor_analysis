@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "major depressive inventory",
+    "rule": "top1",
+    "n_items": 21,
+    "collision_moved": false,
+    "candidates": ["major depressive inventory", "psychological construct"]
+  }
+]

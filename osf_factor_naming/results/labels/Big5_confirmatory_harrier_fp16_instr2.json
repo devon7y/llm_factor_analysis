@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR5",
+    "label": "emotional disorders",
+    "rule": "tier1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["emotional intelligence", "emotional disorders"]
+  },
+  {
+    "factor": "MR1",
+    "label": "conscientiousness",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["conscientiousness", "orderliness"]
+  },
+  {
+    "factor": "MR2",
+    "label": "social work",
+    "rule": "tier1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["social work", "cold end"]
+  },
+  {
+    "factor": "MR4",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social boldness", "social confidence", "sociability"]
+  },
+  {
+    "factor": "MR3",
+    "label": "creativity in art",
+    "rule": "top1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["creativity in art", "creative impulse"]
+  }
+]

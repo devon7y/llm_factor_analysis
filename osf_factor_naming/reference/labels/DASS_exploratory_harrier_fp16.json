@@ -1,0 +1,34 @@
+[
+  {
+    "factor": "MR2",
+    "label": "irritability",
+    "rule": "tier1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["irritability", "trait anxiety"]
+  },
+  {
+    "factor": "MR3",
+    "label": "depression",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["depression pill", "depression"]
+  },
+  {
+    "factor": "MR4",
+    "label": "anxiety attacks",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["anxiety baking", "anxiety attacks"]
+  },
+  {
+    "factor": "MR1",
+    "label": "fear of feces",
+    "rule": "top1",
+    "n_items": 23,
+    "collision_moved": false,
+    "candidates": ["fear of feces", "social evaluation fear"]
+  }
+]

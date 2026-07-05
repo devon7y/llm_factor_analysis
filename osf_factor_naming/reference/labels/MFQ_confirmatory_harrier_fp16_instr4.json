@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR3",
+    "label": "gender role reversal",
+    "rule": "top1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["gender role reversal", "gender empowerment", "economic emigration"]
+  },
+  {
+    "factor": "MR4",
+    "label": "disloyalty",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["tribal mask", "loyola chicago", "disloyalty"]
+  },
+  {
+    "factor": "MR2",
+    "label": "moral dissonance",
+    "rule": "top1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": ["moral dissonance", "religious television station"]
+  },
+  {
+    "factor": "MR1",
+    "label": "perceived discrimination",
+    "rule": "top1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["perceived discrimination", "victimless crime"]
+  },
+  {
+    "factor": "MR5",
+    "label": "empathy",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["empathic design", "compassionate use trial", "empathy"]
+  }
+]

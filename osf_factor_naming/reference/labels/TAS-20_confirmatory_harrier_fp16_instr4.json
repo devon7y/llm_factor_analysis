@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR2",
+    "label": "depersonalisation neurosis",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["depersonalisation neurosis", "body schema illusion", "medicare donut hole", "mental content"]
+  },
+  {
+    "factor": "MR1",
+    "label": "emotional investment",
+    "rule": "top1",
+    "n_items": 10,
+    "collision_moved": false,
+    "candidates": ["emotional investment", "emotional computing", "interpersonal contact", "willingness to pay"]
+  },
+  {
+    "factor": "MR3",
+    "label": "popular errors",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["popular errors", "light ergonomics", "reception area"]
+  }
+]

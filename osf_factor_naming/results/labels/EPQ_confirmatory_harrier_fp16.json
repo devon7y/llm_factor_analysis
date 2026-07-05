@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR5",
+    "label": "anxiety reaction",
+    "rule": "tier1",
+    "n_items": 37,
+    "collision_moved": false,
+    "candidates": "anxiety reaction"
+  },
+  {
+    "factor": "MR1",
+    "label": "intrusion countermeasures electronics",
+    "rule": "top1",
+    "n_items": 18,
+    "collision_moved": true,
+    "candidates": "intrusion countermeasures electronics"
+  },
+  {
+    "factor": "MR4",
+    "label": "extroversion",
+    "rule": "tier1",
+    "n_items": 11,
+    "collision_moved": false,
+    "candidates": "extroversion"
+  },
+  {
+    "factor": "MR3",
+    "label": "impulsivity",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": "impulsivity"
+  },
+  {
+    "factor": "MR2",
+    "label": "dishonesty",
+    "rule": "tier1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["dishonesty", "honesty", "risk taking"]
+  }
+]

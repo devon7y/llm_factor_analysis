@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR4",
+    "label": "focused attention",
+    "rule": "top1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["focused attention", "attentional focusing", "attention to orders", "obsessiveness"]
+  },
+  {
+    "factor": "MR2",
+    "label": "social inequalities",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["social inequalities", "social degeneracy", "social emotional agnosia", "double ended control"]
+  },
+  {
+    "factor": "MR1",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social confidence", "social force", "social interest", "sociability"]
+  },
+  {
+    "factor": "MR3",
+    "label": "imagination",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["imagination inflation", "imagination"]
+  },
+  {
+    "factor": "MR5",
+    "label": "extroversion",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["intrusion countermeasures electronics", "social preferences", "leisure activity", "extroversion"]
+  }
+]

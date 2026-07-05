@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "neuroticism",
+    "rule": "tier1",
+    "n_items": 15,
+    "collision_moved": false,
+    "candidates": ["neuroticism trait", "neurotic anxiety state", "anxiety state", "guilt by association", "consciousness of status", "neuroticism"]
+  },
+  {
+    "factor": "MR1",
+    "label": "reduced sodium salt",
+    "rule": "top1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": ["reduced sodium salt", "low social class", "decreased locomotion"]
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "neuroticism trait",
+    "rule": "top1",
+    "n_items": 50,
+    "collision_moved": false,
+    "candidates": ["neuroticism trait", "psychological construct", "trait anxiety"]
+  }
+]

@@ -1,0 +1,190 @@
+{
+  "cross_fp16": {
+    "n_factors": 33,
+    "top1_count": 12,
+    "top1_pct": 36.4,
+    "set_count": 12,
+    "set_pct": 36.4,
+    "loo_median": 2,
+    "loo_singleton": 8,
+    "purity_median": 0.667
+  },
+  "cross_inst2": {
+    "n_factors": 33,
+    "top1_count": 9,
+    "top1_pct": 27.3,
+    "set_count": 10,
+    "set_pct": 30.3,
+    "loo_median": 3,
+    "loo_singleton": 5,
+    "purity_median": 0.667
+  },
+  "cross_inst3": {
+    "n_factors": 33,
+    "top1_count": 7,
+    "top1_pct": 21.2,
+    "set_count": 9,
+    "set_pct": 27.3,
+    "loo_median": 3,
+    "loo_singleton": 7,
+    "purity_median": 0.667
+  },
+  "cross_inst4": {
+    "n_factors": 33,
+    "top1_count": 9,
+    "top1_pct": 27.3,
+    "set_count": 9,
+    "set_pct": 27.3,
+    "loo_median": 3,
+    "loo_singleton": 4,
+    "purity_median": 0.667
+  },
+  "cross_int8": {
+    "n_factors": 33,
+    "top1_count": 11,
+    "top1_pct": 33.3,
+    "set_count": 11,
+    "set_pct": 33.3,
+    "loo_median": 2,
+    "loo_singleton": 9,
+    "purity_median": 0.667
+  },
+  "cross_nokeeper": {
+    "n_factors": 33,
+    "top1_count": 12,
+    "top1_pct": 36.4,
+    "set_count": 12,
+    "set_pct": 36.4,
+    "loo_median": 2,
+    "loo_singleton": 7,
+    "purity_median": 0.667
+  },
+  "cross_rerun": {
+    "n_factors": 33,
+    "top1_count": 12,
+    "top1_pct": 36.4,
+    "set_count": 12,
+    "set_pct": 36.4,
+    "loo_median": 2,
+    "loo_singleton": 8,
+    "purity_median": 0.667
+  },
+  "explore_cross": {
+    "n_factors": 42,
+    "top1_count": 7,
+    "top1_pct": 16.7,
+    "set_count": 8,
+    "set_pct": 19,
+    "loo_median": 2,
+    "loo_singleton": 6,
+    "purity_median": 0.707
+  },
+  "explore_qwen": {
+    "n_factors": 42,
+    "top1_count": 5,
+    "top1_pct": 11.9,
+    "set_count": 8,
+    "set_pct": 19,
+    "loo_median": 2.5,
+    "loo_singleton": 7,
+    "purity_median": 0.707
+  },
+  "qwen_fp16": {
+    "n_factors": 33,
+    "top1_count": 8,
+    "top1_pct": 24.2,
+    "set_count": 9,
+    "set_pct": 27.3,
+    "loo_median": 2,
+    "loo_singleton": 5,
+    "purity_median": 0.667
+  },
+  "qwen_int8": {
+    "n_factors": 33,
+    "top1_count": 8,
+    "top1_pct": 24.2,
+    "set_count": 9,
+    "set_pct": 27.3,
+    "loo_median": 2,
+    "loo_singleton": 5,
+    "purity_median": 0.667
+  },
+  "int8_vs_fp16_cross": {
+    "n": 33,
+    "changed": 1,
+    "which": "MFQ MR1 : unfairness -> perceived discrimination"
+  },
+  "int8_vs_fp16_qwen": {
+    "n": 33,
+    "changed": 0,
+    "which": []
+  },
+  "determinism": {
+    "n": 33,
+    "identical": 33,
+    "which_changed": []
+  },
+  "ensemble": {
+    "n": 33,
+    "unanimous": 17,
+    "majority": 26,
+    "flips": 0
+  },
+  "alias_reachability": {
+    "n_constructs": 33,
+    "unreachable": ["TAS-20 DDF", "TAS-20 DIF", "TAS-20 EOT"]
+  },
+  "cross_fp16_reachable": {
+    "n_factors": 30,
+    "top1_count": 12,
+    "top1_pct": 40,
+    "set_count": 12,
+    "set_pct": 40
+  },
+  "k_explore": {
+    "DASS": {
+      "k_doc": 3,
+      "k_explore": 4
+    },
+    "Big5": {
+      "k_doc": 5,
+      "k_explore": 5
+    },
+    "431PTQ": {
+      "k_doc": 2,
+      "k_explore": 2
+    },
+    "MFQ": {
+      "k_doc": 5,
+      "k_explore": 3
+    },
+    "BAI": {
+      "k_doc": 1,
+      "k_explore": 2
+    },
+    "TMA": {
+      "k_doc": 1,
+      "k_explore": 5
+    },
+    "BDI": {
+      "k_doc": 1,
+      "k_explore": 2
+    },
+    "EPQ": {
+      "k_doc": 5,
+      "k_explore": 9
+    },
+    "OSRI": {
+      "k_doc": 2,
+      "k_explore": 2
+    },
+    "TAS-20": {
+      "k_doc": 3,
+      "k_explore": 2
+    },
+    "AQ-50": {
+      "k_doc": 5,
+      "k_explore": 6
+    }
+  }
+}

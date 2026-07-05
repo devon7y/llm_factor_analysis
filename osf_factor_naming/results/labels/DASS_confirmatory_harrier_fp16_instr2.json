@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR1",
+    "label": "irritability",
+    "rule": "tier1",
+    "n_items": 17,
+    "collision_moved": false,
+    "candidates": "irritability"
+  },
+  {
+    "factor": "MR2",
+    "label": "depression",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["depression pill", "depression"]
+  },
+  {
+    "factor": "MR3",
+    "label": "panic attack",
+    "rule": "tier1",
+    "n_items": 11,
+    "collision_moved": false,
+    "candidates": "panic attack"
+  }
+]

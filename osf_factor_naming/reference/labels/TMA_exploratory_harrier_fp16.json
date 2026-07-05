@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR3",
+    "label": "anxiety",
+    "rule": "tier1",
+    "n_items": 19,
+    "collision_moved": false,
+    "candidates": ["anxiety", "anxiety disorders", "anxiety reaction"]
+  },
+  {
+    "factor": "MR2",
+    "label": "physical contact",
+    "rule": "tier1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["physical work", "physical contact"]
+  },
+  {
+    "factor": "MR4",
+    "label": "self-worth",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["self-worth", "low side", "hopelessness"]
+  },
+  {
+    "factor": "MR1",
+    "label": "shyness",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["fear of books", "shyness"]
+  },
+  {
+    "factor": "MR5",
+    "label": "gastrointestinal conditions",
+    "rule": "top1",
+    "n_items": 4,
+    "collision_moved": false,
+    "candidates": ["gastrointestinal conditions", "gastrointestinal effect"]
+  }
+]

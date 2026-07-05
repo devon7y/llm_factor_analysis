@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR3",
+    "label": "gender role reversal",
+    "rule": "top1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["gender role reversal", "economic emigration"]
+  },
+  {
+    "factor": "MR4",
+    "label": "disloyalty",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["tribal mask", "disloyalty"]
+  },
+  {
+    "factor": "MR2",
+    "label": "moral dissonance",
+    "rule": "top1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": "moral dissonance"
+  },
+  {
+    "factor": "MR1",
+    "label": "unfairness",
+    "rule": "tier1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["perceived discrimination", "emotional insecurity", "unfairness"]
+  },
+  {
+    "factor": "MR5",
+    "label": "compassion",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["compassionate release", "empathic design", "compassionate use trial", "compassion"]
+  }
+]

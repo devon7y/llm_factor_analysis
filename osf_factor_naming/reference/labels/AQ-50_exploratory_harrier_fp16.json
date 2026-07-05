@@ -1,0 +1,50 @@
+[
+  {
+    "factor": "MR3",
+    "label": "social degeneracy",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["social degeneracy", "social imperialism", "social emotional agnosia", "social companion system", "social signal"]
+  },
+  {
+    "factor": "MR5",
+    "label": "attentional focusing",
+    "rule": "top1",
+    "n_items": 12,
+    "collision_moved": false,
+    "candidates": ["attentional focusing", "perch pole", "intellectual deficit"]
+  },
+  {
+    "factor": "MR6",
+    "label": "sociability",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["social confidence", "social interest", "social boldness", "sociability"]
+  },
+  {
+    "factor": "MR4",
+    "label": "imagination",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["imagination", "imagination inflation", "mental images"]
+  },
+  {
+    "factor": "MR1",
+    "label": "restlessness",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["cognitive perseveration", "restlessness", "attention theft"]
+  },
+  {
+    "factor": "MR2",
+    "label": "excitement seeking",
+    "rule": "top1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["excitement seeking", "novelty shop", "endogenous regeneration"]
+  }
+]

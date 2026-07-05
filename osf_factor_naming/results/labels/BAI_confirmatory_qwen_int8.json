@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "trait anxiety",
+    "rule": "top1",
+    "n_items": 21,
+    "collision_moved": false,
+    "candidates": ["trait anxiety", "anxiety sensitivity"]
+  }
+]

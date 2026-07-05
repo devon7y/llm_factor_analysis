@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR1",
+    "label": "procrastination",
+    "rule": "tier1",
+    "n_items": 28,
+    "collision_moved": false,
+    "candidates": "procrastination"
+  },
+  {
+    "factor": "MR2",
+    "label": "academic program",
+    "rule": "tier1",
+    "n_items": 13,
+    "collision_moved": true,
+    "candidates": ["procrastination", "academic program"]
+  }
+]

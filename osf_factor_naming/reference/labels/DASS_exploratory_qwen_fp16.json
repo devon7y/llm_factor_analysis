@@ -1,0 +1,34 @@
+[
+  {
+    "factor": "MR2",
+    "label": "irritability",
+    "rule": "tier1",
+    "n_items": 20,
+    "collision_moved": false,
+    "candidates": ["irritability", "irascibility"]
+  },
+  {
+    "factor": "MR3",
+    "label": "depression",
+    "rule": "tier1",
+    "n_items": 14,
+    "collision_moved": false,
+    "candidates": ["depressed mood", "depression"]
+  },
+  {
+    "factor": "MR4",
+    "label": "palpitation",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["cardiac phobia", "somatic anxiety", "choking phobia", "physiological tremor", "palpitation"]
+  },
+  {
+    "factor": "MR1",
+    "label": "panic anxiety",
+    "rule": "top1",
+    "n_items": 23,
+    "collision_moved": false,
+    "candidates": ["panic anxiety", "social evaluation fear", "social anxiety disorder"]
+  }
+]

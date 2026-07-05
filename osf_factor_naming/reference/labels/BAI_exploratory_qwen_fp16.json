@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "fearfulness",
+    "rule": "tier1",
+    "n_items": 11,
+    "collision_moved": false,
+    "candidates": ["fearfulness", "fear of fear", "death anxiety", "apprehension test"]
+  },
+  {
+    "factor": "MR1",
+    "label": "pressure sensation",
+    "rule": "tier1",
+    "n_items": 10,
+    "collision_moved": false,
+    "candidates": ["physical sensation", "choking sensation", "pressure sensation"]
+  }
+]

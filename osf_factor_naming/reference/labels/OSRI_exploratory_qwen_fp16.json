@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR2",
+    "label": "sensation seeking",
+    "rule": "top1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["sensation seeking", "excitement seeking", "psychological excitement", "psychology of war", "military psychology"]
+  },
+  {
+    "factor": "MR1",
+    "label": "embedded generosity",
+    "rule": "top1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["embedded generosity", "self-expression values"]
+  }
+]

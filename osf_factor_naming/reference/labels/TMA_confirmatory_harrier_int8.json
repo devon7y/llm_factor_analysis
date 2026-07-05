@@ -1,0 +1,10 @@
+[
+  {
+    "factor": "MR1",
+    "label": "neuroticism",
+    "rule": "tier1",
+    "n_items": 50,
+    "collision_moved": false,
+    "candidates": ["neuroticism trait", "anxiety state", "neuroticism"]
+  }
+]

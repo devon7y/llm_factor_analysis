@@ -1,0 +1,42 @@
+[
+  {
+    "factor": "MR3",
+    "label": "ethic whole value",
+    "rule": "top1",
+    "n_items": 9,
+    "collision_moved": false,
+    "candidates": ["ethic whole value", "gender role reversal", "theory of justification", "social equilibrium"]
+  },
+  {
+    "factor": "MR4",
+    "label": "disloyalty",
+    "rule": "tier1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["loyola chicago", "tribal mask", "disloyalty"]
+  },
+  {
+    "factor": "MR2",
+    "label": "moral dissonance",
+    "rule": "top1",
+    "n_items": 6,
+    "collision_moved": false,
+    "candidates": ["moral dissonance", "sexual disorder"]
+  },
+  {
+    "factor": "MR1",
+    "label": "unfairness",
+    "rule": "tier1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["perceived discrimination", "emotional insecurity", "unfairness"]
+  },
+  {
+    "factor": "MR5",
+    "label": "empathy",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["empathic design", "empathy"]
+  }
+]

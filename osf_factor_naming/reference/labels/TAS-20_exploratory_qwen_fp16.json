@@ -1,0 +1,18 @@
+[
+  {
+    "factor": "MR1",
+    "label": "emotional self evaluation",
+    "rule": "top1",
+    "n_items": 15,
+    "collision_moved": false,
+    "candidates": ["emotional self evaluation", "emotional spectrum disorder"]
+  },
+  {
+    "factor": "MR2",
+    "label": "cognitive style",
+    "rule": "top1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": ["cognitive style", "television consumption", "analytic thinking"]
+  }
+]

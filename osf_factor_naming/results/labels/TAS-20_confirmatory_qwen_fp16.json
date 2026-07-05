@@ -1,0 +1,26 @@
+[
+  {
+    "factor": "MR2",
+    "label": "mixed affective state",
+    "rule": "top1",
+    "n_items": 7,
+    "collision_moved": false,
+    "candidates": ["mixed affective state", "bodily distress disorder", "emotional instability disorder"]
+  },
+  {
+    "factor": "MR1",
+    "label": "emotional competence",
+    "rule": "top1",
+    "n_items": 10,
+    "collision_moved": false,
+    "candidates": ["emotional competence", "emotional intimacy"]
+  },
+  {
+    "factor": "MR3",
+    "label": "television consumption",
+    "rule": "top1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["television consumption", "reception theory"]
+  }
+]

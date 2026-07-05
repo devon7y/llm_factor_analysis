@@ -1,0 +1,74 @@
+[
+  {
+    "factor": "MR3",
+    "label": "health anxiety",
+    "rule": "top1",
+    "n_items": 24,
+    "collision_moved": false,
+    "candidates": ["health anxiety", "psychosomatic assessment", "major depressive inventory"]
+  },
+  {
+    "factor": "MR2",
+    "label": "impulsiveness",
+    "rule": "tier1",
+    "n_items": 13,
+    "collision_moved": false,
+    "candidates": ["impulsiveness", "mental processing speed"]
+  },
+  {
+    "factor": "MR5",
+    "label": "conviviality",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["social pleasure", "party motivator", "conviviality"]
+  },
+  {
+    "factor": "MR1",
+    "label": "love of books",
+    "rule": "top1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": "love of books"
+  },
+  {
+    "factor": "MR7",
+    "label": "hostile aggression",
+    "rule": "top1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["hostile aggression", "hostile behavior"]
+  },
+  {
+    "factor": "MR4",
+    "label": "social phobia",
+    "rule": "tier1",
+    "n_items": 8,
+    "collision_moved": false,
+    "candidates": ["social shyness", "social phobia"]
+  },
+  {
+    "factor": "MR6",
+    "label": "excitement seeking",
+    "rule": "top1",
+    "n_items": 5,
+    "collision_moved": false,
+    "candidates": "excitement seeking"
+  },
+  {
+    "factor": "MR8",
+    "label": "daring",
+    "rule": "tier1",
+    "n_items": 3,
+    "collision_moved": false,
+    "candidates": ["test of courage", "moral courage", "thrill seeking", "daring"]
+  },
+  {
+    "factor": "MR9",
+    "label": "loneliness",
+    "rule": "tier1",
+    "n_items": 2,
+    "collision_moved": false,
+    "candidates": ["social isolation", "loneliness"]
+  }
+]

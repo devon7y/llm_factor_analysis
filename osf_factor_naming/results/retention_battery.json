@@ -1,0 +1,101 @@
+{
+  "DASS": {
+    "k_doc": 3,
+    "consensus": 4,
+    "parallel": 4,
+    "kaiser": 5,
+    "TEFI": 4,
+    "EKC": 5,
+    "MAP": 7
+  },
+  "Big5": {
+    "k_doc": 5,
+    "consensus": 6,
+    "parallel": 5,
+    "kaiser": 6,
+    "TEFI": 2,
+    "EKC": 6,
+    "MAP": 10
+  },
+  "431PTQ": {
+    "k_doc": 2,
+    "consensus": 3,
+    "parallel": 2,
+    "kaiser": 3,
+    "TEFI": 3,
+    "EKC": 3,
+    "MAP": 5
+  },
+  "MFQ": {
+    "k_doc": 5,
+    "consensus": 4,
+    "parallel": 3,
+    "kaiser": 4,
+    "TEFI": 3,
+    "EKC": 4,
+    "MAP": 4
+  },
+  "BAI": {
+    "k_doc": 1,
+    "consensus": 3,
+    "parallel": 2,
+    "kaiser": 3,
+    "TEFI": 2,
+    "EKC": 3,
+    "MAP": 3
+  },
+  "TMA": {
+    "k_doc": 1,
+    "consensus": 6,
+    "parallel": 5,
+    "kaiser": 6,
+    "TEFI": 2,
+    "EKC": 6,
+    "MAP": 7
+  },
+  "BDI": {
+    "k_doc": 1,
+    "consensus": 2,
+    "parallel": 2,
+    "kaiser": 2,
+    "TEFI": 2,
+    "EKC": 2,
+    "MAP": 3
+  },
+  "EPQ": {
+    "k_doc": 5,
+    "consensus": 11,
+    "parallel": 9,
+    "kaiser": 11,
+    "TEFI": 3,
+    "EKC": 11,
+    "MAP": 5
+  },
+  "OSRI": {
+    "k_doc": 2,
+    "consensus": 2,
+    "parallel": 2,
+    "kaiser": 2,
+    "TEFI": 3,
+    "EKC": 2,
+    "MAP": 1
+  },
+  "TAS-20": {
+    "k_doc": 3,
+    "consensus": 2,
+    "parallel": 2,
+    "kaiser": 2,
+    "TEFI": 2,
+    "EKC": 2,
+    "MAP": 3
+  },
+  "AQ-50": {
+    "k_doc": 5,
+    "consensus": 7,
+    "parallel": 6,
+    "kaiser": 7,
+    "TEFI": 3,
+    "EKC": 7,
+    "MAP": 7
+  }
+}
