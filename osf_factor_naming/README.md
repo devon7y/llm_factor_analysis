@@ -45,10 +45,12 @@ data/gt_aliases.csv    frozen ground-truth aliases (with derivation rules)
 data/instruction_variants.txt   the naming instruction + 3 rewordings
 R/00_config.R ... R/05_emit.R   the pipeline stages (documented in-file)
 run_all.R              runs all stages in order
+verify_reproduction.R  diffs a rerun against the shipped reference outputs
 slurm/job_fir.slurm    the exact HPC job script used for the paper's run
 embeddings/            item + query embeddings produced by the run (fp16)
 embeddings/cache/      the semanticfa embedding cache from the run
 results/               all outputs: labels, evaluation, figures, LaTeX macros
+reference/             frozen copy of the paper run's outputs (verification)
 ```
 
 ## Reproducing
@@ -69,22 +71,44 @@ cluster configuration used for the paper is `slurm/job_fir.slurm`; when
 submitting it, create the log directory first (`mkdir -p $PROJ/logs`,
 SLURM does not create it for you).
 
-**Bit-identical reproduction without a GPU.** GPU inference is the only
-stage whose bitwise output can vary across hardware. We therefore ship the
-embedding cache the paper's run produced. Restore it and rerun:
+**Bit-identical reproduction without a GPU (the recommended path).** Most
+readers do not have cluster access, and none is needed: GPU inference is
+the only stage whose bitwise output can vary across hardware, so we ship
+the embedding cache the paper's run produced (`embeddings/cache/`, every
+item and query embedding, content-addressed by item text + model). With
+the cache restored, every `sfa_embed()` call resolves from disk, no model
+downloads or loads, no GPU is touched, and the entire pipeline —
+extraction, naming, evaluation, retention, emission — reruns on an
+ordinary laptop and reproduces the shipped results exactly:
 
 ```sh
+cd osf_factor_naming
 export R_USER_CACHE_DIR=$PWD/rcache
 mkdir -p rcache/R/semanticfa
 cp embeddings/cache/*.rds rcache/R/semanticfa/
 Rscript run_all.R
+Rscript verify_reproduction.R   # PASS = outputs match the paper's run
 ```
 
-Every `sfa_embed()` call then resolves from the cache (no models load, no
-GPU is touched) and the pipeline reproduces the shipped results exactly.
-The candidate pools still download (~10 GB, CPU only). One analysis is
-GPU-only by design and is skipped automatically on CPU reruns: stage 02's
-re-embedding determinism check, whose purpose is fresh GPU inference.
+Requirements for this path: R (>= 4.1) with `semanticfa` (>= 0.2.0) and
+`jsonlite`, plus a Python with `numpy` reachable by `reticulate` (needed
+only to memory-map the candidate pools). The pools download automatically
+on first use (~10 GB from the semanticfa `pools-v1` release; keep
+`options(timeout = 7200)` from `R/00_config.R`). Expect roughly 10–20 GB
+of disk and well under an hour of CPU time after the pool download.
+
+`verify_reproduction.R` diffs your rerun against the frozen copies of the
+paper's outputs shipped under `reference/`. One analysis is GPU-only by
+design and is skipped automatically on CPU reruns (and excluded from the
+verification): stage 02's re-embedding determinism check, whose whole
+purpose is fresh GPU inference.
+
+**Using the embeddings outside R.** The `embeddings/*.npz` files carry the
+same embeddings in NumPy form for non-R workflows: per scale, `*_items_*`
+holds the extraction-model item embeddings and `*_queries_*` the
+naming-model instruction-conditioned query embeddings (arrays: float16
+`embeddings`, plus `codes`/`items`/`factors` strings). These are
+convenience exports; the R pipeline reproduces from `embeddings/cache/`.
 
 ## Determinism
 
