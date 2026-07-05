@@ -108,13 +108,22 @@ block size (it is purely a memory knob).
 paper's outputs shipped under `reference/`. One analysis is GPU-only by
 design and is skipped automatically on CPU reruns (and excluded from the
 verification): stage 02's re-embedding determinism check, whose whole
-purpose is fresh GPU inference. One further platform note: across linear-
-algebra backends (e.g., macOS Accelerate vs. the cluster's BLAS), every
-label, selection rule, and candidate set reproduces identically, but the
-factoring's MR index names can permute among factors that tie on explained
-variance, so a byte-level diff can differ in the `factor` field alone
-while the content matches. On a same-backend rerun the outputs are
-byte-identical.
+purpose is fresh GPU inference.
+
+**Scope of exactness.** With the shipped cache restored, everything
+downstream of the embeddings is deterministic arithmetic, and a rerun on
+an equivalent linear-algebra stack reproduces the shipped outputs
+byte-for-byte. Across different CPU/BLAS stacks two effects appear, both
+of which we have measured directly: (1) the factoring's MR index names
+can permute among factors that tie on explained variance (content
+identical, `factor` field permuted); and (2) on near-degenerate
+structures the oblique rotation can settle into a different local
+solution, changing that scale's loadings and hence its labels (in our
+own cross-hardware check, one scale of eleven — the two-factor
+procrastination questionnaire — did this; the headline top-1 count was
+unchanged and set containment moved by one). Single-factor scales are
+immune. The shipped `results/fits/*.rds` pin the paper's exact factor
+solutions for anyone who wants to audit downstream stages against them.
 
 **Using the embeddings outside R.** The `embeddings/*.npz` files carry the
 same embeddings in NumPy form for non-R workflows: per scale, `*_items_*`

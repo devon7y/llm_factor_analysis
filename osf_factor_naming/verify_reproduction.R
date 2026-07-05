@@ -19,7 +19,7 @@
 ok <- TRUE
 note <- function(...) cat(sprintf(...), "\n")
 
-fail <- function(...) { ok <<- FALSE; note(paste0("MISMATCH: ", ...)) }
+fail <- function(...) { ok <<- FALSE; cat("MISMATCH:", sprintf(...), "\n") }
 
 # ---- labels ------------------------------------------------------------------
 ref_labels <- list.files(file.path("reference", "labels"), full.names = TRUE)
@@ -64,15 +64,40 @@ for (f in c("tab_labels_cross.tex", "tab_labels_explore.tex",
   if (!identical(a, b)) fail("%s differs", f) else note("%s: matches", f)
 }
 
+# ---- content-level agreement (platform-robust view) --------------------------------
+# Byte equality is the same-stack criterion. Across CPU/BLAS stacks the MR
+# factor indices can permute and, on near-degenerate scales, the rotation
+# can settle differently (see README, "Scope of exactness"). This block
+# reports label-content agreement per file, ignoring factor index names.
+lab_content <- function(path) {
+  labs <- jsonlite::read_json(path, simplifyVector = FALSE)
+  sort(vapply(labs, function(x) x$label, character(1)))
+}
+if (requireNamespace("jsonlite", quietly = TRUE)) {
+  n_same <- n_all <- 0L
+  for (rf in ref_labels) {
+    base <- basename(rf)
+    if (grepl("_rerun\\.json$", base)) next
+    nf <- file.path("results", "labels", base)
+    if (!file.exists(nf)) next
+    n_all <- n_all + 1L
+    if (identical(lab_content(rf), lab_content(nf))) n_same <- n_same + 1L
+  }
+  note("content-level (factor-index-agnostic) label agreement: %d/%d files",
+       n_same, n_all)
+}
+
 # ---- verdict ----------------------------------------------------------------------
 cat("\n")
 if (ok) {
   cat("PASS: your rerun reproduces the paper's outputs exactly",
       "(GPU-only determinism artifacts excluded by design).\n")
 } else {
-  cat("FAIL: differences found above. If you re-embedded on different",
-      "hardware instead of restoring the shipped cache, label changes on",
-      "weak factors are expected; restore embeddings/cache/ per the README",
-      "for an exact reproduction.\n")
+  cat("Byte-level differences found above. On a different CPU/BLAS stack,",
+      "MR-index permutations and a rotation-solution flip on a",
+      "near-degenerate scale are expected (README, 'Scope of exactness');",
+      "check the content-level agreement line. For byte-exact",
+      "reproduction, rerun on an equivalent linear-algebra stack with the",
+      "shipped cache restored.\n")
   quit(status = 1L)
 }
