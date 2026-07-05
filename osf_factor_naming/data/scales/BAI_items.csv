@@ -1,0 +1,22 @@
+code,item,factor,scoring
+A1,Numbness or tingling,Anxiety,1
+A2,Feeling hot,Anxiety,1
+A3,Wobbliness in legs,Anxiety,1
+A4,Unable to relax,Anxiety,1
+A5,Fear of the worst happening,Anxiety,1
+A6,Dizzy or lightheaded,Anxiety,1
+A7,Heart pounding or racing,Anxiety,1
+A8,Unsteady,Anxiety,1
+A9,Terrified,Anxiety,1
+A10,Nervous,Anxiety,1
+A11,Feeling of choking,Anxiety,1
+A12,Hands trembling,Anxiety,1
+A13,Shaky,Anxiety,1
+A14,Fear of losing control,Anxiety,1
+A15,Difficulty breathing,Anxiety,1
+A16,Fear of dying,Anxiety,1
+A17,Scared,Anxiety,1
+A18,Indigestion or abdominal discomfort,Anxiety,1
+A19,Faint,Anxiety,1
+A20,Face flushed,Anxiety,1
+A21,Sweating (not due to heat),Anxiety,1

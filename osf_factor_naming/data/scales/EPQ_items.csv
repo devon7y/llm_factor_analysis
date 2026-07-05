@@ -1,0 +1,80 @@
+code,item,factor,scoring
+E1,Do you often long for excitement?,Extraversion,1
+E3,Are you usually carefree?,Extraversion,1
+E5,Do you stop and think things over before doing anything?,Extraversion,-1
+E8,Do you generally do and say things quickly without stopping to think?,Extraversion,1
+E10,Would you do almost anything for a dare?,Extraversion,1
+E13,Do you often do things on the spur of the moment?,Extraversion,1
+E15,Generally do you prefer reading to meeting people?,Extraversion,-1
+E17,Do you like going out a lot?,Extraversion,1
+E20,Do you prefer to have few but special friends?,Extraversion,-1
+E22,When people shout at you do you shout back?,Extraversion,1
+E25,Can you usually let yourself go and enjoy yourself a lot at a lively party?,Extraversion,1
+E27,Do other people think of you as being very lively?,Extraversion,1
+E29,Are you mostly quiet when you are with other people?,Extraversion,-1
+E32,"If there is something you want to know about, would you rather look it upin a book than talk to someone about it?",Extraversion,-1
+E34,Do you like the kind of work that you need to pay close attention to?,Extraversion,-1
+E37,Do you hate being with a crowd who play jokes on one another?,Extraversion,-1
+E39,Do you like doing things in which you have to act quickly?,Extraversion,1
+E41,Are you slow and unhurried in the way you move?,Extraversion,-1
+E44,Do you like talking to people so much that you never miss a chance of talking to a stranger?,Extraversion,1
+E46,Would you be very unhappy if you could not see lots of people most of the time?,Extraversion,1
+E49,Would you say that you were fairly self-confident?,Extraversion,1
+E51,Do you find it hard to really enjoy yourself at a lively party?,Extraversion,-1
+E53,Can you easily get some life into a dull party?,Extraversion,1
+E56,Do you like playing pranks on others?,Extraversion,1
+I1,Do you often long for excitement?,Impulsivity,1
+I3,Are you usually carefree?,Impulsivity,1
+I5,Do you stop and think things over before doing anything?,Impulsivity,-1
+I8,Do you generally do and say things quickly without stopping to think?,Impulsivity,1
+I10,Would you do almost anything for a dare?,Impulsivity,1
+I13,Do you often do things on the spur of the moment?,Impulsivity,1
+I22,When people shout at you do you shout back?,Impulsivity,1
+I39,Do you like doing things in which you have to act quickly?,Impulsivity,1
+I41,Are you slow and unhurried in the way you move?,Impulsivity,-1
+L6,"If you say you will do something do you always keep your promise,no matter how inconvenient it might be to do so?",Lie,1
+L12,Once in a while do you lose your temper and get angry?,Lie,-1
+L18,Do you occasionally have thoughts and ideas that you would not like otherpeople to know about?,Lie,-1
+L24,Are all your habits good and desirable ones?,Lie,1
+L30,Do you sometimes gossip?,Lie,-1
+L36,"Would you always declare everything at customs, even if you knewyou could never be found out?",Lie,1
+L42,Have you ever been late for an appointment or work?,Lie,-1
+L48,"Of all the people you know, are there some whom you definitely do not like?",Lie,-1
+L54,Do you sometimes talk about things you know nothing about?,Lie,-1
+N2,Do you often need understanding friends to cheer you up?,Neuroticism,1
+N4,Do you find it very hard to take no for an answer?,Neuroticism,1
+N7,Do your moods go up and down?,Neuroticism,1
+N9,Do you ever feel just miserable for no good reason?,Neuroticism,1
+N11,Do you suddenly feel shy when you want to talk to an attractive stranger?,Neuroticism,1
+N14,Do you often worry about things you should have done or said?,Neuroticism,1
+N16,Are your feelings rather easily hurt?,Neuroticism,1
+N19,Are you sometimes bubbling over with energy and sometimes very sluggish?,Neuroticism,1
+N21,Do you daydream a lot?,Neuroticism,1
+N23,Are you often troubled about feelings of guilt?,Neuroticism,1
+N26,Would you call yourself tense or highly strung?,Neuroticism,1
+N28,"After you have done something important, do you come away feelingyou could have done better?",Neuroticism,1
+N31,Do ideas run through your head so that you cannot sleep?,Neuroticism,1
+N33,Do you get palpitations or thumping in your hear?,Neuroticism,1
+N35,Do you get attacks of shaking or trembling?,Neuroticism,1
+N38,Are you an irritable person?,Neuroticism,1
+N40,Do you worry about awful things that might happen?,Neuroticism,1
+N43,Do you have many nightmares?,Neuroticism,1
+N45,Are you troubled by aches and pains?,Neuroticism,1
+N47,Would you call yourself a nervous person?,Neuroticism,1
+N50,Are you easily hurt when people find fault with you or your work?,Neuroticism,1
+N52,Are you troubled by feelings of inferiority?,Neuroticism,1
+N55,Do you worry about your health?,Neuroticism,1
+N57,Do you suffer from sleeplessness?,Neuroticism,1
+S11,Do you suddenly feel shy when you want to talk to an attractive stranger?,Sociability,-1
+S15,Generally do you prefer reading to meeting people?,Sociability,-1
+S17,Do you like going out a lot?,Sociability,1
+S20,Do you prefer to have few but special friends?,Sociability,-1
+S25,Can you usually let yourself go and enjoy yourself a lot at a lively party?,Sociability,1
+S27,Do other people think of you as being very lively?,Sociability,1
+S29,Are you mostly quiet when you are with other people?,Sociability,-1
+S32,"If there is something you want to know about, would you rather look it upin a book than talk to someone about it?",Sociability,-1
+S37,Do you hate being with a crowd who play jokes on one another?,Sociability,-1
+S44,Do you like talking to people so much that you never miss a chance of talking to a stranger?,Sociability,1
+S46,Would you be very unhappy if you could not see lots of people most of the time?,Sociability,1
+S51,Do you find it hard to really enjoy yourself at a lively party?,Sociability,-1
+S53,Can you easily get some life into a dull party?,Sociability,1

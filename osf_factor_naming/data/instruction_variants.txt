@@ -1,0 +1,4 @@
+Given a questionnaire item, retrieve the name of the psychological construct that the item measures
+Given a self-report questionnaire item, retrieve the psychological construct it assesses.
+Retrieve the name of the psychological trait or state that this questionnaire item measures.
+Given an item from a psychological scale, retrieve the construct the item is designed to measure.

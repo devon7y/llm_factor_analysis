@@ -1,0 +1,31 @@
+code,item,factor,scoring
+H1,Whether or not someone suffered emotionally,Harm/Care,+1
+H2,Whether or not someone cared for someone weak or vulnerable,Harm/Care,+1
+H3,Whether or not someone was cruel,Harm/Care,+1
+H4,Compassion for those who are suffering is the most crucial virtue,Harm/Care,+1
+H5,One of the worst things a person could do is hurt a defenseless animal,Harm/Care,+1
+H6,It can never be right to kill a human being,Harm/Care,+1
+F7,Whether or not some people were treated differently than others,Fairness/Reciprocity,+1
+F8,Whether or not someone acted unfairly,Fairness/Reciprocity,+1
+F9,Whether or not someone was denied his or her rights,Fairness/Reciprocity,+1
+F10,"When the government makes laws, the number one principle should be ensuring that everyone is treated fairly",Fairness/Reciprocity,+1
+F11,Justice is the most important requirement for a society,Fairness/Reciprocity,+1
+F12,I think it’s morally wrong that rich children inherit a lot of money while poor children inherit nothing,Fairness/Reciprocity,+1
+I13,Whether or not someone’s action showed love for his or her country,Ingroup/Loyalty,+1
+I14,Whether or not someone did something to betray his or her group,Ingroup/Loyalty,+1
+I15,Whether or not someone showed a lack of loyalty,Ingroup/Loyalty,+1
+I16,I am proud of my country’s history,Ingroup/Loyalty,+1
+I17,"People should be loyal to their family members, even when they have done something wrong",Ingroup/Loyalty,+1
+I18,It is more important to be a team player than to express oneself,Ingroup/Loyalty,+1
+A19,Whether or not someone showed a lack of respect for authority,Authority/Respect,+1
+A20,Whether or not someone conformed to the traditions of society,Authority/Respect,+1
+A21,Whether or not an action caused chaos or disorder,Authority/Respect,+1
+A22,Respect for authority is something all children need to learn,Authority/Respect,+1
+A23,Men and women each have different roles to play in society,Authority/Respect,+1
+A24,"If I were a soldier and disagreed with my commanding officer’s orders, I would obey anyway because that is my duty",Authority/Respect,+1
+P25,Whether or not someone violated standards of purity and decency,Purity/Sanctity,+1
+P26,Whether or not someone did something disgusting,Purity/Sanctity,+1
+P27,Whether or not someone acted in a way that God would approve of,Purity/Sanctity,+1
+P28,"People should not do things that are disgusting, even if no one is harmed",Purity/Sanctity,+1
+P29,I would call some acts wrong on the grounds that they are unnatural,Purity/Sanctity,+1
+P30,Chastity is an important and valuable virtue,Purity/Sanctity,+1

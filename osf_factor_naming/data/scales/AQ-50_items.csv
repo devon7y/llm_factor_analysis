@@ -1,0 +1,51 @@
+code,item,factor,scoring
+SS1,I prefer to do things with others rather than on my own.,Social_Skills,+1
+AS1,I prefer to do things the same way over and over again.,Attention_Switching,+1
+Im1,If I try to imagine something I find it very easy to create a picture in my mind.,Imagination,+1
+AS2,I frequently get so strongly absorbed in one thing that I lose sight of other things.,Attention_Switching,+1
+AD1,I often notice small sounds when others do not.,Attention_to_Detail,+1
+AD2,I usually notice car number plates or similar strings of information.,Attention_to_Detail,+1
+Co1,Other people frequently tell me that what I've said is impolite even though I think it is polite.,Communication,+1
+Im2,When I'm reading a story I can easily imagine what the characters might look like.,Imagination,+1
+AD3,I am fascinated by dates.,Attention_to_Detail,+1
+SS2,In a social group I can easily keep track of several different people's conversations.,Attention_Switching,+1
+SS3,I find social situations easy.,Social_Skills,+1
+AD4,I tend to notice details that others do not.,Attention_to_Detail,+1
+SS4,I would rather go to a library than a party.,Social_Skills,+1
+Im3,I find making up stories easy.,Imagination,+1
+SS5,I find myself drawn more strongly to people than to things.,Social_Skills,+1
+AS3,I tend to have very strong interests which I get upset about if I can't pursue.,Attention_Switching,+1
+Co2,I enjoy social chit-chat.,Communication,+1
+Co3,When I talk it isn't always easy for others to get a word in edgeways.,Communication,+1
+AD5,I am fascinated by numbers.,Attention_to_Detail,+1
+Co4,When I'm reading a story I find it difficult to work out the characters' intentions.,Imagination,+1
+Im4,I don't particularly enjoy reading fiction.,Imagination,+1
+SS6,I find it hard to make new friends.,Social_Skills,+1
+AD6,I notice patterns in things all the time.,Attention_to_Detail,+1
+Im5,I would rather go to the theatre than a museum.,Imagination,+1
+AS4,It does not upset me if my daily routine is disturbed.,Attention_Switching,+1
+Co5,I frequently find that I don't know how to keep a conversation going.,Communication,+1
+Co6,I find it easy to read between the lines when someone is talking to me.,Communication,+1
+AD7,I usually concentrate more on the whole picture rather than the small details.,Attention_to_Detail,+1
+AD8,I am not very good at remembering phone numbers.,Attention_to_Detail,+1
+AD9,I don't usually notice small changes in a situation or a person's appearance.,Attention_to_Detail,+1
+Co7,I know how to tell if someone listening to me is getting bored.,Communication,+1
+AS5,I find it easy to do more than one thing at once.,Attention_Switching,+1
+Co8,When I talk on the phone I'm not sure when it's my turn to speak.,Communication,+1
+AS6,I enjoy doing things spontaneously.,Attention_Switching,+1
+Co9,I am often the last to understand the point of a joke.,Communication,+1
+SS7,I find it easy to work out what someone is thinking or feeling just by looking at their face.,Social_Skills,+1
+AS7,If there is an interruption I can switch back to what I was doing very quickly.,Attention_Switching,+1
+Co10,I am good at social chit-chat.,Communication,+1
+Co11,People often tell me that I keep going on and on about the same thing.,Communication,+1
+Im6,When I was young I used to enjoy playing games of pretend with other children.,Imagination,+1
+AD10,I like to collect information about categories of things.,Imagination,+1
+Im7,I find it difficult to imagine what it would be like to be someone else.,Imagination,+1
+AS8,I like to plan any activities I participate in carefully.,Attention_Switching,+1
+SS8,I enjoy social occasions.,Social_Skills,+1
+SS9,I find it difficult to work out people's intentions.,Social_Skills,+1
+AS9,New situations make me anxious.,Attention_Switching,+1
+SS10,I enjoy meeting new people.,Social_Skills,+1
+SS11,I am a good diplomat.,Social_Skills,+1
+AD11,I am not very good at remembering people's date of birth.,Attention_to_Detail,+1
+Im8,I find it very easy to play games with children that involve pretending.,Imagination,+1

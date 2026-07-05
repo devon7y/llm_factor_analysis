@@ -1,0 +1,21 @@
+code,item,factor,scoring
+M1,I have studied how to win at gambling.,Masculinity,+1
+M2,"I have thrown knives, axes or other sharp things.",Masculinity,+1
+M3,I have day dreamed about saving someone from a burning building.,Masculinity,+1
+M4,I have been very interested in historical wars.,Masculinity,+1
+M5,I like guns.,Masculinity,+1
+M6,I have considered joining the military.,Masculinity,+1
+M7,I think a natural disaster would be kind of exciting.,Masculinity,+1
+M8,I have burned things up with a magnifying glass.,Masculinity,+1
+M9,I have taken apart machines just to see how they work.,Masculinity,+1
+M10,"I have set fuels, aerosols or other chemicals on fire, just for fun.",Masculinity,+1
+F11,I give people handmade gifts.,Femininity,+1
+F12,I jump up and down in excitement sometimes.,Femininity,+1
+F13,I wear a blanket around the house.,Femininity,+1
+F14,I think horoscopes are fun.,Femininity,+1
+F15,I have kept a personal journal.,Femininity,+1
+F16,I take lots of pictures of my activities.,Femininity,+1
+F17,I leave nice notes for people now and then.,Femininity,+1
+F18,I really like dancing.,Femininity,+1
+F19,I bake sweets just for myself sometimes.,Femininity,+1
+F20,I decorate my things (e.g. stickers on laptop).,Femininity,+1

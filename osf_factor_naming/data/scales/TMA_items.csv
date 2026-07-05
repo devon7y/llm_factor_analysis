@@ -1,0 +1,51 @@
+code,item,factor,scoring
+A1,I do not tire quickly.,Anxiety,-1
+A2,I am troubled by attacks of nausea.,Anxiety,+1
+A3,I believe I am no more nervous than most others.,Anxiety,-1
+A4,I have very few headaches.,Anxiety,-1
+A5,I work under a great deal of tension.,Anxiety,+1
+A6,I cannot keep my mind on one thing.,Anxiety,+1
+A7,I worry over money and business.,Anxiety,+1
+A8,I frequently notice my hand shakes when I try to do something.,Anxiety,+1
+A9,I blush no more often than others.,Anxiety,-1
+A10,I have diarrhea once a month or more.,Anxiety,+1
+A11,I worry quite a bit over possible misfortunes.,Anxiety,+1
+A12,I practically never blush.,Anxiety,-1
+A13,I am often afraid that I am going to blush.,Anxiety,+1
+A14,I have nightmares every few nights.,Anxiety,+1
+A15,My hands and feet are usually warm.,Anxiety,-1
+A16,I sweat very easily even on cool days.,Anxiety,+1
+A17,"Sometimes when embarrassed, I break out in a sweat.",Anxiety,+1
+A18,I hardly ever notice my heart pounding and I am seldom short of breath.,Anxiety,-1
+A19,I feel hungry almost all the time.,Anxiety,+1
+A20,I am very seldom troubled by constipation.,Anxiety,-1
+A21,I have a great deal of stomach trouble.,Anxiety,+1
+A22,I have had periods in which I lost sleep over worry.,Anxiety,+1
+A23,My sleep is fitful and disturbed.,Anxiety,+1
+A24,I dream frequently about things that are best kept to myself.,Anxiety,+1
+A25,I am easily embarrassed.,Anxiety,+1
+A26,I am more sensitive than most other people.,Anxiety,+1
+A27,I frequently find myself worrying about something.,Anxiety,+1
+A28,I wish I could be as happy as others seem to be.,Anxiety,+1
+A29,I am usually calm and not easily upset.,Anxiety,-1
+A30,I cry easily.,Anxiety,+1
+A31,I feel anxiety about something or someone almost all the time.,Anxiety,+1
+A32,I am happy most of the time.,Anxiety,-1
+A33,It makes me nervous to have to wait.,Anxiety,+1
+A34,I have periods of such great restlessness that I cannot sit long I a chair.,Anxiety,+1
+A35,Sometimes I become so excited that I find it hard to get to sleep.,Anxiety,+1
+A36,I have sometimes felt that difficulties were piling up so high that I could not overcome them.,Anxiety,+1
+A37,I must admit that I have at times been worried beyond reason over something that really did not matter.,Anxiety,+1
+A38,I have very few fears compared to my friends.,Anxiety,-1
+A39,I have been afraid of things or people that I know could not hurt me.,Anxiety,+1
+A40,I certainly feel useless at times.,Anxiety,+1
+A41,I find it hard to keep my mind on a task or job.,Anxiety,+1
+A42,I am usually self-conscious.,Anxiety,+1
+A43,I am inclined to take things hard.,Anxiety,+1
+A44,I am a high-strung person.,Anxiety,+1
+A45,Life is a trial for me much of the time.,Anxiety,+1
+A46,At times I think I am no good at all.,Anxiety,+1
+A47,I am certainly lacking in self-confidence.,Anxiety,+1
+A48,I sometimes feel that I am about to go to pieces.,Anxiety,+1
+A49,I shrink from facing crisis of difficulty.,Anxiety,+1
+A50,I am entirely self-confident.,Anxiety,-1

@@ -1,0 +1,80 @@
+scale,construct,alias,basis
+DASS,Depression,depression,R1 documented subscale name
+DASS,Anxiety,anxiety,R1 documented subscale name
+DASS,Anxiety,anxiousness,R2 morphological variant
+DASS,Stress,stress,R1 documented subscale name
+Big5,Extraversion,extraversion,R1 documented factor name
+Big5,Extraversion,extroversion,R2 orthographic variant
+Big5,Extraversion,introversion,R4 reverse-pole antonym
+Big5,Neuroticism,neuroticism,R1 documented factor name
+Big5,Neuroticism,emotional stability,R1 documented IPIP marker label for the same factor
+Big5,Neuroticism,emotional instability,R4 reverse pole of the documented IPIP label
+Big5,Agreeableness,agreeableness,R1 documented factor name
+Big5,Agreeableness,disagreeableness,R4 reverse-pole antonym
+Big5,Conscientiousness,conscientiousness,R1 documented factor name
+Big5,Openness,openness,R1 documented factor name
+Big5,Openness,openness to experience,R2 standard long form
+Big5,Openness,intellect,R1 documented IPIP marker label for the same factor
+Big5,Openness,imagination,R1 documented IPIP marker label component (Intellect/Imagination)
+431PTQ,Behavioral,procrastination,R5 instrument-level construct (procrastination questionnaire)
+431PTQ,Behavioral,behavioral procrastination,R1 documented subscale name + instrument construct
+431PTQ,Emotional,procrastination,R5 instrument-level construct (procrastination questionnaire)
+431PTQ,Emotional,emotional procrastination,R1 documented subscale name + instrument construct
+MFQ,Harm/Care,harm,R1 documented foundation name component
+MFQ,Harm/Care,care,R1 documented foundation name component
+MFQ,Harm/Care,compassion,R1 virtue term named in Moral Foundations Theory documentation for the Care foundation
+MFQ,Fairness/Reciprocity,fairness,R1 documented foundation name component
+MFQ,Fairness/Reciprocity,reciprocity,R1 documented foundation name component
+MFQ,Fairness/Reciprocity,justice,R1 virtue term named in Moral Foundations Theory documentation for the Fairness foundation
+MFQ,Fairness/Reciprocity,unfairness,R4 reverse-pole antonym
+MFQ,Ingroup/Loyalty,loyalty,R1 documented foundation name component
+MFQ,Ingroup/Loyalty,ingroup loyalty,R1 documented foundation name
+MFQ,Ingroup/Loyalty,disloyalty,R4 reverse-pole antonym
+MFQ,Ingroup/Loyalty,betrayal,R1 vice term named in Moral Foundations Theory documentation for the Loyalty foundation
+MFQ,Authority/Respect,authority,R1 documented foundation name component
+MFQ,Authority/Respect,respect,R1 documented foundation name component
+MFQ,Authority/Respect,obedience,R1 virtue term named in Moral Foundations Theory documentation for the Authority foundation
+MFQ,Purity/Sanctity,purity,R1 documented foundation name component
+MFQ,Purity/Sanctity,sanctity,R1 documented foundation name component
+MFQ,Purity/Sanctity,disgust,R1 emotion named in Moral Foundations Theory documentation as the root of the Purity foundation
+MFQ,Purity/Sanctity,moral disgust,R2 compound of the documented Purity-foundation emotion
+BAI,Anxiety,anxiety,R1 documented construct + R5 instrument title (Beck Anxiety Inventory)
+BAI,Anxiety,anxiousness,R2 morphological variant
+TMA,Anxiety,anxiety,R1 documented construct + R5 instrument title (Taylor Manifest Anxiety Scale)
+TMA,Anxiety,manifest anxiety,R5 instrument title construct
+TMA,Anxiety,anxiousness,R2 morphological variant
+BDI,Depression,depression,R1 documented construct + R5 instrument title (Beck Depression Inventory)
+EPQ,Extraversion,extraversion,R1 documented scale name
+EPQ,Extraversion,extroversion,R2 orthographic variant
+EPQ,Extraversion,introversion,R4 reverse-pole antonym
+EPQ,Neuroticism,neuroticism,R1 documented scale name
+EPQ,Neuroticism,emotionality,R1 alternative label in EPQ documentation (Neuroticism or Emotionality)
+EPQ,Neuroticism,emotional instability,R2 standard equivalent of the documented label
+EPQ,Sociability,sociability,R1 documented subscale name
+EPQ,Sociability,sociableness,R2 morphological variant
+EPQ,Sociability,unsociability,R4 reverse-pole antonym
+EPQ,Impulsivity,impulsivity,R1 documented subscale name
+EPQ,Impulsivity,impulsiveness,R2 morphological variant
+EPQ,Lie,lie,R1 documented scale name
+EPQ,Lie,lying,R2 morphological variant
+EPQ,Lie,dishonesty,R2 construct noun for the documented Lie-scale disposition
+OSRI,Masculinity,masculinity,R1 documented scale name
+OSRI,Femininity,femininity,R1 documented scale name
+TAS-20,DIF,difficulty identifying feelings,R1 documented subscale name
+TAS-20,DIF,alexithymia,R5 instrument-level construct (Toronto Alexithymia Scale)
+TAS-20,DDF,difficulty describing feelings,R1 documented subscale name
+TAS-20,DDF,alexithymia,R5 instrument-level construct (Toronto Alexithymia Scale)
+TAS-20,EOT,externally oriented thinking,R1 documented subscale name
+TAS-20,EOT,alexithymia,R5 instrument-level construct (Toronto Alexithymia Scale)
+AQ-50,Social_Skills,social skills,R1 documented subscale name
+AQ-50,Social_Skills,social skill,R2 singular variant
+AQ-50,Social_Skills,social ineptitude,R4 reverse (deficit) pole of the documented subscale
+AQ-50,Attention_to_Detail,attention to detail,R1 documented subscale name
+AQ-50,Communication,communication,R1 documented subscale name
+AQ-50,Communication,communication skills,R2 standard long form
+AQ-50,Communication,communication difficulties,R4 reverse (deficit) pole of the documented subscale
+AQ-50,Attention_Switching,attention switching,R1 documented subscale name
+AQ-50,Attention_Switching,attentional switching,R2 morphological variant
+AQ-50,Imagination,imagination,R1 documented subscale name
+AQ-50,Imagination,imaginativeness,R2 morphological variant
+AQ-50,Imagination,unimaginativeness,R4 reverse-pole antonym
