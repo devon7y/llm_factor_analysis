@@ -1,0 +1,382 @@
+"config","scale","factor","construct","purity","n_items","label","rule","collision_moved","loo_set_size","candidates","top1_hit","set_hit"
+"cross_fp16","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_fp16","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_fp16","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,2,"panic attack; anxiety baking",FALSE,FALSE
+"cross_int8","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_int8","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_int8","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,1,"panic attack",FALSE,FALSE
+"cross_rerun","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_rerun","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_rerun","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,2,"panic attack; anxiety baking",FALSE,FALSE
+"cross_nokeeper","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_nokeeper","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_nokeeper","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,2,"panic attack; anxiety baking",FALSE,FALSE
+"cross_inst2","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_inst2","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_inst2","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,1,"panic attack",FALSE,FALSE
+"cross_inst3","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_inst3","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_inst3","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,1,"panic attack",FALSE,FALSE
+"cross_inst4","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,1,"irritability",FALSE,FALSE
+"cross_inst4","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"cross_inst4","DASS","MR3","Anxiety",1,11,"panic attack","tier1",FALSE,1,"panic attack",FALSE,FALSE
+"qwen_fp16","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,2,"irritability; irascibility",FALSE,FALSE
+"qwen_fp16","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depressed mood; depression",TRUE,TRUE
+"qwen_fp16","DASS","MR3","Anxiety",1,11,"panic disorder","tier1",FALSE,3,"panic anxiety; cardiac phobia; panic disorder",FALSE,FALSE
+"qwen_int8","DASS","MR1","Stress",0.824,17,"irritability","tier1",FALSE,2,"irritability; irascibility",FALSE,FALSE
+"qwen_int8","DASS","MR2","Depression",1,14,"depression","tier1",FALSE,2,"depressed mood; depression",TRUE,TRUE
+"qwen_int8","DASS","MR3","Anxiety",1,11,"panic disorder","tier1",FALSE,3,"panic anxiety; cardiac phobia; panic disorder",FALSE,FALSE
+"explore_cross","DASS","MR2","Stress",0.7,20,"irritability","tier1",FALSE,2,"irritability; trait anxiety",FALSE,FALSE
+"explore_cross","DASS","MR3","Depression",1,14,"depression","tier1",FALSE,2,"depression pill; depression",TRUE,TRUE
+"explore_cross","DASS","MR4","Anxiety",1,8,"anxiety attacks","tier1",FALSE,2,"anxiety baking; anxiety attacks",FALSE,FALSE
+"explore_cross","DASS","MR1","Anxiety",0.391,23,"fear of feces","top1",FALSE,2,"fear of feces; social evaluation fear",FALSE,FALSE
+"explore_qwen","DASS","MR2","Stress",0.7,20,"irritability","tier1",FALSE,2,"irritability; irascibility",FALSE,FALSE
+"explore_qwen","DASS","MR3","Depression",1,14,"depression","tier1",FALSE,2,"depressed mood; depression",TRUE,TRUE
+"explore_qwen","DASS","MR4","Anxiety",1,8,"palpitation","tier1",FALSE,5,"cardiac phobia; somatic anxiety; choking phobia; physiological tremor; palpitation",FALSE,FALSE
+"explore_qwen","DASS","MR1","Anxiety",0.391,23,"panic anxiety","top1",FALSE,3,"panic anxiety; social evaluation fear; social anxiety disorder",FALSE,FALSE
+"cross_fp16","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_fp16","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,1,"conscientiousness",TRUE,TRUE
+"cross_fp16","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_fp16","Big5","MR4","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"cross_fp16","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_int8","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_int8","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,1,"conscientiousness",TRUE,TRUE
+"cross_int8","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_int8","Big5","MR4","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"cross_int8","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_rerun","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_rerun","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,1,"conscientiousness",TRUE,TRUE
+"cross_rerun","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_rerun","Big5","MR4","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"cross_rerun","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_nokeeper","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_nokeeper","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,1,"conscientiousness",TRUE,TRUE
+"cross_nokeeper","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_nokeeper","Big5","MR4","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"cross_nokeeper","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_inst2","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_inst2","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,2,"conscientiousness; orderliness",TRUE,TRUE
+"cross_inst2","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_inst2","Big5","MR4","Extraversion",0.714,7,"sociability","tier1",FALSE,3,"social boldness; social confidence; sociability",FALSE,FALSE
+"cross_inst2","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_inst3","Big5","MR5","Neuroticism",0.667,12,"emotional intelligence","top1",FALSE,1,"emotional intelligence",FALSE,FALSE
+"cross_inst3","Big5","MR1","Conscientiousness",0.714,14,"orderliness","tier1",FALSE,2,"orderliness; conscientiousness",FALSE,TRUE
+"cross_inst3","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_inst3","Big5","MR4","Extraversion",0.714,7,"sociability","tier1",FALSE,4,"social boldness; social confidence; extroversion; sociability",FALSE,TRUE
+"cross_inst3","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"cross_inst4","Big5","MR5","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"cross_inst4","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,2,"conscientiousness; orderliness",TRUE,TRUE
+"cross_inst4","Big5","MR2","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"cross_inst4","Big5","MR4","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"cross_inst4","Big5","MR3","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"qwen_fp16","Big5","MR5","Neuroticism",0.667,12,"emotional instability","top1",FALSE,1,"emotional instability",TRUE,TRUE
+"qwen_fp16","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,2,"structured procrastination; conscientiousness",TRUE,TRUE
+"qwen_fp16","Big5","MR2","Extraversion",0.444,9,"reclusiveness","tier1",FALSE,3,"social withdrawal; social anhedonia; reclusiveness",FALSE,FALSE
+"qwen_fp16","Big5","MR4","Extraversion",0.714,7,"sociability","tier1",FALSE,1,"sociability",FALSE,FALSE
+"qwen_fp16","Big5","MR3","Openness",1,8,"creative thinking","tier1",FALSE,2,"creative imagination; creative thinking",FALSE,FALSE
+"qwen_int8","Big5","MR5","Neuroticism",0.667,12,"emotional instability","top1",FALSE,1,"emotional instability",TRUE,TRUE
+"qwen_int8","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,2,"structured procrastination; conscientiousness",TRUE,TRUE
+"qwen_int8","Big5","MR2","Extraversion",0.444,9,"reclusiveness","tier1",FALSE,3,"social withdrawal; social anhedonia; reclusiveness",FALSE,FALSE
+"qwen_int8","Big5","MR4","Extraversion",0.714,7,"sociability","tier1",FALSE,1,"sociability",FALSE,FALSE
+"qwen_int8","Big5","MR3","Openness",1,8,"creative thinking","tier1",FALSE,2,"creative imagination; creative thinking",FALSE,FALSE
+"explore_cross","Big5","MR2","Neuroticism",0.667,12,"emotional disorders","tier1",FALSE,2,"emotional intelligence; emotional disorders",FALSE,FALSE
+"explore_cross","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,1,"conscientiousness",TRUE,TRUE
+"explore_cross","Big5","MR4","Extraversion",0.444,9,"social work","tier1",FALSE,2,"social work; cold end",FALSE,FALSE
+"explore_cross","Big5","MR3","Extraversion",0.714,7,"extroversion","tier1",FALSE,3,"social boldness; social confidence; extroversion",TRUE,TRUE
+"explore_cross","Big5","MR5","Openness",1,8,"creativity in art","top1",FALSE,2,"creativity in art; creative impulse",FALSE,FALSE
+"explore_qwen","Big5","MR2","Neuroticism",0.667,12,"emotional instability","top1",FALSE,1,"emotional instability",TRUE,TRUE
+"explore_qwen","Big5","MR1","Conscientiousness",0.714,14,"conscientiousness","tier1",FALSE,2,"structured procrastination; conscientiousness",TRUE,TRUE
+"explore_qwen","Big5","MR4","Extraversion",0.444,9,"reclusiveness","tier1",FALSE,3,"social withdrawal; social anhedonia; reclusiveness",FALSE,FALSE
+"explore_qwen","Big5","MR3","Extraversion",0.714,7,"sociability","tier1",FALSE,1,"sociability",FALSE,FALSE
+"explore_qwen","Big5","MR5","Openness",1,8,"creative thinking","tier1",FALSE,2,"creative imagination; creative thinking",FALSE,FALSE
+"cross_fp16","431PTQ","MR2","Emotional",0.611,18,"anxiety","tier1",FALSE,6,"anxiety medication; anxiety; trait class; anxiety state; anxiety disorders; mental substance",FALSE,FALSE
+"cross_fp16","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_int8","431PTQ","MR2","Emotional",0.611,18,"anxiety","tier1",FALSE,5,"anxiety medication; anxiety; trait class; anxiety disorders; mental substance",FALSE,FALSE
+"cross_int8","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_rerun","431PTQ","MR2","Emotional",0.611,18,"anxiety","tier1",FALSE,6,"anxiety medication; anxiety; trait class; anxiety state; anxiety disorders; mental substance",FALSE,FALSE
+"cross_rerun","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_nokeeper","431PTQ","MR2","Emotional",0.611,18,"anxiety","tier1",FALSE,6,"anxiety medication; anxiety; trait class; anxiety state; anxiety disorders; mental substance",FALSE,FALSE
+"cross_nokeeper","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_inst2","431PTQ","MR2","Emotional",0.611,18,"anxiety medication","top1",FALSE,6,"anxiety medication; psychological archetype; anxiety state; trait class; anxiety dream; mental substance",FALSE,FALSE
+"cross_inst2","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_inst3","431PTQ","MR2","Emotional",0.611,18,"trait class","top1",FALSE,4,"trait class; psychological archetype; anxiety medication; mental substance",FALSE,FALSE
+"cross_inst3","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"cross_inst4","431PTQ","MR2","Emotional",0.611,18,"anxiety disorders","tier1",FALSE,7,"anxiety medication; anxiety dream; psychological archetype; trait class; anxiety state; mental substance; anxiety disorders",FALSE,FALSE
+"cross_inst4","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,2,"procrastination; academic program",TRUE,TRUE
+"qwen_fp16","431PTQ","MR2","Emotional",0.611,18,"trait anxiety","top1",FALSE,2,"trait anxiety; status anxiety",FALSE,FALSE
+"qwen_fp16","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"qwen_int8","431PTQ","MR2","Emotional",0.611,18,"trait anxiety","top1",FALSE,2,"trait anxiety; status anxiety",FALSE,FALSE
+"qwen_int8","431PTQ","MR1","Behavioral",0.9,10,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"explore_cross","431PTQ","MR1","Behavioral",0.571,28,"procrastination","tier1",FALSE,1,"procrastination",TRUE,TRUE
+"explore_cross","431PTQ","MR2","Behavioral",0.923,13,"academic program","tier1",TRUE,2,"procrastination; academic program",FALSE,TRUE
+"explore_qwen","431PTQ","MR1","Behavioral",0.571,28,"procrastination","tier1",FALSE,2,"academic procrastination; procrastination",TRUE,TRUE
+"explore_qwen","431PTQ","MR2","Behavioral",0.923,13,"sleep procrastination","top1",TRUE,2,"procrastination; sleep procrastination",FALSE,TRUE
+"cross_fp16","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,2,"gender role reversal; economic emigration",FALSE,FALSE
+"cross_fp16","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,2,"tribal mask; disloyalty",TRUE,TRUE
+"cross_fp16","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,1,"moral dissonance",FALSE,FALSE
+"cross_fp16","MFQ","MR1","Fairness/Reciprocity",0.6,5,"unfairness","tier1",FALSE,3,"perceived discrimination; emotional insecurity; unfairness",TRUE,TRUE
+"cross_fp16","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,4,"compassionate release; empathic design; compassionate use trial; compassion",TRUE,TRUE
+"cross_int8","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,2,"gender role reversal; economic emigration",FALSE,FALSE
+"cross_int8","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,2,"tribal mask; disloyalty",TRUE,TRUE
+"cross_int8","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,1,"moral dissonance",FALSE,FALSE
+"cross_int8","MFQ","MR1","Fairness/Reciprocity",0.6,5,"perceived discrimination","top1",FALSE,2,"perceived discrimination; emotional insecurity",FALSE,FALSE
+"cross_int8","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,4,"compassionate release; empathic design; compassionate use trial; compassion",TRUE,TRUE
+"cross_rerun","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,2,"gender role reversal; economic emigration",FALSE,FALSE
+"cross_rerun","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,2,"tribal mask; disloyalty",TRUE,TRUE
+"cross_rerun","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,1,"moral dissonance",FALSE,FALSE
+"cross_rerun","MFQ","MR1","Fairness/Reciprocity",0.6,5,"unfairness","tier1",FALSE,3,"perceived discrimination; emotional insecurity; unfairness",TRUE,TRUE
+"cross_rerun","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,4,"compassionate release; empathic design; compassionate use trial; compassion",TRUE,TRUE
+"cross_nokeeper","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,2,"gender role reversal; economic emigration",FALSE,FALSE
+"cross_nokeeper","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,2,"tribal mask; disloyalty",TRUE,TRUE
+"cross_nokeeper","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,1,"moral dissonance",FALSE,FALSE
+"cross_nokeeper","MFQ","MR1","Fairness/Reciprocity",0.6,5,"unfairness","tier1",FALSE,3,"perceived discrimination; emotional insecurity; unfairness",TRUE,TRUE
+"cross_nokeeper","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,4,"compassionate release; empathic design; compassionate use trial; compassion",TRUE,TRUE
+"cross_inst2","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,4,"gender role reversal; political establishment; ethic whole value; theory of justification",FALSE,FALSE
+"cross_inst2","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,4,"tribal mask; loyola chicago; appeal to majority; disloyalty",TRUE,TRUE
+"cross_inst2","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,2,"moral dissonance; religious television station",FALSE,FALSE
+"cross_inst2","MFQ","MR1","Fairness/Reciprocity",0.6,5,"perceived discrimination","top1",FALSE,2,"perceived discrimination; emotional insecurity",FALSE,FALSE
+"cross_inst2","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,3,"empathic design; compassionate use trial; compassion",TRUE,TRUE
+"cross_inst3","MFQ","MR3","Fairness/Reciprocity",0.333,9,"ethic whole value","top1",FALSE,4,"ethic whole value; gender role reversal; theory of justification; social equilibrium",FALSE,FALSE
+"cross_inst3","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,3,"loyola chicago; tribal mask; disloyalty",TRUE,TRUE
+"cross_inst3","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,2,"moral dissonance; sexual disorder",FALSE,FALSE
+"cross_inst3","MFQ","MR1","Fairness/Reciprocity",0.6,5,"unfairness","tier1",FALSE,3,"perceived discrimination; emotional insecurity; unfairness",TRUE,TRUE
+"cross_inst3","MFQ","MR5","Harm/Care",1,3,"empathy","tier1",FALSE,2,"empathic design; empathy",FALSE,FALSE
+"cross_inst4","MFQ","MR3","Fairness/Reciprocity",0.333,9,"gender role reversal","top1",FALSE,3,"gender role reversal; gender empowerment; economic emigration",FALSE,FALSE
+"cross_inst4","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,3,"tribal mask; loyola chicago; disloyalty",TRUE,TRUE
+"cross_inst4","MFQ","MR2","Purity/Sanctity",0.833,6,"moral dissonance","top1",FALSE,2,"moral dissonance; religious television station",FALSE,FALSE
+"cross_inst4","MFQ","MR1","Fairness/Reciprocity",0.6,5,"perceived discrimination","top1",FALSE,2,"perceived discrimination; victimless crime",FALSE,FALSE
+"cross_inst4","MFQ","MR5","Harm/Care",1,3,"empathy","tier1",FALSE,3,"empathic design; compassionate use trial; empathy",FALSE,FALSE
+"qwen_fp16","MFQ","MR3","Fairness/Reciprocity",0.333,9,"justice as fairness","top1",FALSE,2,"justice as fairness; social egalitarianism",FALSE,FALSE
+"qwen_fp16","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,3,"loyalty test; disloyalty; tribal loyalty",TRUE,TRUE
+"qwen_fp16","MFQ","MR2","Purity/Sanctity",0.833,6,"squeamishness","tier1",FALSE,3,"sexual disgust; moral disgust; squeamishness",FALSE,TRUE
+"qwen_fp16","MFQ","MR1","Fairness/Reciprocity",0.6,5,"exposure to discrimination","top1",FALSE,2,"exposure to discrimination; symptoms of victimization",FALSE,FALSE
+"qwen_fp16","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,3,"compassion in spirituality; empathic concern; compassion",TRUE,TRUE
+"qwen_int8","MFQ","MR3","Fairness/Reciprocity",0.333,9,"justice as fairness","top1",FALSE,2,"justice as fairness; social egalitarianism",FALSE,FALSE
+"qwen_int8","MFQ","MR4","Ingroup/Loyalty",0.571,7,"disloyalty","tier1",FALSE,3,"loyalty test; disloyalty; tribal loyalty",TRUE,TRUE
+"qwen_int8","MFQ","MR2","Purity/Sanctity",0.833,6,"squeamishness","tier1",FALSE,3,"sexual disgust; moral disgust; squeamishness",FALSE,TRUE
+"qwen_int8","MFQ","MR1","Fairness/Reciprocity",0.6,5,"exposure to discrimination","top1",FALSE,2,"exposure to discrimination; symptoms of victimization",FALSE,FALSE
+"qwen_int8","MFQ","MR5","Harm/Care",1,3,"compassion","tier1",FALSE,3,"compassion in spirituality; empathic concern; compassion",TRUE,TRUE
+"explore_cross","MFQ","MR1","Authority/Respect",0.2,15,"betrayal","tier1",FALSE,4,"betrothed numbers; perpetrator walk; betrayal; relationship violence",FALSE,FALSE
+"explore_cross","MFQ","MR2","Authority/Respect",0.214,14,"value contribution","top1",FALSE,5,"value contribution; social venture; ethic whole value; gender role reversal; gender empowerment",FALSE,FALSE
+"explore_cross","MFQ","MR3","Purity/Sanctity",1,1,"domains of life","top1",FALSE,1,"domains of life",FALSE,FALSE
+"explore_qwen","MFQ","MR1","Authority/Respect",0.2,15,"antisocial personality trait","top1",FALSE,3,"antisocial personality trait; trauma symptom inventory; victimization symptoms",FALSE,FALSE
+"explore_qwen","MFQ","MR2","Authority/Respect",0.214,14,"justice as fairness","top1",FALSE,3,"justice as fairness; virtue of justice; psychology of morality",FALSE,FALSE
+"explore_qwen","MFQ","MR3","Purity/Sanctity",1,1,"moral disgust","top1",FALSE,1,"moral disgust",TRUE,TRUE
+"cross_fp16","BAI","MR1","Anxiety",1,21,"anxiety","tier1",FALSE,4,"anxiety state; trait class; anxiety; fear of feces",TRUE,TRUE
+"cross_int8","BAI","MR1","Anxiety",1,21,"anxiety","tier1",FALSE,4,"anxiety state; trait class; anxiety; fear of feces",TRUE,TRUE
+"cross_rerun","BAI","MR1","Anxiety",1,21,"anxiety","tier1",FALSE,4,"anxiety state; trait class; anxiety; fear of feces",TRUE,TRUE
+"cross_nokeeper","BAI","MR1","Anxiety",1,21,"anxiety","tier1",FALSE,4,"anxiety state; trait class; anxiety; fear of feces",TRUE,TRUE
+"cross_inst2","BAI","MR1","Anxiety",1,21,"anxiety state","top1",FALSE,4,"anxiety state; trait class; fear of feces; anxiety",FALSE,TRUE
+"cross_inst3","BAI","MR1","Anxiety",1,21,"trait class","top1",FALSE,3,"trait class; anxiety state; fear of feces",FALSE,FALSE
+"cross_inst4","BAI","MR1","Anxiety",1,21,"anxiety","tier1",FALSE,4,"anxiety state; trait class; fear of feces; anxiety",TRUE,TRUE
+"qwen_fp16","BAI","MR1","Anxiety",1,21,"trait anxiety","top1",FALSE,2,"trait anxiety; anxiety sensitivity",FALSE,FALSE
+"qwen_int8","BAI","MR1","Anxiety",1,21,"trait anxiety","top1",FALSE,2,"trait anxiety; anxiety sensitivity",FALSE,FALSE
+"explore_cross","BAI","MR2","Anxiety",1,11,"fear","tier1",FALSE,2,"fear; fear of falling",FALSE,FALSE
+"explore_cross","BAI","MR1","Anxiety",1,10,"psychosomatic disorders","tier1",FALSE,2,"somatic theory; psychosomatic disorders",FALSE,FALSE
+"explore_qwen","BAI","MR2","Anxiety",1,11,"fearfulness","tier1",FALSE,4,"fearfulness; fear of fear; death anxiety; apprehension test",FALSE,FALSE
+"explore_qwen","BAI","MR1","Anxiety",1,10,"pressure sensation","tier1",FALSE,3,"physical sensation; choking sensation; pressure sensation",FALSE,FALSE
+"cross_fp16","TMA","MR1","Anxiety",1,50,"neuroticism","tier1",FALSE,3,"neuroticism trait; anxiety state; neuroticism",FALSE,FALSE
+"cross_int8","TMA","MR1","Anxiety",1,50,"neuroticism","tier1",FALSE,3,"neuroticism trait; anxiety state; neuroticism",FALSE,FALSE
+"cross_rerun","TMA","MR1","Anxiety",1,50,"neuroticism","tier1",FALSE,3,"neuroticism trait; anxiety state; neuroticism",FALSE,FALSE
+"cross_nokeeper","TMA","MR1","Anxiety",1,50,"neuroticism","tier1",FALSE,3,"neuroticism trait; anxiety state; neuroticism",FALSE,FALSE
+"cross_inst2","TMA","MR1","Anxiety",1,50,"anxiety","tier1",FALSE,4,"anxiety state; trait class; neuroticism trait; anxiety",TRUE,TRUE
+"cross_inst3","TMA","MR1","Anxiety",1,50,"trait class","top1",FALSE,2,"trait class; neuroticism trait",FALSE,FALSE
+"cross_inst4","TMA","MR1","Anxiety",1,50,"anxiety state","top1",FALSE,3,"anxiety state; trait class; neuroticism trait",FALSE,FALSE
+"qwen_fp16","TMA","MR1","Anxiety",1,50,"neuroticism trait","top1",FALSE,3,"neuroticism trait; psychological construct; trait anxiety",FALSE,FALSE
+"qwen_int8","TMA","MR1","Anxiety",1,50,"neuroticism trait","top1",FALSE,3,"neuroticism trait; psychological construct; trait anxiety",FALSE,FALSE
+"explore_cross","TMA","MR3","Anxiety",1,19,"anxiety","tier1",FALSE,3,"anxiety; anxiety disorders; anxiety reaction",TRUE,TRUE
+"explore_cross","TMA","MR2","Anxiety",1,12,"physical contact","tier1",FALSE,2,"physical work; physical contact",FALSE,FALSE
+"explore_cross","TMA","MR4","Anxiety",1,8,"self-worth","tier1",FALSE,3,"self-worth; low side; hopelessness",FALSE,FALSE
+"explore_cross","TMA","MR1","Anxiety",1,7,"shyness","tier1",FALSE,2,"fear of books; shyness",FALSE,FALSE
+"explore_cross","TMA","MR5","Anxiety",1,4,"gastrointestinal conditions","top1",FALSE,2,"gastrointestinal conditions; gastrointestinal effect",FALSE,FALSE
+"explore_qwen","TMA","MR3","Anxiety",1,19,"anxiety disorder","tier1",FALSE,3,"sleep anxiety; anxiety dreams; anxiety disorder",FALSE,FALSE
+"explore_qwen","TMA","MR2","Anxiety",1,12,"calmness","tier1",FALSE,3,"emotional stability; calmness; social confidence",FALSE,FALSE
+"explore_qwen","TMA","MR4","Anxiety",1,8,"despondency","tier1",FALSE,3,"low self-esteem; learned hopelessness; despondency",FALSE,FALSE
+"explore_qwen","TMA","MR1","Anxiety",1,7,"embarrassment","tier1",FALSE,3,"fear of blushing; empathic embarrassment; embarrassment",FALSE,FALSE
+"explore_qwen","TMA","MR5","Anxiety",1,4,"gastrointestinal disorder","tier1",FALSE,5,"intestinal disorder; digestive disorder; digestive health; intestinal motility; gastrointestinal disorder",FALSE,FALSE
+"cross_fp16","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_int8","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,3,"depression treatment; depression; psychological disturbance",TRUE,TRUE
+"cross_rerun","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_nokeeper","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_inst2","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,4,"depression treatment; depressor muscle; depression pill; psychological disturbance",FALSE,FALSE
+"cross_inst3","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depression pill; decreased perfusion",FALSE,FALSE
+"cross_inst4","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depressor muscle; depression storage capacity",FALSE,FALSE
+"qwen_fp16","BDI","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
+"qwen_int8","BDI","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
+"explore_cross","BDI","MR2","Depression",1,15,"neuroticism","tier1",FALSE,6,"neuroticism trait; neurotic anxiety state; anxiety state; guilt by association; consciousness of status; neuroticism",FALSE,FALSE
+"explore_cross","BDI","MR1","Depression",1,6,"reduced sodium salt","top1",FALSE,3,"reduced sodium salt; low social class; decreased locomotion",FALSE,FALSE
+"explore_qwen","BDI","MR2","Depression",1,15,"neuroticism","tier1",FALSE,3,"neuroticism trait; psychological construct; neuroticism",FALSE,FALSE
+"explore_qwen","BDI","MR1","Depression",1,6,"low sexual interest","top1",FALSE,1,"low sexual interest",FALSE,FALSE
+"cross_fp16","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_fp16","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_fp16","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_fp16","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_fp16","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_int8","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_int8","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_int8","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_int8","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_int8","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,4,"dishonesty; honesty; ethical conflict; risk taking",TRUE,TRUE
+"cross_rerun","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_rerun","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_rerun","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_rerun","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_rerun","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_nokeeper","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_nokeeper","EPQ","MR1","Sociability",0.444,18,"extroversion","tier1",FALSE,2,"intrusion countermeasures electronics; extroversion",FALSE,FALSE
+"cross_nokeeper","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_nokeeper","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_nokeeper","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_inst2","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; health assessment; anxiety reaction",FALSE,FALSE
+"cross_inst2","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social affinity",FALSE,FALSE
+"cross_inst2","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_inst2","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst2","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; risk taking; honesty",TRUE,TRUE
+"cross_inst3","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; neurotic anxiety state; anxiety reaction",FALSE,FALSE
+"cross_inst3","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_inst3","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_inst3","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst3","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"risk taking; honesty; dishonesty",TRUE,TRUE
+"cross_inst4","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,2,"anxiety syndromes; anxiety reaction",FALSE,FALSE
+"cross_inst4","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_inst4","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,2,"extroversion; social pleasure",TRUE,TRUE
+"cross_inst4","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst4","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"qwen_fp16","EPQ","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
+"qwen_fp16","EPQ","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
+"qwen_fp16","EPQ","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
+"qwen_fp16","EPQ","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
+"qwen_fp16","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
+"qwen_int8","EPQ","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
+"qwen_int8","EPQ","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
+"qwen_int8","EPQ","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
+"qwen_int8","EPQ","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
+"qwen_int8","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
+"explore_cross","EPQ","MR8","Neuroticism",0.833,24,"anxiety reaction","tier1",FALSE,2,"health assessment; anxiety reaction",FALSE,FALSE
+"explore_cross","EPQ","MR7","Extraversion",0.462,13,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"explore_cross","EPQ","MR6","Extraversion",0.5,8,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"explore_cross","EPQ","MR3","Extraversion",0.5,8,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social informational influence",FALSE,FALSE
+"explore_cross","EPQ","MR2","Extraversion",0.375,8,"hostility","tier1",FALSE,3,"hostile aggression; cruel lag; hostility",FALSE,FALSE
+"explore_cross","EPQ","MR4","Sociability",0.429,7,"shyness","tier1",FALSE,2,"social signal; shyness",FALSE,FALSE
+"explore_cross","EPQ","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
+"explore_cross","EPQ","MR1","Extraversion",0.333,3,"sensational literature","top1",FALSE,2,"sensational literature; risk sharing",FALSE,FALSE
+"explore_cross","EPQ","MR5","Lie",1,1,"secrecy","tier1",FALSE,2,"forbidden topic; secrecy",FALSE,FALSE
+"explore_qwen","EPQ","MR8","Neuroticism",0.833,24,"health anxiety","top1",FALSE,3,"health anxiety; psychosomatic assessment; major depressive inventory",FALSE,FALSE
+"explore_qwen","EPQ","MR7","Extraversion",0.462,13,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental processing speed",FALSE,FALSE
+"explore_qwen","EPQ","MR6","Extraversion",0.5,8,"conviviality","tier1",FALSE,3,"social pleasure; party motivator; conviviality",FALSE,FALSE
+"explore_qwen","EPQ","MR3","Extraversion",0.5,8,"love of books","top1",FALSE,1,"love of books",FALSE,FALSE
+"explore_qwen","EPQ","MR2","Extraversion",0.375,8,"hostile aggression","top1",FALSE,2,"hostile aggression; hostile behavior",FALSE,FALSE
+"explore_qwen","EPQ","MR4","Sociability",0.429,7,"social phobia","tier1",FALSE,2,"social shyness; social phobia",FALSE,FALSE
+"explore_qwen","EPQ","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
+"explore_qwen","EPQ","MR1","Extraversion",0.333,3,"daring","tier1",FALSE,4,"test of courage; thrill seeking; moral courage; daring",FALSE,FALSE
+"explore_qwen","EPQ","MR5","Lie",1,1,"intrusive sexual thoughts","top1",FALSE,1,"intrusive sexual thoughts",FALSE,FALSE
+"cross_fp16","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE
+"cross_fp16","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; military caste",FALSE,FALSE
+"cross_int8","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE
+"cross_int8","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; military caste",FALSE,FALSE
+"cross_rerun","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE
+"cross_rerun","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; military caste",FALSE,FALSE
+"cross_nokeeper","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE
+"cross_nokeeper","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; military caste",FALSE,FALSE
+"cross_inst2","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,5,"opera basic topics; excitement seeking; sensational literature; novelty seeking behavior; personality transfer",FALSE,FALSE
+"cross_inst2","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; interest in gambling",FALSE,FALSE
+"cross_inst3","OSRI","MR2","Femininity",0.5,20,"excitement seeking","top1",FALSE,5,"excitement seeking; sensational literature; opera basic topics; psychological extraversion; psychological trauma",FALSE,FALSE
+"cross_inst3","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; interest in gambling",FALSE,FALSE
+"cross_inst4","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,5,"opera basic topics; excitement seeking; sensational literature; psychological extraversion; personality transfer",FALSE,FALSE
+"cross_inst4","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"militarism in japan; interest; interest in gambling",FALSE,FALSE
+"qwen_fp16","OSRI","MR2","Femininity",0.5,20,"psychological construct","top1",FALSE,1,"psychological construct",FALSE,FALSE
+"qwen_fp16","OSRI","MR1","Masculinity",0.75,12,"psychology of war","top1",FALSE,3,"psychology of war; military psychology; interest in sports",FALSE,FALSE
+"qwen_int8","OSRI","MR2","Femininity",0.5,20,"psychological construct","top1",FALSE,1,"psychological construct",FALSE,FALSE
+"qwen_int8","OSRI","MR1","Masculinity",0.75,12,"psychology of war","top1",FALSE,3,"psychology of war; military psychology; interest in sports",FALSE,FALSE
+"explore_cross","OSRI","MR2","Masculinity",0.769,13,"interest","tier1",FALSE,4,"excitement seeking; interest in gambling; sensational literature; interest",FALSE,FALSE
+"explore_cross","OSRI","MR1","Femininity",1,7,"self-love","tier1",FALSE,5,"self compassion; self catering; kindness walls; loving relationship; self-love",FALSE,FALSE
+"explore_qwen","OSRI","MR2","Masculinity",0.769,13,"sensation seeking","top1",FALSE,5,"sensation seeking; excitement seeking; psychological excitement; psychology of war; military psychology",FALSE,FALSE
+"explore_qwen","OSRI","MR1","Femininity",1,7,"embedded generosity","top1",FALSE,2,"embedded generosity; self-expression values",FALSE,FALSE
+"cross_fp16","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"body schema illusion; mental content; somatic theory; depersonalisation neurosis",FALSE,FALSE
+"cross_fp16","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; interpersonal contact; emotional computing; willingness to pay",FALSE,FALSE
+"cross_fp16","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; light ergonomics; reception area",FALSE,FALSE
+"cross_int8","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"body schema illusion; mental content; somatic theory; depersonalisation neurosis",FALSE,FALSE
+"cross_int8","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; interpersonal contact; emotional computing; willingness to pay",FALSE,FALSE
+"cross_int8","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; light ergonomics; reception area",FALSE,FALSE
+"cross_rerun","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"body schema illusion; mental content; somatic theory; depersonalisation neurosis",FALSE,FALSE
+"cross_rerun","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; interpersonal contact; emotional computing; willingness to pay",FALSE,FALSE
+"cross_rerun","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; light ergonomics; reception area",FALSE,FALSE
+"cross_nokeeper","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"body schema illusion; mental content; somatic theory; depersonalisation neurosis",FALSE,FALSE
+"cross_nokeeper","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; interpersonal contact; emotional computing; willingness to pay",FALSE,FALSE
+"cross_nokeeper","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; light ergonomics; reception area",FALSE,FALSE
+"cross_inst2","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"body schema illusion; medicare donut hole; mental content; depersonalisation neurosis",FALSE,FALSE
+"cross_inst2","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; emotional computing; interpersonal contact; willingness to pay",FALSE,FALSE
+"cross_inst2","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; general internal medicine; reception area",FALSE,FALSE
+"cross_inst3","TAS-20","MR2","DIF",1,7,"confusion","tier1",FALSE,4,"mental content; medicare donut hole; confusion; identity construction",FALSE,FALSE
+"cross_inst3","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,2,"emotional investment; emotional computing",FALSE,FALSE
+"cross_inst3","TAS-20","MR3","EOT",1,3,"recreational riding","top1",FALSE,3,"recreational riding; popular errors; light ergonomics",FALSE,FALSE
+"cross_inst4","TAS-20","MR2","DIF",1,7,"depersonalisation neurosis","tier1",FALSE,4,"depersonalisation neurosis; body schema illusion; medicare donut hole; mental content",FALSE,FALSE
+"cross_inst4","TAS-20","MR1","DDF",0.5,10,"emotional investment","top1",FALSE,4,"emotional investment; emotional computing; interpersonal contact; willingness to pay",FALSE,FALSE
+"cross_inst4","TAS-20","MR3","EOT",1,3,"popular errors","top1",FALSE,3,"popular errors; light ergonomics; reception area",FALSE,FALSE
+"qwen_fp16","TAS-20","MR2","DIF",1,7,"mixed affective state","top1",FALSE,3,"mixed affective state; bodily distress disorder; emotional instability disorder",FALSE,FALSE
+"qwen_fp16","TAS-20","MR1","DDF",0.5,10,"emotional competence","top1",FALSE,2,"emotional competence; emotional intimacy",FALSE,FALSE
+"qwen_fp16","TAS-20","MR3","EOT",1,3,"television consumption","top1",FALSE,2,"television consumption; reception theory",FALSE,FALSE
+"qwen_int8","TAS-20","MR2","DIF",1,7,"mixed affective state","top1",FALSE,3,"mixed affective state; bodily distress disorder; emotional instability disorder",FALSE,FALSE
+"qwen_int8","TAS-20","MR1","DDF",0.5,10,"emotional competence","top1",FALSE,2,"emotional competence; emotional intimacy",FALSE,FALSE
+"qwen_int8","TAS-20","MR3","EOT",1,3,"television consumption","top1",FALSE,2,"television consumption; reception theory",FALSE,FALSE
+"explore_cross","TAS-20","MR1","DIF",0.467,15,"emotional sensitivity","top1",FALSE,4,"emotional sensitivity; emotional relation; emotional dissonance; disturbed blood flow",FALSE,FALSE
+"explore_cross","TAS-20","MR2","EOT",1,5,"need for power","top1",FALSE,2,"need for power; popular errors",FALSE,FALSE
+"explore_qwen","TAS-20","MR1","DIF",0.467,15,"emotional self evaluation","top1",FALSE,2,"emotional self evaluation; emotional spectrum disorder",FALSE,FALSE
+"explore_qwen","TAS-20","MR2","EOT",1,5,"cognitive style","top1",FALSE,3,"cognitive style; television consumption; analytic thinking",FALSE,FALSE
+"cross_fp16","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,2,"attentional focusing; focused attention",FALSE,FALSE
+"cross_fp16","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social companion system; social emotional agnosia; social signal",FALSE,FALSE
+"cross_fp16","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"cross_fp16","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,2,"imagination inflation; imagination",TRUE,TRUE
+"cross_fp16","AQ-50","MR5","Social_Skills",0.667,3,"extracurricular activity","tier1",FALSE,3,"intrusion countermeasures electronics; cultural adaptation; extracurricular activity",FALSE,FALSE
+"cross_int8","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,2,"attentional focusing; focused attention",FALSE,FALSE
+"cross_int8","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social companion system; social emotional agnosia; social signal",FALSE,FALSE
+"cross_int8","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"cross_int8","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,2,"imagination inflation; imagination",TRUE,TRUE
+"cross_int8","AQ-50","MR5","Social_Skills",0.667,3,"extracurricular activity","tier1",FALSE,3,"intrusion countermeasures electronics; cultural adaptation; extracurricular activity",FALSE,FALSE
+"cross_rerun","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,2,"attentional focusing; focused attention",FALSE,FALSE
+"cross_rerun","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social companion system; social emotional agnosia; social signal",FALSE,FALSE
+"cross_rerun","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"cross_rerun","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,2,"imagination inflation; imagination",TRUE,TRUE
+"cross_rerun","AQ-50","MR5","Social_Skills",0.667,3,"extracurricular activity","tier1",FALSE,3,"intrusion countermeasures electronics; cultural adaptation; extracurricular activity",FALSE,FALSE
+"cross_nokeeper","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,2,"attentional focusing; focused attention",FALSE,FALSE
+"cross_nokeeper","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social companion system; social emotional agnosia; social signal",FALSE,FALSE
+"cross_nokeeper","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"cross_nokeeper","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,2,"imagination inflation; imagination",TRUE,TRUE
+"cross_nokeeper","AQ-50","MR5","Social_Skills",0.667,3,"extracurricular activity","tier1",FALSE,3,"intrusion countermeasures electronics; cultural adaptation; extracurricular activity",FALSE,FALSE
+"cross_inst2","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,3,"attentional focusing; focused attention; attention to orders",FALSE,FALSE
+"cross_inst2","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social companion system; social inequalities; double ended control",FALSE,FALSE
+"cross_inst2","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,3,"social confidence; social interest; sociability",FALSE,FALSE
+"cross_inst2","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,3,"imagination inflation; creative impulse; imagination",TRUE,TRUE
+"cross_inst2","AQ-50","MR5","Social_Skills",0.667,3,"leisure activity","top1",FALSE,2,"leisure activity; intrusion countermeasures electronics",FALSE,FALSE
+"cross_inst3","AQ-50","MR4","Attention_Switching",0.4,20,"focused attention","top1",FALSE,4,"focused attention; attentional focusing; attention to orders; obsessiveness",FALSE,FALSE
+"cross_inst3","AQ-50","MR2","Communication",0.385,13,"social inequalities","top1",FALSE,4,"social inequalities; social degeneracy; social emotional agnosia; double ended control",FALSE,FALSE
+"cross_inst3","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social force; social interest; sociability",FALSE,FALSE
+"cross_inst3","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,2,"imagination inflation; imagination",TRUE,TRUE
+"cross_inst3","AQ-50","MR5","Social_Skills",0.667,3,"extroversion","tier1",FALSE,4,"intrusion countermeasures electronics; social preferences; leisure activity; extroversion",FALSE,FALSE
+"cross_inst4","AQ-50","MR4","Attention_Switching",0.4,20,"attentional focusing","top1",FALSE,3,"attentional focusing; focused attention; attention to orders",FALSE,FALSE
+"cross_inst4","AQ-50","MR2","Communication",0.385,13,"social degeneracy","top1",FALSE,4,"social degeneracy; social companion system; social signal; double ended control",FALSE,FALSE
+"cross_inst4","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"cross_inst4","AQ-50","MR3","Imagination",0.714,7,"imagination","tier1",FALSE,4,"imagination inflation; embodied intelligence; creative impulse; imagination",TRUE,TRUE
+"cross_inst4","AQ-50","MR5","Social_Skills",0.667,3,"leisure activity","top1",FALSE,3,"leisure activity; cultural adaptation; intrusion countermeasures electronics",FALSE,FALSE
+"qwen_fp16","AQ-50","MR4","Attention_Switching",0.4,20,"perceptual vigilance","top1",FALSE,3,"perceptual vigilance; selective attention; focused attention",FALSE,FALSE
+"qwen_fp16","AQ-50","MR2","Communication",0.385,13,"social ineptitude","top1",FALSE,2,"social ineptitude; mind blindness",FALSE,FALSE
+"qwen_fp16","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,2,"social fluency; sociability",FALSE,FALSE
+"qwen_fp16","AQ-50","MR3","Imagination",0.714,7,"imaginary play","top1",FALSE,2,"imaginary play; visual imagery",FALSE,FALSE
+"qwen_fp16","AQ-50","MR5","Social_Skills",0.667,3,"social preferences","top1",FALSE,3,"social preferences; psychology introversion; artistic interests",FALSE,FALSE
+"qwen_int8","AQ-50","MR4","Attention_Switching",0.4,20,"perceptual vigilance","top1",FALSE,3,"perceptual vigilance; selective attention; focused attention",FALSE,FALSE
+"qwen_int8","AQ-50","MR2","Communication",0.385,13,"social ineptitude","top1",FALSE,2,"social ineptitude; mind blindness",FALSE,FALSE
+"qwen_int8","AQ-50","MR1","Social_Skills",0.571,7,"sociability","tier1",FALSE,2,"social fluency; sociability",FALSE,FALSE
+"qwen_int8","AQ-50","MR3","Imagination",0.714,7,"imaginary play","top1",FALSE,2,"imaginary play; visual imagery",FALSE,FALSE
+"qwen_int8","AQ-50","MR5","Social_Skills",0.667,3,"social preferences","top1",FALSE,3,"social preferences; psychology introversion; artistic interests",FALSE,FALSE
+"explore_cross","AQ-50","MR3","Communication",0.385,13,"social degeneracy","top1",FALSE,5,"social degeneracy; social imperialism; social emotional agnosia; social companion system; social signal",FALSE,FALSE
+"explore_cross","AQ-50","MR5","Attention_to_Detail",0.667,12,"attentional focusing","top1",FALSE,3,"attentional focusing; perch pole; intellectual deficit",FALSE,FALSE
+"explore_cross","AQ-50","MR6","Social_Skills",0.571,7,"sociability","tier1",FALSE,4,"social confidence; social interest; social boldness; sociability",FALSE,FALSE
+"explore_cross","AQ-50","MR4","Imagination",0.625,8,"imagination","tier1",FALSE,3,"imagination; imagination inflation; mental images",TRUE,TRUE
+"explore_cross","AQ-50","MR1","Attention_Switching",0.667,3,"restlessness","tier1",FALSE,3,"cognitive perseveration; restlessness; attention theft",FALSE,FALSE
+"explore_cross","AQ-50","MR2","Attention_Switching",0.571,7,"excitement seeking","top1",FALSE,3,"excitement seeking; novelty shop; endogenous regeneration",FALSE,FALSE
+"explore_qwen","AQ-50","MR3","Communication",0.385,13,"social ineptitude","top1",FALSE,2,"social ineptitude; mind blindness",FALSE,FALSE
+"explore_qwen","AQ-50","MR5","Attention_to_Detail",0.667,12,"selective attention","top1",FALSE,4,"selective attention; perceptual vigilance; attention to detail; gestalt perception",FALSE,TRUE
+"explore_qwen","AQ-50","MR6","Social_Skills",0.571,7,"sociability","tier1",FALSE,2,"sociability; social fluency",FALSE,FALSE
+"explore_qwen","AQ-50","MR4","Imagination",0.625,8,"imaginary play","top1",FALSE,2,"imaginary play; visual imagery",FALSE,FALSE
+"explore_qwen","AQ-50","MR1","Attention_Switching",0.667,3,"stress resilience","top1",FALSE,3,"stress resilience; attention switching; emotional stability",FALSE,TRUE
+"explore_qwen","AQ-50","MR2","Attention_Switching",0.571,7,"openness to experience","top1",FALSE,3,"openness to experience; individual preference; conscientiousness",FALSE,FALSE

@@ -25,8 +25,11 @@ Eleven psychometric scales (411 items) are analyzed with the
 3. **Evaluation.** Labels are scored against a frozen ground-truth alias
    table (`data/gt_aliases.csv`) by deterministic word-family matching.
    The alias table was committed to version control before these analyses
-   were executed; every alias carries the derivation rule (R1–R5) that
-   admitted it, and no alias was added after any label was seen. The
+   were executed; every alias carries the derivation rule that admitted
+   it (R1 documented name, R2 morphological/orthographic variant, R4
+   reverse-pole antonym, R5 instrument-level construct; the provisional
+   R3 was folded into R1/R2 before the table was frozen and appears
+   nowhere), and no alias was added after any label was seen. The
    evaluation also audits alias *reachability*: a construct whose
    documented name is not lexicalized in the candidate pool (as any pool
    word or word family) can never be hit, a structural ceiling of the

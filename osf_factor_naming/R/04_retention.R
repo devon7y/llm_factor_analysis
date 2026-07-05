@@ -10,8 +10,10 @@
 
 source(file.path("R", "00_config.R"))
 
+# Fixed method list so the battery's output does not depend on which
+# optional packages happen to be installed (EGA, which needs EGAnet, is
+# therefore not part of the shipped battery).
 methods <- c("parallel", "kaiser", "TEFI", "EKC", "MAP")
-if (requireNamespace("EGAnet", quietly = TRUE)) methods <- c(methods, "EGA")
 
 out <- list()
 for (s in SCALES$scale) {
