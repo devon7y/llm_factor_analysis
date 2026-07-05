@@ -98,13 +98,23 @@ Requirements for this path: R (>= 4.1) with `semanticfa` (>= 0.2.0) and
 only to memory-map the candidate pools). The pools download automatically
 on first use (~10 GB from the semanticfa `pools-v1` release; keep
 `options(timeout = 7200)` from `R/00_config.R`). Expect roughly 10–20 GB
-of disk and well under an hour of CPU time after the pool download.
+of disk. We recommend 32 GB of RAM: pool retrieval processes 50,000-row
+blocks by default, which can exhaust a 16 GB machine. On smaller machines
+pass `block_size = 10000L` to the `sfa_name()` calls; retrieval scores
+are computed block-by-block and merged, so results are identical for any
+block size (it is purely a memory knob).
 
 `verify_reproduction.R` diffs your rerun against the frozen copies of the
 paper's outputs shipped under `reference/`. One analysis is GPU-only by
 design and is skipped automatically on CPU reruns (and excluded from the
 verification): stage 02's re-embedding determinism check, whose whole
-purpose is fresh GPU inference.
+purpose is fresh GPU inference. One further platform note: across linear-
+algebra backends (e.g., macOS Accelerate vs. the cluster's BLAS), every
+label, selection rule, and candidate set reproduces identically, but the
+factoring's MR index names can permute among factors that tie on explained
+variance, so a byte-level diff can differ in the `factor` field alone
+while the content matches. On a same-backend rerun the outputs are
+byte-identical.
 
 **Using the embeddings outside R.** The `embeddings/*.npz` files carry the
 same embeddings in NumPy form for non-R workflows: per scale, `*_items_*`
