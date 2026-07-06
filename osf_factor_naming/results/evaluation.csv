@@ -194,19 +194,19 @@
 "explore_qwen","TMA","MR4","Anxiety",1,8,"despondency","tier1",FALSE,3,"low self-esteem; learned hopelessness; despondency",FALSE,FALSE
 "explore_qwen","TMA","MR1","Anxiety",1,7,"embarrassment","tier1",FALSE,3,"fear of blushing; empathic embarrassment; embarrassment",FALSE,FALSE
 "explore_qwen","TMA","MR5","Anxiety",1,4,"gastrointestinal disorder","tier1",FALSE,5,"intestinal disorder; digestive disorder; digestive health; intestinal motility; gastrointestinal disorder",FALSE,FALSE
-"cross_fp16","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
-"cross_int8","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,3,"depression treatment; depression; psychological disturbance",TRUE,TRUE
-"cross_rerun","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
-"cross_nokeeper","BDI","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
-"cross_inst2","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,4,"depression treatment; depressor muscle; depression pill; psychological disturbance",FALSE,FALSE
-"cross_inst3","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depression pill; decreased perfusion",FALSE,FALSE
-"cross_inst4","BDI","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depressor muscle; depression storage capacity",FALSE,FALSE
-"qwen_fp16","BDI","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
-"qwen_int8","BDI","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
-"explore_cross","BDI","MR2","Depression",1,15,"neuroticism","tier1",FALSE,6,"neuroticism trait; neurotic anxiety state; anxiety state; guilt by association; consciousness of status; neuroticism",FALSE,FALSE
-"explore_cross","BDI","MR1","Depression",1,6,"reduced sodium salt","top1",FALSE,3,"reduced sodium salt; low social class; decreased locomotion",FALSE,FALSE
-"explore_qwen","BDI","MR2","Depression",1,15,"neuroticism","tier1",FALSE,3,"neuroticism trait; psychological construct; neuroticism",FALSE,FALSE
-"explore_qwen","BDI","MR1","Depression",1,6,"low sexual interest","top1",FALSE,1,"low sexual interest",FALSE,FALSE
+"cross_fp16","BDI-II","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_int8","BDI-II","MR1","Depression",1,21,"depression","tier1",FALSE,3,"depression treatment; depression; psychological disturbance",TRUE,TRUE
+"cross_rerun","BDI-II","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_nokeeper","BDI-II","MR1","Depression",1,21,"depression","tier1",FALSE,4,"depression treatment; depression; depressor muscle; psychological disturbance",TRUE,TRUE
+"cross_inst2","BDI-II","MR1","Depression",1,21,"depression treatment","top1",FALSE,4,"depression treatment; depressor muscle; depression pill; psychological disturbance",FALSE,FALSE
+"cross_inst3","BDI-II","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depression pill; decreased perfusion",FALSE,FALSE
+"cross_inst4","BDI-II","MR1","Depression",1,21,"depression treatment","top1",FALSE,3,"depression treatment; depressor muscle; depression storage capacity",FALSE,FALSE
+"qwen_fp16","BDI-II","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
+"qwen_int8","BDI-II","MR1","Depression",1,21,"major depressive inventory","top1",FALSE,2,"major depressive inventory; psychological construct",FALSE,FALSE
+"explore_cross","BDI-II","MR2","Depression",1,15,"neuroticism","tier1",FALSE,6,"neuroticism trait; neurotic anxiety state; anxiety state; guilt by association; consciousness of status; neuroticism",FALSE,FALSE
+"explore_cross","BDI-II","MR1","Depression",1,6,"reduced sodium salt","top1",FALSE,3,"reduced sodium salt; low social class; decreased locomotion",FALSE,FALSE
+"explore_qwen","BDI-II","MR2","Depression",1,15,"neuroticism","tier1",FALSE,3,"neuroticism trait; psychological construct; neuroticism",FALSE,FALSE
+"explore_qwen","BDI-II","MR1","Depression",1,6,"low sexual interest","top1",FALSE,1,"low sexual interest",FALSE,FALSE
 "cross_fp16","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
 "cross_fp16","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
 "cross_fp16","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE

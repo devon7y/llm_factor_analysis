@@ -43,7 +43,7 @@ BAI,Anxiety,anxiousness,R2 morphological variant
 TMA,Anxiety,anxiety,R1 documented construct + R5 instrument title (Taylor Manifest Anxiety Scale)
 TMA,Anxiety,manifest anxiety,R5 instrument title construct
 TMA,Anxiety,anxiousness,R2 morphological variant
-BDI,Depression,depression,R1 documented construct + R5 instrument title (Beck Depression Inventory)
+BDI-II,Depression,depression,R1 documented construct + R5 instrument title (Beck Depression Inventory-II)
 EPI,Extraversion,extraversion,R1 documented scale name
 EPI,Extraversion,extroversion,R2 orthographic variant
 EPI,Extraversion,introversion,R4 reverse-pole antonym
