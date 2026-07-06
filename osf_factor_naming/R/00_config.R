@@ -45,7 +45,7 @@ options(timeout = 7200)
 # presentation retains factors by embedding parallel analysis instead.
 SCALES <- data.frame(
   scale = c("DASS", "Big5", "431PTQ", "MFQ", "BAI", "TMA",
-            "BDI", "EPQ", "OSRI", "TAS-20", "AQ-50"),
+            "BDI", "EPI", "OSRI", "TAS-20", "AQ-50"),
   k_doc = c(3L, 5L, 2L, 5L, 1L, 1L, 1L, 5L, 2L, 3L, 5L),
   stringsAsFactors = FALSE
 )

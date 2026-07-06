@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR1",
+    "factor": "MR5",
     "label": "psychosomatic assessment",
     "rule": "top1",
     "n_items": 37,
@@ -8,7 +8,7 @@
     "candidates": "psychosomatic assessment"
   },
   {
-    "factor": "MR5",
+    "factor": "MR1",
     "label": "sociability",
     "rule": "tier1",
     "n_items": 18,

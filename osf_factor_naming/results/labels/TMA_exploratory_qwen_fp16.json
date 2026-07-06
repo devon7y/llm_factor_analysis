@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR1",
+    "factor": "MR3",
     "label": "anxiety disorder",
     "rule": "tier1",
     "n_items": 19,
@@ -24,7 +24,7 @@
     "candidates": ["low self-esteem", "learned hopelessness", "despondency"]
   },
   {
-    "factor": "MR3",
+    "factor": "MR1",
     "label": "embarrassment",
     "rule": "tier1",
     "n_items": 7,

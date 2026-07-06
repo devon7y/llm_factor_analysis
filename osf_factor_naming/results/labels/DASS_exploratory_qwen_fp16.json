@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR3",
+    "factor": "MR2",
     "label": "irritability",
     "rule": "tier1",
     "n_items": 20,
@@ -8,7 +8,7 @@
     "candidates": ["irritability", "irascibility"]
   },
   {
-    "factor": "MR2",
+    "factor": "MR3",
     "label": "depression",
     "rule": "tier1",
     "n_items": 14,

@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR2",
+    "factor": "MR3",
     "label": "justice as fairness",
     "rule": "top1",
     "n_items": 9,
@@ -8,7 +8,7 @@
     "candidates": ["justice as fairness", "social egalitarianism"]
   },
   {
-    "factor": "MR3",
+    "factor": "MR4",
     "label": "disloyalty",
     "rule": "tier1",
     "n_items": 7,
@@ -16,7 +16,7 @@
     "candidates": ["loyalty test", "disloyalty", "tribal loyalty"]
   },
   {
-    "factor": "MR1",
+    "factor": "MR2",
     "label": "squeamishness",
     "rule": "tier1",
     "n_items": 6,
@@ -24,7 +24,7 @@
     "candidates": ["sexual disgust", "moral disgust", "squeamishness"]
   },
   {
-    "factor": "MR5",
+    "factor": "MR1",
     "label": "exposure to discrimination",
     "rule": "top1",
     "n_items": 5,
@@ -32,7 +32,7 @@
     "candidates": ["exposure to discrimination", "symptoms of victimization"]
   },
   {
-    "factor": "MR4",
+    "factor": "MR5",
     "label": "compassion",
     "rule": "tier1",
     "n_items": 3,

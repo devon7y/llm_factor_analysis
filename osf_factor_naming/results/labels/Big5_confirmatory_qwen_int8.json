@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR2",
+    "factor": "MR5",
     "label": "emotional instability",
     "rule": "top1",
     "n_items": 12,
@@ -8,7 +8,7 @@
     "candidates": "emotional instability"
   },
   {
-    "factor": "MR5",
+    "factor": "MR1",
     "label": "conscientiousness",
     "rule": "tier1",
     "n_items": 14,
@@ -16,7 +16,7 @@
     "candidates": ["structured procrastination", "conscientiousness"]
   },
   {
-    "factor": "MR1",
+    "factor": "MR2",
     "label": "reclusiveness",
     "rule": "tier1",
     "n_items": 9,

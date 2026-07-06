@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR2",
+    "factor": "MR1",
     "label": "antisocial personality trait",
     "rule": "top1",
     "n_items": 15,
@@ -8,7 +8,7 @@
     "candidates": ["antisocial personality trait", "trauma symptom inventory", "victimization symptoms"]
   },
   {
-    "factor": "MR1",
+    "factor": "MR2",
     "label": "justice as fairness",
     "rule": "top1",
     "n_items": 14,

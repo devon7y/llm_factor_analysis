@@ -44,20 +44,20 @@ TMA,Anxiety,anxiety,R1 documented construct + R5 instrument title (Taylor Manife
 TMA,Anxiety,manifest anxiety,R5 instrument title construct
 TMA,Anxiety,anxiousness,R2 morphological variant
 BDI,Depression,depression,R1 documented construct + R5 instrument title (Beck Depression Inventory)
-EPQ,Extraversion,extraversion,R1 documented scale name
-EPQ,Extraversion,extroversion,R2 orthographic variant
-EPQ,Extraversion,introversion,R4 reverse-pole antonym
-EPQ,Neuroticism,neuroticism,R1 documented scale name
-EPQ,Neuroticism,emotionality,R1 alternative label in EPQ documentation (Neuroticism or Emotionality)
-EPQ,Neuroticism,emotional instability,R2 standard equivalent of the documented label
-EPQ,Sociability,sociability,R1 documented subscale name
-EPQ,Sociability,sociableness,R2 morphological variant
-EPQ,Sociability,unsociability,R4 reverse-pole antonym
-EPQ,Impulsivity,impulsivity,R1 documented subscale name
-EPQ,Impulsivity,impulsiveness,R2 morphological variant
-EPQ,Lie,lie,R1 documented scale name
-EPQ,Lie,lying,R2 morphological variant
-EPQ,Lie,dishonesty,R2 construct noun for the documented Lie-scale disposition
+EPI,Extraversion,extraversion,R1 documented scale name
+EPI,Extraversion,extroversion,R2 orthographic variant
+EPI,Extraversion,introversion,R4 reverse-pole antonym
+EPI,Neuroticism,neuroticism,R1 documented scale name
+EPI,Neuroticism,emotionality,R1 alternative label in EPI documentation (Neuroticism or Emotionality)
+EPI,Neuroticism,emotional instability,R2 standard equivalent of the documented label
+EPI,Sociability,sociability,R1 documented subscale name
+EPI,Sociability,sociableness,R2 morphological variant
+EPI,Sociability,unsociability,R4 reverse-pole antonym
+EPI,Impulsivity,impulsivity,R1 documented subscale name
+EPI,Impulsivity,impulsiveness,R2 morphological variant
+EPI,Lie,lie,R1 documented scale name
+EPI,Lie,lying,R2 morphological variant
+EPI,Lie,dishonesty,R2 construct noun for the documented Lie-scale disposition
 OSRI,Masculinity,masculinity,R1 documented scale name
 OSRI,Femininity,femininity,R1 documented scale name
 TAS-20,DIF,difficulty identifying feelings,R1 documented subscale name

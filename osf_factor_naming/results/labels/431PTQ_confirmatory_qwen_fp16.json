@@ -1,18 +1,18 @@
 [
   {
+    "factor": "MR2",
+    "label": "trait anxiety",
+    "rule": "top1",
+    "n_items": 18,
+    "collision_moved": false,
+    "candidates": ["trait anxiety", "status anxiety"]
+  },
+  {
     "factor": "MR1",
     "label": "procrastination",
     "rule": "tier1",
-    "n_items": 28,
+    "n_items": 10,
     "collision_moved": false,
-    "candidates": ["academic procrastination", "procrastination"]
-  },
-  {
-    "factor": "MR2",
-    "label": "sleep procrastination",
-    "rule": "top1",
-    "n_items": 13,
-    "collision_moved": true,
-    "candidates": ["procrastination", "sleep procrastination"]
+    "candidates": "procrastination"
   }
 ]

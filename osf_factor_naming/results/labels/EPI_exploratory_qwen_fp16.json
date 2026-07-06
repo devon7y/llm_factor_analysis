@@ -1,6 +1,6 @@
 [
   {
-    "factor": "MR3",
+    "factor": "MR8",
     "label": "health anxiety",
     "rule": "top1",
     "n_items": 24,
@@ -8,7 +8,7 @@
     "candidates": ["health anxiety", "psychosomatic assessment", "major depressive inventory"]
   },
   {
-    "factor": "MR2",
+    "factor": "MR7",
     "label": "impulsiveness",
     "rule": "tier1",
     "n_items": 13,
@@ -16,7 +16,7 @@
     "candidates": ["impulsiveness", "mental processing speed"]
   },
   {
-    "factor": "MR5",
+    "factor": "MR6",
     "label": "conviviality",
     "rule": "tier1",
     "n_items": 8,
@@ -24,7 +24,7 @@
     "candidates": ["social pleasure", "party motivator", "conviviality"]
   },
   {
-    "factor": "MR1",
+    "factor": "MR3",
     "label": "love of books",
     "rule": "top1",
     "n_items": 8,
@@ -32,7 +32,7 @@
     "candidates": "love of books"
   },
   {
-    "factor": "MR7",
+    "factor": "MR2",
     "label": "hostile aggression",
     "rule": "top1",
     "n_items": 8,
@@ -43,12 +43,12 @@
     "factor": "MR4",
     "label": "social phobia",
     "rule": "tier1",
-    "n_items": 8,
+    "n_items": 7,
     "collision_moved": false,
     "candidates": ["social shyness", "social phobia"]
   },
   {
-    "factor": "MR6",
+    "factor": "MR9",
     "label": "excitement seeking",
     "rule": "top1",
     "n_items": 5,
@@ -56,19 +56,19 @@
     "candidates": "excitement seeking"
   },
   {
-    "factor": "MR8",
+    "factor": "MR1",
     "label": "daring",
     "rule": "tier1",
     "n_items": 3,
     "collision_moved": false,
-    "candidates": ["test of courage", "moral courage", "thrill seeking", "daring"]
+    "candidates": ["test of courage", "thrill seeking", "moral courage", "daring"]
   },
   {
-    "factor": "MR9",
-    "label": "loneliness",
-    "rule": "tier1",
-    "n_items": 2,
+    "factor": "MR5",
+    "label": "intrusive sexual thoughts",
+    "rule": "top1",
+    "n_items": 1,
     "collision_moved": false,
-    "candidates": ["social isolation", "loneliness"]
+    "candidates": "intrusive sexual thoughts"
   }
 ]

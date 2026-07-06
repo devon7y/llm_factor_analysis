@@ -207,69 +207,69 @@
 "explore_cross","BDI","MR1","Depression",1,6,"reduced sodium salt","top1",FALSE,3,"reduced sodium salt; low social class; decreased locomotion",FALSE,FALSE
 "explore_qwen","BDI","MR2","Depression",1,15,"neuroticism","tier1",FALSE,3,"neuroticism trait; psychological construct; neuroticism",FALSE,FALSE
 "explore_qwen","BDI","MR1","Depression",1,6,"low sexual interest","top1",FALSE,1,"low sexual interest",FALSE,FALSE
-"cross_fp16","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
-"cross_fp16","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
-"cross_fp16","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_fp16","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_fp16","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
-"cross_int8","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
-"cross_int8","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
-"cross_int8","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_int8","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_int8","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,4,"dishonesty; honesty; ethical conflict; risk taking",TRUE,TRUE
-"cross_rerun","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
-"cross_rerun","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
-"cross_rerun","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_rerun","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_rerun","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
-"cross_nokeeper","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
-"cross_nokeeper","EPQ","MR1","Sociability",0.444,18,"extroversion","tier1",FALSE,2,"intrusion countermeasures electronics; extroversion",FALSE,FALSE
-"cross_nokeeper","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_nokeeper","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_nokeeper","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
-"cross_inst2","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; health assessment; anxiety reaction",FALSE,FALSE
-"cross_inst2","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social affinity",FALSE,FALSE
-"cross_inst2","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_inst2","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_inst2","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; risk taking; honesty",TRUE,TRUE
-"cross_inst3","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; neurotic anxiety state; anxiety reaction",FALSE,FALSE
-"cross_inst3","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
-"cross_inst3","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"cross_inst3","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_inst3","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"risk taking; honesty; dishonesty",TRUE,TRUE
-"cross_inst4","EPQ","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,2,"anxiety syndromes; anxiety reaction",FALSE,FALSE
-"cross_inst4","EPQ","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,1,"intrusion countermeasures electronics",FALSE,FALSE
-"cross_inst4","EPQ","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,2,"extroversion; social pleasure",TRUE,TRUE
-"cross_inst4","EPQ","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"cross_inst4","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
-"qwen_fp16","EPQ","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
-"qwen_fp16","EPQ","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
-"qwen_fp16","EPQ","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
-"qwen_fp16","EPQ","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
-"qwen_fp16","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
-"qwen_int8","EPQ","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
-"qwen_int8","EPQ","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
-"qwen_int8","EPQ","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
-"qwen_int8","EPQ","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
-"qwen_int8","EPQ","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
-"explore_cross","EPQ","MR8","Neuroticism",0.833,24,"anxiety reaction","tier1",FALSE,2,"health assessment; anxiety reaction",FALSE,FALSE
-"explore_cross","EPQ","MR7","Extraversion",0.462,13,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
-"explore_cross","EPQ","MR6","Extraversion",0.5,8,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
-"explore_cross","EPQ","MR3","Extraversion",0.5,8,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social informational influence",FALSE,FALSE
-"explore_cross","EPQ","MR2","Extraversion",0.375,8,"hostility","tier1",FALSE,3,"hostile aggression; cruel lag; hostility",FALSE,FALSE
-"explore_cross","EPQ","MR4","Sociability",0.429,7,"shyness","tier1",FALSE,2,"social signal; shyness",FALSE,FALSE
-"explore_cross","EPQ","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
-"explore_cross","EPQ","MR1","Extraversion",0.333,3,"sensational literature","top1",FALSE,2,"sensational literature; risk sharing",FALSE,FALSE
-"explore_cross","EPQ","MR5","Lie",1,1,"secrecy","tier1",FALSE,2,"forbidden topic; secrecy",FALSE,FALSE
-"explore_qwen","EPQ","MR8","Neuroticism",0.833,24,"health anxiety","top1",FALSE,3,"health anxiety; psychosomatic assessment; major depressive inventory",FALSE,FALSE
-"explore_qwen","EPQ","MR7","Extraversion",0.462,13,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental processing speed",FALSE,FALSE
-"explore_qwen","EPQ","MR6","Extraversion",0.5,8,"conviviality","tier1",FALSE,3,"social pleasure; party motivator; conviviality",FALSE,FALSE
-"explore_qwen","EPQ","MR3","Extraversion",0.5,8,"love of books","top1",FALSE,1,"love of books",FALSE,FALSE
-"explore_qwen","EPQ","MR2","Extraversion",0.375,8,"hostile aggression","top1",FALSE,2,"hostile aggression; hostile behavior",FALSE,FALSE
-"explore_qwen","EPQ","MR4","Sociability",0.429,7,"social phobia","tier1",FALSE,2,"social shyness; social phobia",FALSE,FALSE
-"explore_qwen","EPQ","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
-"explore_qwen","EPQ","MR1","Extraversion",0.333,3,"daring","tier1",FALSE,4,"test of courage; thrill seeking; moral courage; daring",FALSE,FALSE
-"explore_qwen","EPQ","MR5","Lie",1,1,"intrusive sexual thoughts","top1",FALSE,1,"intrusive sexual thoughts",FALSE,FALSE
+"cross_fp16","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_fp16","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_fp16","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_fp16","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_fp16","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_int8","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_int8","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_int8","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_int8","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_int8","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,4,"dishonesty; honesty; ethical conflict; risk taking",TRUE,TRUE
+"cross_rerun","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_rerun","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_rerun","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_rerun","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_rerun","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_nokeeper","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,1,"anxiety reaction",FALSE,FALSE
+"cross_nokeeper","EPI","MR1","Sociability",0.444,18,"extroversion","tier1",FALSE,2,"intrusion countermeasures electronics; extroversion",FALSE,FALSE
+"cross_nokeeper","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_nokeeper","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_nokeeper","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"cross_inst2","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; health assessment; anxiety reaction",FALSE,FALSE
+"cross_inst2","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social affinity",FALSE,FALSE
+"cross_inst2","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_inst2","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst2","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; risk taking; honesty",TRUE,TRUE
+"cross_inst3","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,3,"anxiety syndromes; neurotic anxiety state; anxiety reaction",FALSE,FALSE
+"cross_inst3","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",TRUE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_inst3","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"cross_inst3","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst3","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"risk taking; honesty; dishonesty",TRUE,TRUE
+"cross_inst4","EPI","MR5","Neuroticism",0.595,37,"anxiety reaction","tier1",FALSE,2,"anxiety syndromes; anxiety reaction",FALSE,FALSE
+"cross_inst4","EPI","MR1","Sociability",0.444,18,"intrusion countermeasures electronics","top1",FALSE,1,"intrusion countermeasures electronics",FALSE,FALSE
+"cross_inst4","EPI","MR4","Extraversion",0.545,11,"extroversion","tier1",FALSE,2,"extroversion; social pleasure",TRUE,TRUE
+"cross_inst4","EPI","MR3","Extraversion",0.5,8,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"cross_inst4","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"dishonesty; honesty; risk taking",TRUE,TRUE
+"qwen_fp16","EPI","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
+"qwen_fp16","EPI","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
+"qwen_fp16","EPI","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
+"qwen_fp16","EPI","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
+"qwen_fp16","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
+"qwen_int8","EPI","MR5","Neuroticism",0.595,37,"psychosomatic assessment","top1",FALSE,1,"psychosomatic assessment",FALSE,FALSE
+"qwen_int8","EPI","MR1","Sociability",0.444,18,"sociability","tier1",FALSE,3,"social withdrawal; psychology introversion; sociability",TRUE,TRUE
+"qwen_int8","EPI","MR4","Extraversion",0.545,11,"conviviality","tier1",FALSE,2,"social pleasure; conviviality",FALSE,FALSE
+"qwen_int8","EPI","MR3","Extraversion",0.5,8,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental quickness",FALSE,FALSE
+"qwen_int8","EPI","MR2","Lie",0.6,5,"dishonesty","tier1",FALSE,3,"moral courage; dishonesty; test of courage",TRUE,TRUE
+"explore_cross","EPI","MR8","Neuroticism",0.833,24,"anxiety reaction","tier1",FALSE,2,"health assessment; anxiety reaction",FALSE,FALSE
+"explore_cross","EPI","MR7","Extraversion",0.462,13,"impulsivity","tier1",FALSE,1,"impulsivity",FALSE,FALSE
+"explore_cross","EPI","MR6","Extraversion",0.5,8,"extroversion","tier1",FALSE,1,"extroversion",TRUE,TRUE
+"explore_cross","EPI","MR3","Extraversion",0.5,8,"intrusion countermeasures electronics","top1",FALSE,2,"intrusion countermeasures electronics; social informational influence",FALSE,FALSE
+"explore_cross","EPI","MR2","Extraversion",0.375,8,"hostility","tier1",FALSE,3,"hostile aggression; cruel lag; hostility",FALSE,FALSE
+"explore_cross","EPI","MR4","Sociability",0.429,7,"shyness","tier1",FALSE,2,"social signal; shyness",FALSE,FALSE
+"explore_cross","EPI","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
+"explore_cross","EPI","MR1","Extraversion",0.333,3,"sensational literature","top1",FALSE,2,"sensational literature; risk sharing",FALSE,FALSE
+"explore_cross","EPI","MR5","Lie",1,1,"secrecy","tier1",FALSE,2,"forbidden topic; secrecy",FALSE,FALSE
+"explore_qwen","EPI","MR8","Neuroticism",0.833,24,"health anxiety","top1",FALSE,3,"health anxiety; psychosomatic assessment; major depressive inventory",FALSE,FALSE
+"explore_qwen","EPI","MR7","Extraversion",0.462,13,"impulsiveness","tier1",FALSE,2,"impulsiveness; mental processing speed",FALSE,FALSE
+"explore_qwen","EPI","MR6","Extraversion",0.5,8,"conviviality","tier1",FALSE,3,"social pleasure; party motivator; conviviality",FALSE,FALSE
+"explore_qwen","EPI","MR3","Extraversion",0.5,8,"love of books","top1",FALSE,1,"love of books",FALSE,FALSE
+"explore_qwen","EPI","MR2","Extraversion",0.375,8,"hostile aggression","top1",FALSE,2,"hostile aggression; hostile behavior",FALSE,FALSE
+"explore_qwen","EPI","MR4","Sociability",0.429,7,"social phobia","tier1",FALSE,2,"social shyness; social phobia",FALSE,FALSE
+"explore_qwen","EPI","MR9","Extraversion",0.4,5,"excitement seeking","top1",FALSE,1,"excitement seeking",FALSE,FALSE
+"explore_qwen","EPI","MR1","Extraversion",0.333,3,"daring","tier1",FALSE,4,"test of courage; thrill seeking; moral courage; daring",FALSE,FALSE
+"explore_qwen","EPI","MR5","Lie",1,1,"intrusive sexual thoughts","top1",FALSE,1,"intrusive sexual thoughts",FALSE,FALSE
 "cross_fp16","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE
 "cross_fp16","OSRI","MR1","Masculinity",0.75,12,"interest","tier1",FALSE,3,"interest; militarism in japan; military caste",FALSE,FALSE
 "cross_int8","OSRI","MR2","Femininity",0.5,20,"opera basic topics","top1",FALSE,4,"opera basic topics; excitement seeking; sensational literature; psychological extraversion",FALSE,FALSE

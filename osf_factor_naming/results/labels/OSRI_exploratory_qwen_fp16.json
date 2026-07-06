@@ -1,18 +1,18 @@
 [
   {
-    "factor": "MR1",
-    "label": "psychological construct",
+    "factor": "MR2",
+    "label": "sensation seeking",
     "rule": "top1",
-    "n_items": 20,
+    "n_items": 13,
     "collision_moved": false,
-    "candidates": "psychological construct"
+    "candidates": ["sensation seeking", "excitement seeking", "psychological excitement", "psychology of war", "military psychology"]
   },
   {
-    "factor": "MR2",
-    "label": "psychology of war",
+    "factor": "MR1",
+    "label": "embedded generosity",
     "rule": "top1",
-    "n_items": 12,
+    "n_items": 7,
     "collision_moved": false,
-    "candidates": ["psychology of war", "military psychology", "interest in sports"]
+    "candidates": ["embedded generosity", "self-expression values"]
   }
 ]
